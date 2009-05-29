@@ -8,50 +8,50 @@ use YAML qw[Load LoadFile];
 
 our $VERSION = '0.01';
 
-our $defaults = Load(join('',<DATA>));
+our $defaults = Load(join('', <DATA>));
 
 sub new {
     my $class = shift;
     my $overrides;
-    
+
     if (@_ == 1) {
         $overrides = LoadFile($_[0]);
     } else {
         $overrides = {@_};
     }
-    
+
     my $self = {};
     bless $self, $class;
-    
-    $self->deepcopy($self,$defaults);
-    $self->deepcopy($self,$overrides);
-    
+
+    $self->deepcopy($self, $defaults);
+    $self->deepcopy($self, $overrides);
+
     return $self;
 }
 
 sub get {
     my $self = shift;
     my @keys = @_;
-    
+
     while (@keys) {
         my $k = shift @keys;
-        $self = $self->{$k}
+        $self = $self->{$k};
     }
-    
+
     return $self;
 }
 
 sub set {
     my $self = shift;
-    my $val = shift;
+    my $val  = shift;
     my @keys = @_;
-    
+
     while (@keys > 1) {
         my $k = shift @keys;
-        $self = $self->{$k}
+        $self = $self->{$k};
     }
-    
-    $self->{$keys[0]} = $val;
+
+    $self->{ $keys[0] } = $val;
 }
 
 # Helper methods
@@ -59,11 +59,14 @@ sub set {
 sub deepcopy {
     my $self = shift;
     my ($target, $source) = @_;
-    
-    while (my ($k,$v) = each %$source) {
+
+    while (my ($k, $v) = each %$source) {
         if (!ref($v) or ref($v) ne 'HASH') {
-            $target->{$k} = $v
-        } elsif (!defined($target->{$k}) or !ref($target->{$k}) or ref($target->{$k}) ne 'HASH') {
+            $target->{$k} = $v;
+        } elsif (!defined($target->{$k})
+            or !ref($target->{$k})
+            or ref($target->{$k}) ne 'HASH')
+        {
             $target->{$k} = {};
             $self->deepcopy($target->{$k}, $v);
         } else {
