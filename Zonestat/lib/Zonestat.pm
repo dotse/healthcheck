@@ -4,11 +4,23 @@ use 5.008008;
 use strict;
 use warnings;
 
+use Zonestat::Config;
+
 our $VERSION = '0.01';
 
 sub new {
     my $class = shift;
     my $self = bless {}, $class;
+    
+    $self->{conf} = Zonestat::Config->new(@_);
+    
+    return $self;
+}
+
+sub cget {
+    my $self = shift;
+    
+    return $self->{conf}->get(@_);
 }
 
 1;

@@ -134,9 +134,33 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 __DATA__
+
 dbi:
     host: 127.0.0.1
     port: 3306
     database: dnscheck
     user: dnscheck
     password: dnscheck
+
+zone:
+    name: se.
+    servers:
+        - philby.nic.se
+        - burgess.nic.se
+    flagdomains:
+        - aaanicsecontrolzoneadfasldkjfansjjhjlhd.se
+        - dddnicsecontrolzonedfalksdjflkasdlkfjad.se
+        - gggnicsecontrolzonehalskjdfhakjlsdfaskd.se
+        - kkknicsecontrolzonentvsadfksajdshfajsdd.se
+        - nnnnicsecontrolzoneahsdqibwbercvhufasbd.se
+        - ooonicsecontrolzoneefuqasdfajewkfdgyyfd.se
+        - qqqnicsecontrolzonegqfyegfudoqwegfhjdsa.se
+        - tttnicsecontrolzonefqwgeufyqewyefygasdf.se
+        - vvvnicsecontrolzoneqwrfiuqhurwhdfuasads.se
+        - xxxnicsecontrolzoneqifilqwiehefqwdfasda.se
+    datafile: /var/tmp/se.zone
+    tsig: dummy
+
+programs:
+    dig: /usr/bin/dig
+
