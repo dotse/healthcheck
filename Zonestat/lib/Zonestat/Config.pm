@@ -162,7 +162,7 @@ zone:
         - vvvnicsecontrolzoneqwrfiuqhurwhdfuasads.se
         - xxxnicsecontrolzoneqifilqwiehefqwdfasda.se
     datafile: /var/tmp/se.zone
-    tsig: dummy
+    tsig: test.key:tsig:WW91IGFjdHVhbGx5IGJvdGhlcmVkIHRvIGRlY29kZSB0aGlzPw==
 
 programs:
     dig: /usr/bin/dig

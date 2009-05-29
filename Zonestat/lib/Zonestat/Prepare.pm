@@ -8,6 +8,64 @@ use base 'Zonestat::Common';
 
 our $VERSION = '0.01';
 
+sub all {
+    my $self = shift;
+
+    if ($self->fetch_zone) {
+        $self->db_import_zone;
+    }
+}
+
+sub fetch_zone {
+    my $self = shift;
+
+    my $dig  = $self->cget(qw[programs dig]);
+    my $zcfg = $self->cget('zone');
+
+    foreach my $server (@{ $zcfg->{servers} }) {
+        my $cmd = sprintf("%s -y %s axfr %s @%s > %s",
+            $dig, $zcfg->{tsig}, $zcfg->{name}, $server, $zcfg->{datafile});
+        system $cmd;
+        open my $zfile, '<', $zcfg->{datafile}
+          or die "Failed to open " . $zcfg->{datafile} . ": $!\n";
+        my %flags = map { $_, 0 } @{ $zcfg->{flagdomains} };
+        while (defined(my $line = <$zfile>)) {
+            next unless $line =~ /^(\S+?)\.\s+/;
+            if (exist($flags{$1})) {
+                $flags{$1} = 1;
+            }
+        }
+        if (scalar(grep { $flags{$_} } keys %flags) == scalar(keys %flags)) {
+            return 1;    # File downloaded with all flag domains
+        }
+    }
+
+    return 0;            # Got broken files from all servers
+}
+
+sub db_import_zone {
+    my $self = shift;
+
+    my $dbh = $self->dbh;
+    open my $fh, '<', $self->cget(qw[zone datafile])
+      or die "Failed to open zone file: $!\n";
+    $dbh->begin_work;
+    $dbh->do(q[delete from zone]);
+    my $sth = $dbh->prepare(
+        q[insert ignore into zone (name,ttl,class,type,data) values (?,?,?,?,?)]
+    );
+    while (defined(my $line = <$fh>)) {
+        next if $line =~ /^\s*;/;    # Skip comment lines
+        my ($name, $ttl, $class, $type, $data) = split(/\s+/, $line);
+        $sth->execute($name, $ttl, $class, $type, $data);
+    }
+    $dbh->commit;
+    $dbh->start_work;
+    $dbh->do(q[delete from domains]);
+    $dbh->do(q[insert into domains(domain) select distinct name from zone]);
+    $dbh->commit;
+}
+
 1;
 __END__
 

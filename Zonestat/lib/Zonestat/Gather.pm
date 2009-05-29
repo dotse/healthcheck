@@ -4,9 +4,20 @@ use 5.008008;
 use strict;
 use warnings;
 
+use DNSCheck;
+
 use base 'Zonestat::Common';
 
 our $VERSION = '0.01';
+
+sub dnscheck_zone {
+    my $self = shift;
+
+}
+
+sub get_zone_list {
+    my $self = shift;
+}
 
 1;
 __END__
