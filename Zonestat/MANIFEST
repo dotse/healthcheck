@@ -1,6 +1,15 @@
 Changes
+lib/Zonestat.pm
+lib/Zonestat/Config.pm
+lib/Zonestat/Gather.pm
+lib/Zonestat/Prepare.pm
+lib/Zonestat/Present.pm
 Makefile.PL
 MANIFEST
 README
+t/Config.t
+t/Config.yaml
+t/Gather.t
+t/Prepare.t
+t/Present.t
 t/Zonestat.t
-lib/Zonestat.pm

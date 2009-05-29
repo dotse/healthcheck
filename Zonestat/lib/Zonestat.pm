@@ -6,6 +6,10 @@ use warnings;
 
 our $VERSION = '0.01';
 
+sub new {
+    my $class = shift;
+    my $self = bless {}, $class;
+}
 
 1;
 __END__
