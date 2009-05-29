@@ -1,5 +1,6 @@
 Changes
 lib/Zonestat.pm
+lib/Zonestat/Common.pm
 lib/Zonestat/Config.pm
 lib/Zonestat/Gather.pm
 lib/Zonestat/Prepare.pm
@@ -13,3 +14,5 @@ t/Gather.t
 t/Prepare.t
 t/Present.t
 t/Zonestat.t
+util/perltidyrc
+util/tidy.sh

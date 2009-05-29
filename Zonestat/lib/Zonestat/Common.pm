@@ -1,23 +1,32 @@
-package Zonestat::Present;
+package Zonestat::Common;
 
 use 5.008008;
 use strict;
 use warnings;
 
-use base 'Zonestat::Common';
-
 our $VERSION = '0.01';
+
+sub new {
+    my $class = shift;
+    return bless { parent => shift }, $class;
+}
+
+sub cget {
+    my $self = shift;
+
+    return $self->{parent}->cget(@_);
+}
 
 1;
 __END__
 
 =head1 NAME
 
-Zonestat::Present - present gathered statistics
+Zonestat::Common - parent module for the worker modules.
 
 =head1 SYNOPSIS
 
-  use Zonestat::Present;
+  use base 'Zonestat::Common';
 
 =head1 DESCRIPTION
 

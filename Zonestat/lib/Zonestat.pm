@@ -5,6 +5,10 @@ use strict;
 use warnings;
 
 use Zonestat::Config;
+use Zonestat::Common;
+use Zonestat::Prepare;
+use Zonestat::Gather;
+use Zonestat::Present;
 
 our $VERSION = '0.01';
 
@@ -12,7 +16,10 @@ sub new {
     my $class = shift;
     my $self = bless {}, $class;
 
-    $self->{conf} = Zonestat::Config->new(@_);
+    $self->{conf}    = Zonestat::Config->new(@_);
+    $self->{prepare} = Zonestat::Prepare->new($self);
+    $self->{gather}  = Zonestat::Gather->new($self);
+    $self->{present} = Zonestat::Present->new($self);
 
     return $self;
 }
@@ -21,6 +28,21 @@ sub cget {
     my $self = shift;
 
     return $self->{conf}->get(@_);
+}
+
+sub prepare {
+    my $self = shift;
+    return $self->{prepare};
+}
+
+sub gather {
+    my $self = shift;
+    return $self->{gather};
+}
+
+sub present {
+    my $self = shift;
+    return $self->{present};
 }
 
 1;
