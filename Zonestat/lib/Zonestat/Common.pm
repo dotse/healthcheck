@@ -29,7 +29,7 @@ sub dbh {
         $c->{"database"}, $c->{"host"}, $c->{"port"});
     my $dbh =
       DBI->connect($dsn, $c->{user}, $c->{password},
-        { AutoRaise => 1, AutoCommit => 1 });
+        { RaiseError => 1, AutoCommit => 1 });
     die "Failed to connect to database: " . $DBI::errstr . "\n"
       unless defined($dbh);
     $self->{dbh} = $dbh;

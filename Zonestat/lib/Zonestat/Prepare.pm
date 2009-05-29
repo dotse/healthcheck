@@ -55,12 +55,14 @@ sub db_import_zone {
         q[insert ignore into zone (name,ttl,class,type,data) values (?,?,?,?,?)]
     );
     while (defined(my $line = <$fh>)) {
+	chomp($line);
+	next if $line =~ /^\s*$/;
         next if $line =~ /^\s*;/;    # Skip comment lines
-        my ($name, $ttl, $class, $type, $data) = split(/\s+/, $line);
+        my ($name, $ttl, $class, $type, $data) = split(/\s+/, $line, 5);
         $sth->execute($name, $ttl, $class, $type, $data);
     }
     $dbh->commit;
-    $dbh->start_work;
+    $dbh->begin_work;
     $dbh->do(q[delete from domains]);
     $dbh->do(q[insert into domains(domain) select distinct name from zone]);
     $dbh->commit;
