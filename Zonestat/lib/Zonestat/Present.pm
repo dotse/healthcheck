@@ -20,9 +20,9 @@ q[select count(distinct(test_id)) from results where message = 'NAMESERVER:NOT_A
     );
 }
 
-sub domains_with_message_by_level {
+sub number_of_domains_with_message {
     my $self = shift;
-    my ($message) = @_;
+    my $message = shift || 'ERROR';
 
     return @{
         $self->dbh->selectall_arrayref(
