@@ -55,8 +55,8 @@ sub db_import_zone {
         q[insert ignore into zone (name,ttl,class,type,data) values (?,?,?,?,?)]
     );
     while (defined(my $line = <$fh>)) {
-	chomp($line);
-	next if $line =~ /^\s*$/;
+        chomp($line);
+        next if $line =~ /^\s*$/;
         next if $line =~ /^\s*;/;    # Skip comment lines
         my ($name, $ttl, $class, $type, $data) = split(/\s+/, $line, 5);
         $sth->execute($name, $ttl, $class, $type, $data);

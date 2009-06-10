@@ -10,13 +10,22 @@ use base 'Zonestat::Common';
 
 our $VERSION = '0.01';
 
-sub dnscheck_zone {
+sub start_dnscheck_zone {
     my $self = shift;
 
+    $self->dbh->do(
+q[INSERT INTO queue (domain, priority, source_id) SELECT domain, 4, ? FROM domains ORDER BY rand()],
+        undef, $self->get_dnscheck_source_id
+    );
 }
 
 sub get_zone_list {
     my $self = shift;
+
+    map { $_->[0] } @{
+        $self->dbh->selectall_arrayref(
+            q[SELECT domain FROM domains ORDER BY domain ASC])
+      };
 }
 
 1;

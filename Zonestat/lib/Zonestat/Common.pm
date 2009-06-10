@@ -7,6 +7,8 @@ use warnings;
 use DBI;
 
 our $VERSION = '0.01';
+my $source_id_string  = q[Zonestat];
+my $source_id_contact = q[calle@init.se];
 
 sub new {
     my $class = shift;
@@ -34,6 +36,22 @@ sub dbh {
       unless defined($dbh);
     $self->{dbh} = $dbh;
     return $dbh;
+}
+
+sub get_dnscheck_source_id {
+    my $self = shift;
+    my $dbh  = $self->dbh;
+
+    $dbh->do(q[INSERT IGNORE INTO source (name, contact) VALUES (?,?)],
+        undef, $source_id_string, $source_id_contact);
+    return (
+        (
+            $dbh->selectrow_array(
+                q[SELECT id FROM source WHERE name = ?], undef,
+                $source_id_string
+            )
+        )[0]
+    );
 }
 
 1;
