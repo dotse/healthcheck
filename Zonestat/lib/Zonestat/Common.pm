@@ -15,6 +15,12 @@ sub new {
     return bless { parent => shift }, $class;
 }
 
+sub parent {
+    my $self = shift;
+
+    return $self->{parent};
+}
+
 sub cget {
     my $self = shift;
 
@@ -38,20 +44,47 @@ sub dbh {
     return $dbh;
 }
 
-sub get_dnscheck_source_id {
+sub source_id {
     my $self = shift;
-    my $dbh  = $self->dbh;
 
-    $dbh->do(q[INSERT IGNORE INTO source (name, contact) VALUES (?,?)],
-        undef, $source_id_string, $source_id_contact);
-    return (
-        (
-            $dbh->selectrow_array(
-                q[SELECT id FROM source WHERE name = ?], undef,
-                $source_id_string
+    if (!defined($self->parent->{source_id})) {
+        my $dbh = $self->dbh;
+
+        $dbh->do(q[INSERT IGNORE INTO source (name, contact) VALUES (?,?)],
+            undef, $source_id_string, $source_id_contact);
+        $self->parent->{source_id} = (
+            (
+                $dbh->selectrow_array(
+                    q[SELECT id FROM source WHERE name = ?], undef,
+                    $source_id_string
+                )
+            )[0]
+        );
+    }
+    return $self->parent->{source_id};
+}
+
+sub set_run_id {
+    my $self = shift;
+
+    $self->parent->{run_id} = $_[0];
+}
+
+sub run_id {
+    my $self = shift;
+
+    if (!defined($self->parent->{run_id})) {
+        my $tmp = (
+            $self->dbh->selectrow_array(
+                q[
+            SELECT MAX(source_data) FROM tests WHERE source_id = ?
+            ], undef, $self->source_id
             )
-        )[0]
-    );
+        )[0];
+        $self->parent->{run_id} = ++$tmp;
+    }
+
+    return $self->parent->{run_id};
 }
 
 1;

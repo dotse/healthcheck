@@ -8,6 +8,30 @@ use base 'Zonestat::Common';
 
 our $VERSION = '0.01';
 
+sub lame_delegated_domains {
+    my $self = shift;
+
+    return (
+        (
+            $self->dbh->selectrow_array(
+q[select count(distinct(test_id)) from results where message = 'NAMESERVER:NOT_AUTH']
+            )
+        )[0]
+    );
+}
+
+sub domains_with_message_by_level {
+    my $self = shift;
+    my ($message) = @_;
+
+    return @{
+        $self->dbh->selectall_arrayref(
+q[SELECT message, COUNT(DISTINCT(test_id)) AS cdt FROM results WHERE level = ? GROUP BY message ORDER BY cdt DESC],
+            undef, $message
+        )
+      };
+}
+
 1;
 __END__
 

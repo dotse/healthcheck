@@ -14,8 +14,8 @@ sub start_dnscheck_zone {
     my $self = shift;
 
     $self->dbh->do(
-q[INSERT INTO queue (domain, priority, source_id) SELECT domain, 4, ? FROM domains ORDER BY rand()],
-        undef, $self->get_dnscheck_source_id
+q[INSERT INTO queue (domain, priority, source_id, source_data) SELECT domain, 4, ?, ? FROM domains ORDER BY rand()],
+        undef, $self->source_id, $self->run_id
     );
 }
 
