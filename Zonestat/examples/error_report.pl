@@ -5,9 +5,10 @@ use strict;
 
 use Zonestat;
 
-my $zs = Zonestat->new('/opt/local/share/dnscheck/site_config.yaml');
+my $zs   = Zonestat->new('/opt/local/share/dnscheck/site_config.yaml');
 my @data = $zs->present->number_of_domains_with_message;
+my $total = $zs->present->total_tested_domains;
 
 foreach my $i (@data) {
-    printf("%5d: %s\n", $i->[1], $i->[0]);
+    printf("%5.2f%% %s\n", ($i->[1]/$total)*100, $i->[0]);
 }
