@@ -29,15 +29,10 @@ sub cget {
 
 sub dbh {
     my $self = shift;
-    my $c    = $self->cget('dbi');
 
     return $self->{dbh} if (defined($self->{dbh}) and $self->{dbh}->ping);
 
-    my $dsn = sprintf("DBI:mysql:database=%s;hostname=%s;port=%s",
-        $c->{"database"}, $c->{"host"}, $c->{"port"});
-    my $dbh =
-      DBI->connect($dsn, $c->{user}, $c->{password},
-        { RaiseError => 1, AutoCommit => 1 });
+    my $dbh = DBI->connect($self->parent->dbconfig, { RaiseError => 1, AutoCommit => 1 });
     die "Failed to connect to database: " . $DBI::errstr . "\n"
       unless defined($dbh);
     $self->{dbh} = $dbh;

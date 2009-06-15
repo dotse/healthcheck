@@ -54,6 +54,14 @@ sub set {
     $self->{ $keys[0] } = $val;
 }
 
+sub db {
+    my $self = shift;
+    my $c = $self->get('dbi');
+    
+    return (sprintf("DBI:mysql:database=%s;hostname=%s;port=%s",
+        $c->{"database"}, $c->{"host"}, $c->{"port"}),$c->{user}, $c->{password});
+}
+
 # Helper methods
 
 sub deepcopy {

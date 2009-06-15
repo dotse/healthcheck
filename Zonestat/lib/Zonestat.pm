@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Zonestat::Config;
+use Zonestat::DBI;
 use Zonestat::Common;
 use Zonestat::Prepare;
 use Zonestat::Gather;
@@ -43,6 +44,12 @@ sub gather {
 sub present {
     my $self = shift;
     return $self->{present};
+}
+
+sub dbconfig {
+    my $self = shift;
+    
+    return $self->{conf}->db;
 }
 
 1;

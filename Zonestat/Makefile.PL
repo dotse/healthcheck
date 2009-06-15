@@ -11,6 +11,7 @@ WriteMakefile(
         DBI => 0,
         DBD::mysql => 0,
         LWP::UserAgent => 0,
+        DBIx::Class => 0,
     }, 
     ($] >= 5.005 ?     
       (ABSTRACT_FROM  => 'lib/Zonestat.pm', # retrieve abstract from module
