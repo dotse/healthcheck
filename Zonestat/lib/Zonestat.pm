@@ -9,7 +9,6 @@ use Zonestat::Common;
 use Zonestat::Prepare;
 use Zonestat::Gather;
 use Zonestat::Present;
-use Zonestat::DBI;
 
 our $VERSION = '0.01';
 
@@ -21,16 +20,6 @@ sub new {
     $self->{prepare} = Zonestat::Prepare->new($self);
     $self->{gather}  = Zonestat::Gather->new($self);
     $self->{present} = Zonestat::Present->new($self);
-
-    my $c = $self->cget("dbi");
-    Zonestat::DBI::set_connection_data(
-        sprintf(
-            "DBI:mysql:database=%s;hostname=%s;port=%s",
-            $c->{"database"}, $c->{"host"}, $c->{"port"}
-        ),
-        $c->{user},
-        $c->{password}
-    );
 
     return $self;
 }
