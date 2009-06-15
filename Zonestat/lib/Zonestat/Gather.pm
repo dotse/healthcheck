@@ -8,7 +8,12 @@ use DNSCheck;
 
 use base 'Zonestat::Common';
 
+use LWP::UserAgent;
+
 our $VERSION = '0.01';
+
+our $ua = LWP::UserAgent->new;
+$ua->agent('.SE Zonestat');
 
 sub start_dnscheck_zone {
     my $self = shift;
@@ -26,6 +31,23 @@ sub get_zone_list {
         $self->dbh->selectall_arrayref(
             q[SELECT domain FROM domains ORDER BY domain ASC])
       };
+}
+
+sub get_http_server_data {
+    my $self = shift;
+    my @domains = @_;
+    my %data;
+    
+    foreach my $dom (@domains) {
+        my $res = $ua->request(HTTP::Request->new(HEAD => 'http://www.'.$dom));
+        if ($res->is_success) {
+            $data{$dom} = $res->header('Server');
+        } else {
+            $data{$dom} = undef;
+        }
+    }
+    
+    return \%data;
 }
 
 1;
