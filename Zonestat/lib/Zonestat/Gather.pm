@@ -34,19 +34,20 @@ sub get_zone_list {
 }
 
 sub get_http_server_data {
-    my $self = shift;
+    my $self    = shift;
     my @domains = @_;
     my %data;
-    
+
     foreach my $dom (@domains) {
-        my $res = $ua->request(HTTP::Request->new(HEAD => 'http://www.'.$dom));
+        my $res =
+          $ua->request(HTTP::Request->new(HEAD => 'http://www.' . $dom));
         if ($res->is_success) {
             $data{$dom} = $res->header('Server');
         } else {
             $data{$dom} = undef;
         }
     }
-    
+
     return \%data;
 }
 

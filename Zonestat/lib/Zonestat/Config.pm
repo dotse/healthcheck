@@ -56,10 +56,16 @@ sub set {
 
 sub db {
     my $self = shift;
-    my $c = $self->get('dbi');
-    
-    return (sprintf("DBI:mysql:database=%s;hostname=%s;port=%s",
-        $c->{"database"}, $c->{"host"}, $c->{"port"}),$c->{user}, $c->{password});
+    my $c    = $self->get('dbi');
+
+    return (
+        sprintf(
+            "DBI:mysql:database=%s;hostname=%s;port=%s",
+            $c->{"database"}, $c->{"host"}, $c->{"port"}
+        ),
+        $c->{user},
+        $c->{password}
+    );
 }
 
 # Helper methods

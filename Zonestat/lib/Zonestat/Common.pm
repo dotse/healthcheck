@@ -32,7 +32,9 @@ sub dbh {
 
     return $self->{dbh} if (defined($self->{dbh}) and $self->{dbh}->ping);
 
-    my $dbh = DBI->connect($self->parent->dbconfig, { RaiseError => 1, AutoCommit => 1 });
+    my $dbh =
+      DBI->connect($self->parent->dbconfig,
+        { RaiseError => 1, AutoCommit => 1 });
     die "Failed to connect to database: " . $DBI::errstr . "\n"
       unless defined($dbh);
     $self->{dbh} = $dbh;

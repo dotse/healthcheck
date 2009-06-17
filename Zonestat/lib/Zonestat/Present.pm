@@ -10,8 +10,13 @@ our $VERSION = '0.01';
 
 sub total_tested_domains {
     my $self = shift;
-    
-    return (($self->dbh->selectrow_array(q[SELECT COUNT(DISTINCT(domain)) FROM tests]))[0]);
+
+    return (
+        (
+            $self->dbh->selectrow_array(
+                q[SELECT COUNT(DISTINCT(domain)) FROM tests])
+        )[0]
+    );
 }
 
 sub lame_delegated_domains {

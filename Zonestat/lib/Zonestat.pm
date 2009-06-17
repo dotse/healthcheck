@@ -48,7 +48,7 @@ sub present {
 
 sub dbconfig {
     my $self = shift;
-    
+
     return $self->{conf}->db;
 }
 
