@@ -64,7 +64,8 @@ sub db_import_zone {
     $dbh->commit;
     $dbh->begin_work;
     $dbh->do(q[delete from domains]);
-    $dbh->do(q[insert into domains(domain) select distinct name from zone]);
+    $dbh->do(q[insert into domains(domain) select distinct name from zone where type = 'NS']);
+    $dbh->do(q[update domains set domain = substr(domain,1,char_length(domain)-1)]);
     $dbh->commit;
 }
 
