@@ -52,7 +52,7 @@ sub db_import_zone {
     $dbh->begin_work;
     $dbh->do(q[delete from zone]);
     my $sth = $dbh->prepare(
-        q[insert ignore into zone (name,ttl,class,type,data) values (?,?,?,?,?)]
+        q[insert into zone (name,ttl,class,type,data) values (?,?,?,?,?)]
     );
     while (defined(my $line = <$fh>)) {
         chomp($line);
@@ -63,9 +63,10 @@ sub db_import_zone {
     }
     $dbh->commit;
     $dbh->begin_work;
-    $dbh->do(q[delete from domains]);
-    $dbh->do(q[insert into domains(domain) select distinct name from zone where type = 'NS']);
-    $dbh->do(q[update domains set domain = substr(domain,1,char_length(domain)-1)]);
+    foreach my $dname (map {$_->{0}} @{$dbh->selectall_arrayref(q[select distinct name from zone where type = 'NS'])}) {
+        $dname =~ s/\.$//;
+        $dbh->do(q[INSERT IGNORE INTO domains (domain) values (?)], undef, $dname);
+    }
     $dbh->commit;
 }
 
