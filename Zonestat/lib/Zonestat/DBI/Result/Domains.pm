@@ -9,5 +9,9 @@ __PACKAGE__->has_many(
     tests => 'Zonestat::DBI::Result::Tests',
     { 'foreign.domain' => 'self.domain' }
 );
+__PACKAGE__->has_many(
+    webservers => 'Zonestat::DBI::Result::Webserver',
+    'domain_id'
+);
 
 1;

@@ -12,6 +12,15 @@ use LWP::UserAgent;
 
 our $VERSION = '0.01';
 
+our %server_regexps = (
+    qr|^Apache/?(\S+)?|      => 'Apache',
+    qr|^Microsoft-IIS/(\S+)| => 'Microsoft IIS',
+    qr|^nginx/(\S+)|         => 'nginx',
+    qr|^Lotus-Domino|        => 'Lotus Domino',
+    qr|^GFE/(\S+)|           => 'Google Web Server',
+    qr|lighttpd/(\S+)|       => 'lighttpd',
+);
+
 our $ua = LWP::UserAgent->new;
 $ua->agent('.SE Zonestat');
 
@@ -36,19 +45,36 @@ sub get_zone_list {
 sub get_http_server_data {
     my $self    = shift;
     my @domains = @_;
+    my $db      = $self->dbx('Domains');
     my %data;
 
+  DOMAIN:
     foreach my $dom (@domains) {
+        my $ddb = $db->search({ domain => $dom })->first;
         my $res =
           $ua->request(HTTP::Request->new(HEAD => 'http://www.' . $dom));
         if ($res->is_success) {
-            $data{$dom} = $res->header('Server');
-        } else {
-            $data{$dom} = undef;
+            my $s = $res->header('Server') || '';
+            foreach my $r (keys %server_regexps) {
+                if ($s =~ $r) {
+                    $ddb->add_to_webservers(
+                        {
+                            type    => $server_regexps{$r},
+                            version => $1,
+                            raw     => $s
+                        }
+                    );
+                    next DOMAIN;
+                }
+            }
+            $ddb->add_to_webservers(
+                {
+                    type => 'Unknown',
+                    raw  => $s
+                }
+            );
         }
     }
-
-    return \%data;
 }
 
 1;

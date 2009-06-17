@@ -41,6 +41,20 @@ sub dbh {
     return $dbh;
 }
 
+sub dbx {
+    my $self = shift;
+    my ($table) = @_;
+
+    $self->{schema} = Zonestat::DBI->connect($self->parent->dbconfig)
+      unless defined($self->{schema});
+
+    if (defined($table)) {
+        return $self->{schema}->resultset($table);
+    } else {
+        return $self->{schema};
+    }
+}
+
 sub source_id {
     my $self = shift;
 

@@ -63,7 +63,7 @@ sub db_import_zone {
     $dbh->commit;
     $dbh->begin_work;
     foreach my $dname (
-        map { $_->{0} } @{
+        map { $_->[0] } @{
             $dbh->selectall_arrayref(
                 q[select distinct name from zone where type = 'NS'])
         }
