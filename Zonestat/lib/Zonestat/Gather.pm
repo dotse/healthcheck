@@ -49,56 +49,58 @@ sub get_http_server_data {
     my $db      = $self->dbx('Domains');
     my %urls    = map { ($_, 'http://www.' . $_) } @domains;
 
-    my $ua = LWP::Parallel::UserAgent->new;
-    $ua->redirect(0);
-    $ua->max_hosts(50);
-    $ua->timeout(10);
-    $ua->agent('.SE Zonestat');
+    while (@domains) {
+        my $ua = LWP::Parallel::UserAgent->new;
+        $ua->redirect(0);
+        $ua->max_hosts(50);
+        $ua->timeout(10);
+        $ua->agent('.SE Zonestat');
 
-    foreach my $u (values %urls) {
-        $ua->register(HTTP::Request->new(HEAD => $u));
-    }
-
-    my $rr = $ua->wait;
-
-  DOMAIN:
-    foreach my $k (keys %$rr) {
-        my $res = $rr->{$k}->response;
-        my $url = $res->request->url;
-        my $dom;
-
-        if ($url =~ m|^http://www\.([^/]+)|) {
-            $dom = $1;
-        } else {
-            print STDERR "Failed to parse: $url\n";
-            next;
+        foreach my $u (splice(@domains, 0, 25)) {
+            $ua->register(HTTP::Request->new(HEAD => 'http://www.' . $u));
         }
 
-        unless ($urls{$dom}) {
-            die "Response for domain not queried: $dom\n";
-        }
+        my $rr = $ua->wait;
 
-        my $ddb = $db->search({ domain => $dom })->first;
+      DOMAIN:
+        foreach my $k (keys %$rr) {
+            my $res = $rr->{$k}->response;
+            my $url = $res->request->url;
+            my $dom;
 
-        if (my $s = $res->header('Server')) {
-            foreach my $r (keys %server_regexps) {
-                if ($s =~ $r) {
-                    $ddb->add_to_webservers(
-                        {
-                            type    => $server_regexps{$r},
-                            version => $1,
-                            raw     => $s
-                        }
-                    );
-                    next DOMAIN;
-                }
+            if ($url =~ m|^http://www\.([^/]+)|) {
+                $dom = $1;
+            } else {
+                print STDERR "Failed to parse: $url\n";
+                next;
             }
-            $ddb->add_to_webservers(
-                {
-                    type => 'Unknown',
-                    raw  => $s
+
+            unless ($urls{$dom}) {
+                die "Response for domain not queried: $dom\n";
+            }
+
+            my $ddb = $db->search({ domain => $dom })->first;
+
+            if (my $s = $res->header('Server')) {
+                foreach my $r (keys %server_regexps) {
+                    if ($s =~ $r) {
+                        $ddb->add_to_webservers(
+                            {
+                                type    => $server_regexps{$r},
+                                version => $1,
+                                raw     => $s
+                            }
+                        );
+                        next DOMAIN;
+                    }
                 }
-            );
+                $ddb->add_to_webservers(
+                    {
+                        type => 'Unknown',
+                        raw  => $s
+                    }
+                );
+            }
         }
     }
 }
