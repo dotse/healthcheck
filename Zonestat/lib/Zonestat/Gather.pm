@@ -8,21 +8,22 @@ use DNSCheck;
 
 use base 'Zonestat::Common';
 
-use LWP::UserAgent;
+use LWP::Parallel::UserAgent;
+use HTTP::Request;
 
 our $VERSION = '0.01';
 
 our %server_regexps = (
-    qr|^Apache/?(\S+)?|      => 'Apache',
-    qr|^Microsoft-IIS/(\S+)| => 'Microsoft IIS',
-    qr|^nginx/(\S+)|         => 'nginx',
-    qr|^Lotus-Domino|        => 'Lotus Domino',
-    qr|^GFE/(\S+)|           => 'Google Web Server',
-    qr|lighttpd/(\S+)|       => 'lighttpd',
-);
+    qr|^Apache/?(\S+)?|               => 'Apache',
+    qr|^Microsoft-IIS/(\S+)|          => 'Microsoft IIS',
+    qr|^nginx/?(\S+)?|                => 'nginx',
+    qr|^Lotus-Domino|                 => 'Lotus Domino',
+    qr|^GFE/(\S+)|                    => 'Google Web Server',
+    qr|^lighttpd/(\S+)|               => 'lighttpd',
+    qr|^WebServerX|                   => 'WebServerX',
+    qr|^Zope/\(Zope ([-a-zA-Z0-9.]+)| => 'Zope',
 
-our $ua = LWP::UserAgent->new;
-$ua->agent('.SE Zonestat');
+);
 
 sub start_dnscheck_zone {
     my $self = shift;
@@ -46,15 +47,40 @@ sub get_http_server_data {
     my $self    = shift;
     my @domains = @_;
     my $db      = $self->dbx('Domains');
-    my %data;
+    my %urls    = map { ($_, 'http://www.' . $_) } @domains;
+
+    my $ua = LWP::Parallel::UserAgent->new;
+    $ua->redirect(0);
+    $ua->max_hosts(50);
+    $ua->timeout(10);
+    $ua->agent('.SE Zonestat');
+
+    foreach my $u (values %urls) {
+        $ua->register(HTTP::Request->new(HEAD => $u));
+    }
+
+    my $rr = $ua->wait;
 
   DOMAIN:
-    foreach my $dom (@domains) {
+    foreach my $k (keys %$rr) {
+        my $res = $rr->{$k}->response;
+        my $url = $res->request->url;
+        my $dom;
+
+        if ($url =~ m|^http://www\.([^/]+)|) {
+            $dom = $1;
+        } else {
+            print STDERR "Failed to parse: $url\n";
+            next;
+        }
+
+        unless ($urls{$dom}) {
+            die "Response for domain not queried: $dom\n";
+        }
+
         my $ddb = $db->search({ domain => $dom })->first;
-        my $res =
-          $ua->request(HTTP::Request->new(HEAD => 'http://www.' . $dom));
-        if ($res->is_success) {
-            my $s = $res->header('Server') || '';
+
+        if (my $s = $res->header('Server')) {
             foreach my $r (keys %server_regexps) {
                 if ($s =~ $r) {
                     $ddb->add_to_webservers(

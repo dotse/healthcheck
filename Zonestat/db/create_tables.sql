@@ -14,4 +14,4 @@ CREATE TABLE IF NOT EXISTS `webserver` (
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `domain_id` INT(10) unsigned,
     CONSTRAINT `webserver_domain` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=ascii;
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;

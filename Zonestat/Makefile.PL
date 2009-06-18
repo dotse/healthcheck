@@ -10,7 +10,8 @@ WriteMakefile(
         DNSCheck => 0.92,
         DBI => 0,
         DBD::mysql => 0,
-        LWP::UserAgent => 0,
+        LWP::Parallel::UserAgent => 0,
+        HTTP::Request => 0,
         DBIx::Class => 0,
     }, 
     ($] >= 5.005 ?     

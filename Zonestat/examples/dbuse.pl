@@ -6,7 +6,8 @@ my $gather =
   Zonestat->new('/opt/local/share/dnscheck/site_config.yaml')->gather;
 
 my $table =
-  $gather->dbx('Domains')->search({}, { order_by => 'rand()', rows => 250 });
+  $gather->dbx('Domains')
+  ->search({}, { order_by => 'rand()', rows => $ARGV[0] });
 $gather->get_http_server_data(map { $_->domain } $table->all);
 my $ws = $gather->dbx('Webserver')->search({});
 
