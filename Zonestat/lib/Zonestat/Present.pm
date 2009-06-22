@@ -43,6 +43,31 @@ q[SELECT message, COUNT(DISTINCT(test_id)) AS cdt FROM results WHERE level = ? G
       };
 }
 
+sub number_of_servers_with_software {
+    my $self = shift;
+
+    my $s = $self->dbx('Webserver');
+    return map { [$_->type, $_->get_column('count')] } $s->search(
+        {},
+        {
+            select   => ['type', { count => '*' }],
+            as       => ['type', 'count'],
+            group_by => ['type'],
+            order_by => ['count(*) DESC'],
+        }
+    )->all;
+}
+
+sub unknown_server_strings {
+    my $self = shift;
+
+    my $s = $self->dbx('Webserver');
+    return
+      map { $_->raw }
+      $s->search({ type => 'Unknown' }, { columns => ['raw'], distinct => 1 })
+      ->all;
+}
+
 1;
 __END__
 
