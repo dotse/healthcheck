@@ -1,0 +1,18 @@
+        <table border="1">
+            <tr>
+                <th>%</th>
+                <th>Error</th>
+            </tr>
+% for my $i (@data) {
+                <tr>
+                    <td><% sprintf("%5.2f%%",($i->[1] / $total) * 100) %></td>
+                    <td><% $i->[0] %></td>
+                </tr>
+% }
+        </table>
+        
+<%init>
+my $zs    = Zonestat->new('/opt/local/share/dnscheck/site_config.yaml');
+my @data  = $zs->present->number_of_domains_with_message;
+my $total = $zs->present->total_tested_domains;
+</%init>
