@@ -12,6 +12,8 @@ use LWP::Parallel::UserAgent;
 use HTTP::Request;
 
 our $VERSION = '0.01';
+my $debug = 0;
+STDOUT->autoflush(1) if $debug;
 
 our %server_regexps = (
     qr|^Apache/?(\S+)?|               => 'Apache',
@@ -49,24 +51,33 @@ sub get_http_server_data {
     my $db      = $self->dbx('Domains');
     my %urls    = map { ($_, 'http://www.' . $_) } @domains;
 
+    print "Got " . scalar(@domains) . " domains to check.\n" if $debug;
+
     while (@domains) {
         my $ua = LWP::Parallel::UserAgent->new;
         $ua->redirect(0);
         $ua->max_hosts(50);
         $ua->timeout(10);
         $ua->agent('.SE Zonestat');
+        print "Created agent.\n" if $debug;
+        print "Domains remaining: " . scalar(@domains) . "\n" if $debug;
 
         foreach my $u (splice(@domains, 0, 25)) {
             $ua->register(HTTP::Request->new(HEAD => 'http://www.' . $u));
+            print "Registered $u\n" if $debug;
         }
 
-        my $rr = $ua->wait;
+        print "Waiting..." if $debug;
+        my $debug_t = time();
+        my $rr      = $ua->wait;
+        print time() - $debug_t, " seconds.\n" if $debug;
 
       DOMAIN:
         foreach my $k (keys %$rr) {
             my $res = $rr->{$k}->response;
             my $url = $res->request->url;
             my $dom;
+            print "Processing result for $url.\n" if $debug;
 
             if ($url =~ m|^http://www\.([^/]+)|) {
                 $dom = $1;
