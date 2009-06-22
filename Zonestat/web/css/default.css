@@ -1,0 +1,20 @@
+th {
+    font-variant: small-caps;
+    color: white;
+    background: black;
+}
+
+tr.even {
+    background-color: #e0ffe0;
+}
+
+td.numeric {
+    text-align: right;
+}
+
+h1 {
+    text-align: center;
+    text-decoration: underline;
+    color: gray;
+    background-color: white;
+}

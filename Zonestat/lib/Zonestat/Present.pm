@@ -68,6 +68,13 @@ sub unknown_server_strings {
       ->all;
 }
 
+sub all_dnscheck_tests {
+    my $self = shift;
+
+    my $s = $self->dbx('Tests');
+    return $s->search({}, { order_by => ['domain'] });
+}
+
 1;
 __END__
 

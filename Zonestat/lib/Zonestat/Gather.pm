@@ -12,7 +12,7 @@ use LWP::Parallel::UserAgent;
 use HTTP::Request;
 
 our $VERSION = '0.01';
-my $debug = 0;
+my $debug = 1;
 STDOUT->autoflush(1) if $debug;
 
 our %server_regexps = (
@@ -24,7 +24,8 @@ our %server_regexps = (
     qr|^lighttpd/(\S+)|               => 'lighttpd',
     qr|^WebServerX|                   => 'WebServerX',
     qr|^Zope/\(Zope ([-a-zA-Z0-9.]+)| => 'Zope',
-
+    qr|^Resin/?(\S+)?|                => 'Resin',
+    qr|^Roxen·Challenger/?(\S+)?|    => 'Roxen',
 );
 
 sub start_dnscheck_zone {

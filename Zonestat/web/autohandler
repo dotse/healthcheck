@@ -2,6 +2,7 @@
 <html>
     <head>
         <title><& SELF:title &></title>
+        <link rel="stylesheet" href="/css/default.css" media="all" type="text/css">
     </head>
     <body>
         <% $m->call_next %>

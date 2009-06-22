@@ -1,11 +1,11 @@
         <table>
             <tr>
-                <th>%</th>
-                <th>Error</th>
+                <th>Count</th>
+                <th>Type</th>
             </tr>
 % for my $i (@data) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
-                    <td><% sprintf("%5.2f%%",($i->[1] / $total) * 100) %></td>
+                    <td><% $i->[1] %></td>
                     <td><% $i->[0] %></td>
                 </tr>
 % }
@@ -13,7 +13,6 @@
         
 <%init>
 my $zs    = Zonestat->new('/opt/local/share/dnscheck/site_config.yaml');
-my @data  = $zs->present->number_of_domains_with_message;
-my $total = $zs->present->total_tested_domains;
+my @data  = $zs->present->number_of_servers_with_software;
 my $c;
 </%init>
