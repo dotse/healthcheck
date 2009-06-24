@@ -17,3 +17,13 @@ CREATE TABLE IF NOT EXISTS `webserver` (
     `domain_id` INT(10) unsigned,
     CONSTRAINT `webserver_domain` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+
+CREATE TABLE IF NOT EXISTS `user` (
+    `id` serial primary key,
+    `displayname` varchar(255),
+    `username` varchar(255) NOT NULL,
+    `email` varchar(255) NOT NULL,
+    `password` varchar(255) NOT NULL,
+    INDEX user_username (username),
+    INDEX user_password (password)
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;

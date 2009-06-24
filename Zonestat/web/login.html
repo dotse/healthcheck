@@ -1,9 +1,46 @@
-This is the login page (<% $zs %>). <a href="/">Go back.</a>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+    <head>
+        <title>Zonestat Login</title>
+        <link rel="stylesheet" href="/css/default.css" media="all" type="text/css">
+    </head>
+    <body>
+% if ($m->session->{user}) {
+    <p>Welcome, <% $m->session->{user}->name %>.</p>
+    <p><a href="/">Go to top page.</a></p>
+% } else {
+    <h1><% $mess %></h1>
+    <form action="login.html" method="post">
+      <p>
+        <label for="username">Username: </label>
+        <input type="text" name="username" value="<% $username %>"/>
+          <br/>
+            <label for="password">Password: </label>
+            <input type="password" name="password"/>
+              <br/>
+                <input type="submit" value="Login"/>
+      </p>
+    </form>
+    
+% }
+
+    </body>
+</html>
 
 <%flags>
 inherit => undef
 </%flags>
 <%init>
-our $zs;
-$m->session->{logged_in} = 1;
+my $mess = '';
+if ($username and $password) {
+    $m->session->{user} = $zs->user($username, $password);
+    $mess = "Username/password combination not valid.";
+} else {
+    $m->session->{user} = undef;
+}
+
 </%init>
+<%args>
+$username => ''
+$password => ''
+</%args>

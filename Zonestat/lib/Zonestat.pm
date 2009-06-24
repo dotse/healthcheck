@@ -10,6 +10,7 @@ use Zonestat::Common;
 use Zonestat::Prepare;
 use Zonestat::Gather;
 use Zonestat::Present;
+use Zonestat::User;
 
 our $VERSION = '0.01';
 
@@ -44,6 +45,14 @@ sub gather {
 sub present {
     my $self = shift;
     return $self->{present};
+}
+
+sub user {
+    my $self = shift;
+    my ($name, $pwd) = @_;
+
+    my $user = Zonestat::User->new($self);
+    return $user->login($name, $pwd);
 }
 
 sub dbconfig {
