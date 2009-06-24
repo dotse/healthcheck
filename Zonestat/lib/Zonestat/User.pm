@@ -25,6 +25,15 @@ sub login {
     }
 }
 
+sub by_id {
+    my $self  = shift;
+    my ($id)  = @_;
+    my $table = $self->dbx('User');
+
+    $self->{user} = $table->find($id);
+    return $self;
+}
+
 sub name {
     my $self = shift;
 
@@ -33,19 +42,19 @@ sub name {
 
 sub email {
     my $self = shift;
-    
+
     return $self->{user}->email;
 }
 
 sub username {
     my $self = shift;
-    
+
     return $self->{user}->username;
 }
 
 sub id {
     my $self = shift;
-    
+
     return $self->{user}->id;
 }
 

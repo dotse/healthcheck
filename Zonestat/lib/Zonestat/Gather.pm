@@ -16,16 +16,16 @@ my $debug = 1;
 STDOUT->autoflush(1) if $debug;
 
 our %server_regexps = (
-    qr|^Apache/?(\S+)?|               => 'Apache',
-    qr|^Microsoft-IIS/(\S+)|          => 'Microsoft IIS',
-    qr|^nginx/?(\S+)?|                => 'nginx',
-    qr|^Lotus-Domino|                 => 'Lotus Domino',
-    qr|^GFE/(\S+)|                    => 'Google Web Server',
-    qr|^lighttpd/(\S+)|               => 'lighttpd',
-    qr|^WebServerX|                   => 'WebServerX',
-    qr|^Zope/\(Zope ([-a-zA-Z0-9.]+)| => 'Zope',
-    qr|^Resin/?(\S+)?|                => 'Resin',
-    qr|^Roxen·Challenger/?(\S+)?|    => 'Roxen',
+    qr|^Apache/?(\S+)?|                => 'Apache',
+    qr|^Microsoft-IIS/(\S+)|           => 'Microsoft IIS',
+    qr|^nginx/?(\S+)?|                 => 'nginx',
+    qr|^Lotus-Domino|                  => 'Lotus Domino',
+    qr|^GFE/(\S+)|                     => 'Google Web Server',
+    qr|^lighttpd/(\S+)|                => 'lighttpd',
+    qr|^WebServerX|                    => 'WebServerX',
+    qr|^Zope/\(Zope ([-a-zA-Z0-9.]+)|  => 'Zope',
+    qr|^Resin/?(\S+)?|                 => 'Resin',
+    qr|^Roxen.{0,2}Challenger/?(\S+)?| => 'Roxen',
 );
 
 sub start_dnscheck_zone {

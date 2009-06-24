@@ -24,6 +24,14 @@
         </table>
         
 <%init>
-my @data  = $zs->present->all_dnscheck_tests;
+my @data;
+if (defined($page)) {
+    @data = $zs->present->all_dnscheck_tests->search({},{rows => 100, page => $page})->all;
+} else {
+    @data = $zs->present->all_dnscheck_tests->all;
+}
 my $c;
 </%init>
+<%args>
+$page => undef
+</%args>

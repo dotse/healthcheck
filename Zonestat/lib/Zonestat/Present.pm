@@ -64,7 +64,7 @@ sub unknown_server_strings {
     my $s = $self->dbx('Webserver');
     return
       map { $_->raw }
-      $s->search({ type => 'Unknown' }, { columns => ['raw'], distinct => 1 })
+      $s->search({ type => 'Unknown' }, { columns => ['raw'], distinct => 1, order_by  => ['raw'] })
       ->all;
 }
 

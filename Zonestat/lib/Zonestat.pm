@@ -49,10 +49,14 @@ sub present {
 
 sub user {
     my $self = shift;
-    my ($name, $pwd) = @_;
+    my ($name_or_id, $pwd) = @_;
 
     my $user = Zonestat::User->new($self);
-    return $user->login($name, $pwd);
+    if (defined($pwd)) {
+        return $user->login($name_or_id, $pwd);
+    } else {
+        return $user->by_id($name_or_id);
+    }
 }
 
 sub dbconfig {

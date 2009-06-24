@@ -1,2 +1,17 @@
 <h1>All saved test data</h1>
-<& /table/all_tests &>
+% if ($page < int($max/100)) {
+<a href="all_tests.html?page=<% $page+1 %>">Next</a>
+% }
+
+% if ($page > 1) {
+<a href="all_tests.html?page=<% $page-1 %>">Previous</a>
+% }
+
+<& /table/all_tests, page => $page &>
+
+<%args>
+$page => 1
+</%args>
+<%init>
+my $max = $zs->present->all_dnscheck_tests->count;
+</%init>

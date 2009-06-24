@@ -14,5 +14,4 @@
 unless ($m->session->{user}) {
     $m->redirect('/login.html')
 }
-
 </%init>

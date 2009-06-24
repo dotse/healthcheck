@@ -5,13 +5,14 @@
             </tr>
 % for my $i (@data) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
-                    <td><% $i->[1] %></td>
+                    <td class="numeric"><% $i->[2] %>% (<% $i->[1] %>)</td>
                     <td><% $i->[0] %></td>
                 </tr>
 % }
         </table>
         
 <%init>
-my @data  = $zs->present->number_of_servers_with_software;
+my $total = $zs->present->dbx('Webserver')->search({})->count;
+my @data  = map {[$_->[0], $_->[1], sprintf('%5.2f', 100*$_->[1]/$total)]} $zs->present->number_of_servers_with_software;
 my $c;
 </%init>
