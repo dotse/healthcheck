@@ -6,7 +6,7 @@
     </head>
     <body>
 % if ($m->session->{user}) {
-    <p>Welcome, <% $m->session->{user}->name %>.</p>
+    <p>Welcome, <% $user->name %>.</p>
     <p><a href="/">Go to top page.</a></p>
 % } else {
     <h1><% $mess %></h1>
@@ -32,8 +32,9 @@ inherit => undef
 </%flags>
 <%init>
 my $mess = '';
-if ($username and $password) {
-    $m->session->{user} = $zs->user($username, $password);
+my $user;
+if ($username and $password and $user = $zs->user($username, $password)) {
+    $m->session->{user} = $user->id;
     $mess = "Username/password combination not valid.";
 } else {
     $m->session->{user} = undef;

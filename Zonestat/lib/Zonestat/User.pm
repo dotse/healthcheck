@@ -37,4 +37,16 @@ sub email {
     return $self->{user}->email;
 }
 
+sub username {
+    my $self = shift;
+    
+    return $self->{user}->username;
+}
+
+sub id {
+    my $self = shift;
+    
+    return $self->{user}->id;
+}
+
 1;
