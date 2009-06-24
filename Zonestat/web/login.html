@@ -1,0 +1,9 @@
+This is the login page (<% $zs %>). <a href="/">Go back.</a>
+
+<%flags>
+inherit => undef
+</%flags>
+<%init>
+our $zs;
+$m->session->{logged_in} = 1;
+</%init>

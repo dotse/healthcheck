@@ -13,6 +13,8 @@ WriteMakefile(
         LWP::Parallel::UserAgent => 0,
         HTTP::Request => 0,
         DBIx::Class => 0,
+        Apache2::Request => 0,
+        MasonX::Request::WithApacheSession => 0,
     }, 
     ($] >= 5.005 ?     
       (ABSTRACT_FROM  => 'lib/Zonestat.pm', # retrieve abstract from module

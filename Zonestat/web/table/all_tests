@@ -2,7 +2,7 @@
             <tr>
                 <th>Domain</th>
                 <th>Start</th>
-                <th>End</th>
+                <th>Duration</th>
                 <th>Critical</th>
                 <th>Error</th>
                 <th>Warning</th>
@@ -12,8 +12,8 @@
 % for my $i (@data) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
                     <td><% $i->domain %></td>
-                    <td><% $i->begin %></td>
-                    <td><% $i->end %></td>
+                    <td><% $i->begin(1) %></td>
+                    <td class="numeric"><% $i->end - $i->begin %>s</td>
                     <td class="numeric"><% $i->count_critical %></td>
                     <td class="numeric"><% $i->count_error %></td>
                     <td class="numeric"><% $i->count_warning %></td>
@@ -24,7 +24,6 @@
         </table>
         
 <%init>
-my $zs    = Zonestat->new('/opt/local/share/dnscheck/site_config.yaml');
 my @data  = $zs->present->all_dnscheck_tests;
 my $c;
 </%init>

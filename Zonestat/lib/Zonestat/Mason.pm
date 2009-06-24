@@ -10,11 +10,22 @@ use HTML::Mason::ApacheHandler;
     package HTML::Mason::Commands;
     use CGI;
     use Zonestat;
+    use Apache2::Request;
+    use Data::Dumper;
+    our $zs = Zonestat->new('/opt/local/share/dnscheck/site_config.yaml');
 }
 
 my $ah = HTML::Mason::ApacheHandler->new(
-    comp_root => '/Users/cdybedahl/Clients/IIS/zonestat/Zonestat/web',
-    data_dir  => '/var/tmp/mason'
+    comp_root     => '/Users/cdybedahl/Clients/IIS/zonestat/Zonestat/web',
+    data_dir      => '/var/tmp/mason',
+    args_method   => 'mod_perl',
+    request_class => 'MasonX::Request::WithApacheSession',
+    session_cookie_domain  => '.cyberpomo.com',
+    session_class          => 'Apache::Session::File',
+    session_directory      => '/tmp/sessions/data',
+    session_lock_directory => '/tmp/sessions/locks',
+    session_use_cookie     => 1,
+    allow_globals          => [qw[$zs]],
 );
 
 sub handler {

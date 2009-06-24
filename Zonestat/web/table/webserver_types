@@ -12,7 +12,6 @@
         </table>
         
 <%init>
-my $zs    = Zonestat->new('/opt/local/share/dnscheck/site_config.yaml');
 my @data  = $zs->present->number_of_servers_with_software;
 my $c;
 </%init>
