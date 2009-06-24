@@ -117,6 +117,30 @@ sub get_http_server_data {
     }
 }
 
+sub rescan_unknown_servers {
+    my $self = shift;
+    my $db = $self->dbx('Webserver')->search({ type => 'Unknown' });
+
+  DOMAIN:
+    while (my $row = $db->next) {
+        my $str = $row->raw;
+        foreach my $r (keys %server_regexps) {
+            if ($str =~ $r) {
+                print "Updating to "
+                  . $server_regexps{$r} . ": "
+                  . $row->raw . "\n"
+                  if $debug;
+                $row->update(
+                    {
+                        type    => $server_regexps{$r},
+                        version => $1
+                    }
+                );
+            }
+        }
+    }
+}
+
 1;
 __END__
 

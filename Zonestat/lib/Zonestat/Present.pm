@@ -62,10 +62,8 @@ sub unknown_server_strings {
     my $self = shift;
 
     my $s = $self->dbx('Webserver');
-    return
-      map { $_->raw }
-      $s->search({ type => 'Unknown' }, { columns => ['raw'], distinct => 1, order_by  => ['raw'] })
-      ->all;
+    return map { $_->raw } $s->search({ type => 'Unknown' },
+        { columns => ['raw'], distinct => 1, order_by => ['raw'] })->all;
 }
 
 sub all_dnscheck_tests {
