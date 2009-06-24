@@ -11,7 +11,7 @@
 
 <%method title>ZoneStat</%method>
 <%init>
-unless ($m->session->{logged_in}) {
+unless ($m->session->{user}) {
     $m->redirect('/login.html')
 }
 
