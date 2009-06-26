@@ -13,7 +13,7 @@ use HTTP::Request;
 use IO::Socket::SSL;
 
 our $VERSION = '0.01';
-my $debug = 1;
+my $debug = 0;
 STDOUT->autoflush(1) if $debug;
 
 our %server_regexps = (
@@ -38,7 +38,7 @@ our %server_regexps = (
     qr|^Stronghold/?(\S+)| => 'RedHat Stronghold',
 );
 
-sub start_dnscheck_zone {
+sub start_dnscheck_entire_zone {
     my $self = shift;
 
     $self->dbh->do(
