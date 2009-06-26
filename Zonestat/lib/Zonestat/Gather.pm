@@ -22,18 +22,20 @@ our %server_regexps = (
     qr|^nginx/?(\S+)?|                 => 'nginx',
     qr|^Lotus-Domino|                  => 'Lotus Domino',
     qr|^GFE/(\S+)|                     => 'Google Web Server',
-    qr|^lighttpd/(\S+)|                => 'lighttpd',
+    qr|^lighttpd/?(\S+)|               => 'lighttpd',
     qr|^WebServerX|                    => 'WebServerX',
     qr|^Zope/\(Zope ([-a-zA-Z0-9.]+)|  => 'Zope',
     qr|^Resin/?(\S+)?|                 => 'Resin',
     qr|^Roxen.{0,2}Challenger/?(\S+)?| => 'Roxen',
-    qr|^ODERLAND| => 'Oderland',
-    qr|WebSTAR/?(\S+)| => 'WebSTAR',
-    qr|^IBM_HTTP_Server| => 'IBM HTTP Server (WebSphere)',
-    qr|^Zeus/?(\S+)| => 'Zeus',
-    qr|^Oversee Webserver v(\S+)| => 'Oversee',
-    qr|^Sun Java System Application Server (\S+)| => 'Sun Java System Application Server (GlassFish)',
-    qr|^AkamaiGHost| => 'Akamai',
+    qr|^ODERLAND|                      => 'Oderland',
+    qr|WebSTAR/?(\S+)|                 => 'WebSTAR',
+    qr|^IBM_HTTP_Server|               => 'IBM HTTP Server (WebSphere)',
+    qr|^Zeus/?(\S+)|                   => 'Zeus',
+    qr|^Oversee Webserver v(\S+)|      => 'Oversee',
+    qr|^Sun Java System Application Server (\S+)| =>
+      'Sun Java System Application Server (GlassFish)',
+    qr|^AkamaiGHost|       => 'Akamai',
+    qr|^Stronghold/?(\S+)| => 'RedHat Stronghold',
 );
 
 sub start_dnscheck_zone {
