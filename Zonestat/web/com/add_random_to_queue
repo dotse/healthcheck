@@ -1,0 +1,9 @@
+<%init>
+$data = 100 unless $data > 0;
+my @res = $zs->present->dbx('Domains')->search({},{rows => $data, order_by => 'rand()'});
+$zs->present->dbx('Queue')->populate([map {{domain => $_->domain, priority => 3}} @res]);
+$m->redirect('/index.html');
+</%init>
+<%args>
+$data => 100
+</%args>

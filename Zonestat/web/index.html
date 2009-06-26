@@ -1,3 +1,16 @@
+        <h1>Status</h1>
+        <dl>
+        <dt>Dispatcher</dt><dd><& /com/dispatcher_status &></dd>
+        <dt>Queue length</dt><dd><& /com/queue_length &></dd>
+        <dt>Run</dt>
+        <dd>
+          <form action="/com/add_random_to_queue" method="post">
+              Number of domains to add (default 100): <input type="text" name="data" /><br>
+            <input type="submit" value="Add random domains to queue" />
+          </form>
+        </dd>
+        </dl>
+        
         <h1>Common problem types</h1>
         <& /table/common_problems &>
         

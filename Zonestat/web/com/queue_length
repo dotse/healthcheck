@@ -1,0 +1,4 @@
+<% $total %>
+<%init>
+my $total = $zs->present->dbx('Queue')->search({})->count;
+</%init>

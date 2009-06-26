@@ -1,0 +1,17 @@
+<% $res %>
+
+<%init>
+my $res = 'Unknown';
+my $pidfile = $dc->config->get("daemon")->{pidfile};
+if(open my $fh, '<', $pidfile) {
+    my $pid = <$fh>;
+    chomp($pid);
+    if (kill 0, $pid) {
+        $res = "Ok"
+    } else {
+        $res = "Not ok"
+    }
+} else {
+    $res = "Pidfile problem: $!"
+}
+</%init>

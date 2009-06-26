@@ -10,9 +10,11 @@ use HTML::Mason::ApacheHandler;
     package HTML::Mason::Commands;
     use CGI;
     use Zonestat;
+    use DNSCheck;
     use Apache2::Request;
     use Data::Dumper;
     our $zs = Zonestat->new('/opt/local/share/dnscheck/site_config.yaml');
+    our $dc = DNSCheck->new;
 }
 
 my $ah = HTML::Mason::ApacheHandler->new(
@@ -25,7 +27,7 @@ my $ah = HTML::Mason::ApacheHandler->new(
     session_directory      => '/tmp/sessions/data',
     session_lock_directory => '/tmp/sessions/locks',
     session_use_cookie     => 1,
-    allow_globals          => [qw[$zs]],
+    allow_globals          => [qw[$zs $dc]],
 );
 
 sub handler {
