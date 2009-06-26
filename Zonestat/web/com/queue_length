@@ -1,4 +1,5 @@
-<% $total %>
+<% $total %> (<% $running %> in progress)
 <%init>
 my $total = $zs->present->dbx('Queue')->search({})->count;
+my $running = $zs->present->dbx('Queue')->search({inprogress => {'!=', undef}})->count;
 </%init>
