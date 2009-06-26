@@ -45,10 +45,11 @@ q[SELECT message, COUNT(DISTINCT(test_id)) AS cdt FROM results WHERE level = ? G
 
 sub number_of_servers_with_software {
     my $self = shift;
+    my ($https) = @_;
 
     my $s = $self->dbx('Webserver');
     return map { [$_->type, $_->get_column('count')] } $s->search(
-        {},
+        { https => $https },
         {
             select   => ['type', { count => '*' }],
             as       => ['type', 'count'],

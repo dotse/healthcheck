@@ -12,7 +12,11 @@
         </table>
         
 <%init>
-my $total = $zs->present->dbx('Webserver')->search({})->count;
-my @data  = map {[$_->[0], $_->[1], sprintf('%5.2f', 100*$_->[1]/$total)]} $zs->present->number_of_servers_with_software;
+my $total = $zs->present->dbx('Webserver')->search({https => $https})->count;
+my @data  = map {[$_->[0], $_->[1], sprintf('%5.2f', 100*$_->[1]/$total)]}
+    $zs->present->number_of_servers_with_software($https);
 my $c;
 </%init>
+<%args>
+$https => 0
+</%args>

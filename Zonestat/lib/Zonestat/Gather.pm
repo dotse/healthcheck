@@ -10,6 +10,7 @@ use base 'Zonestat::Common';
 
 use LWP::Parallel::UserAgent;
 use HTTP::Request;
+use IO::Socket::SSL;
 
 our $VERSION = '0.01';
 my $debug = 1;
@@ -26,6 +27,13 @@ our %server_regexps = (
     qr|^Zope/\(Zope ([-a-zA-Z0-9.]+)|  => 'Zope',
     qr|^Resin/?(\S+)?|                 => 'Resin',
     qr|^Roxen.{0,2}Challenger/?(\S+)?| => 'Roxen',
+    qr|^ODERLAND| => 'Oderland',
+    qr|WebSTAR/?(\S+)| => 'WebSTAR',
+    qr|^IBM_HTTP_Server| => 'IBM HTTP Server (WebSphere)',
+    qr|^Zeus/?(\S+)| => 'Zeus',
+    qr|^Oversee Webserver v(\S+)| => 'Oversee',
+    qr|^Sun Java System Application Server (\S+)| => 'Sun Java System Application Server (GlassFish)',
+    qr|^AkamaiGHost| => 'Akamai',
 );
 
 sub start_dnscheck_zone {
@@ -65,6 +73,7 @@ sub get_http_server_data {
 
         foreach my $u (splice(@domains, 0, 25)) {
             $ua->register(HTTP::Request->new(HEAD => 'http://www.' . $u));
+            $ua->register(HTTP::Request->new(HEAD => 'https://www.' . $u));
             print "Registered $u\n" if $debug;
         }
 
@@ -78,10 +87,15 @@ sub get_http_server_data {
             my $res = $rr->{$k}->response;
             my $url = $res->request->url;
             my $dom;
+            my $https;
             print "Processing result for $url.\n" if $debug;
 
             if ($url =~ m|^http://www\.([^/]+)|) {
-                $dom = $1;
+                $dom   = $1;
+                $https = 0;
+            } elsif ($url =~ m|^https://www\.([^/]+)|) {
+                $dom   = $1;
+                $https = 1;
             } else {
                 print STDERR "Failed to parse: $url\n";
                 next;
@@ -92,15 +106,29 @@ sub get_http_server_data {
             }
 
             my $ddb = $db->search({ domain => $dom })->first;
+            my $issuer;
 
             if (my $s = $res->header('Server')) {
+                if (
+                    $https
+                    and my $s = IO::Socket::SSL->new(
+                        PeerAddr => 'www.' . $dom,
+                        PeerPort => 443
+                    )
+                  )
+                {
+                    $issuer = $s->peer_certificate('issuer');
+                }
+
                 foreach my $r (keys %server_regexps) {
                     if ($s =~ $r) {
                         $ddb->add_to_webservers(
                             {
                                 type    => $server_regexps{$r},
                                 version => $1,
-                                raw     => $s
+                                raw     => $s,
+                                https   => $https,
+                                issuer  => $issuer,
                             }
                         );
                         next DOMAIN;
