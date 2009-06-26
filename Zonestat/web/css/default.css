@@ -18,3 +18,18 @@ h1 {
     color: gray;
     background-color: white;
 }
+
+dl {
+    border: solid thin #bbb;
+    background-color: #eee;
+    margin: 6px;
+    padding: 6px;
+}
+
+dt {
+    font-weight: bold;
+}
+
+dd {
+    color: green;
+}
