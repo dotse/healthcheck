@@ -27,3 +27,16 @@ CREATE TABLE IF NOT EXISTS `user` (
     INDEX user_username (username),
     INDEX user_password (password)
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+
+CREATE TABLE IF NOT EXISTS `domainset` (
+    `id` serial primary key,
+    `name` varchar(255) not null,
+    INDEX domainset_name (name)
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+    
+CREATE TABLE IF NOT EXISTS `domain_set_glue` (
+    `domain_id` int(10) unsigned not null,
+    `set_id` bigint(20) unsigned not null,
+    CONSTRAINT `glue_domainid` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `glue_setid` FOREIGN KEY (`set_id`) REFERENCES `domainset` (`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB;
