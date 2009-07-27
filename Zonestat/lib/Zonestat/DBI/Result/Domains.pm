@@ -13,5 +13,10 @@ __PACKAGE__->has_many(
     webservers => 'Zonestat::DBI::Result::Webserver',
     'domain_id'
 );
+__PACKAGE__->has_many(
+    glue => 'Zonestat::DBI::Result::DomainSetGlue',
+    'domain_id'
+);
+__PACKAGE__->many_to_many( sets => 'glue', 'domainset');
 
 1;

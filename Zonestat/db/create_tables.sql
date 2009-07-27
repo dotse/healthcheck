@@ -35,6 +35,7 @@ CREATE TABLE IF NOT EXISTS `domainset` (
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
     
 CREATE TABLE IF NOT EXISTS `domain_set_glue` (
+    `id` serial primary key,
     `domain_id` int(10) unsigned not null,
     `set_id` bigint(20) unsigned not null,
     CONSTRAINT `glue_domainid` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
