@@ -1,0 +1,18 @@
+<p>
+    <% $ds->domains->count %> domains put on gathering queue.
+</p>
+
+<%init>
+my $ds = $zs->gather->dbx('Domainset')->find($sid);
+if ($ds) {
+    $zs->gather->enqueue_domains($ds->domains->all);
+} else {
+    $m->clear_buffers;
+    $m->abort(404);
+}
+
+</%init>
+
+<%args>
+$sid
+</%args>

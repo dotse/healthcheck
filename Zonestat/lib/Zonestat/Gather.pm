@@ -47,6 +47,33 @@ q[INSERT INTO queue (domain, priority, source_id, source_data) SELECT domain, 4,
     );
 }
 
+sub enqueue_domains {
+    my $self = shift;
+
+    my $q = $self->dbx('Queue');
+    foreach my $dom (@_) {
+        if (ref($dom) eq 'Zonestat::DBI::Result::Domains') {
+            $q->create(
+                {
+                    domain      => $dom->domain,
+                    source_id   => $self->source_id,
+                    source_data => $self->run_id,
+                    priority    => 4
+                }
+            );
+        } else {
+            $q->create(
+                {
+                    domain      => $dom,
+                    source_id   => $self->source_id,
+                    source_data => $self->run_id,
+                    priority    => 4
+                }
+            );
+        }
+    }
+}
+
 sub get_zone_list {
     my $self = shift;
 

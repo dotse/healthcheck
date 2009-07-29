@@ -1,5 +1,10 @@
 <h1><% $ds->name %></h1>
 
+<form action="/domainset/enqueue_domainset.html" method="post">
+    <input type="hidden" name="sid" value="<% $id %>">
+    <input type="submit" value="Enqueue domainset">
+</form>
+
 <ol>
 % foreach my $domain ($ds->domains) {
    <li>
