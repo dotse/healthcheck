@@ -11,6 +11,13 @@
         </dd>
         </dl>
         
+        <h1>Defined domainsets</h1>
+        <ol>
+% foreach my $set ($zs->present->all_domainsets) {
+            <li><a href="/domainset/<% $set->id %>"><% $set->name %></a></li>
+% }
+        </ol>
+        
         <h1>Common problem types</h1>
         <& /table/common_problems &>
         

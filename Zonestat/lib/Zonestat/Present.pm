@@ -74,6 +74,13 @@ sub all_dnscheck_tests {
     return $s->search({}, { order_by => ['domain'] });
 }
 
+sub all_domainsets {
+    my $self = shift;
+
+    my $s = $self->dbx('Domainset');
+    return $s->search({}, { order_by => ['name'] });
+}
+
 1;
 __END__
 

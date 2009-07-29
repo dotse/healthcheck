@@ -64,7 +64,7 @@ use vars qw[
 $debug     = 0;
 $verbose   = 0;
 $check     = DNSCheck->new;
-$zs        = Zonestat->new(%{$check->config});
+$zs        = Zonestat->new(%{ $check->config });
 $limit     = $check->config->get("daemon")->{maxchild};
 $savelevel = $check->config->get("daemon")->{savelevel} || 'INFO';
 $running   = 1;

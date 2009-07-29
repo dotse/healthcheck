@@ -1,0 +1,31 @@
+<h1><% $ds->name %></h1>
+
+<ol>
+% foreach my $domain ($ds->domains) {
+   <li>
+    <% $domain->domain %><form action="/com/remove_domain_from_set" method="post">
+        <input type="hidden" name="did" value="<% $domain->id %>">
+        <input type="hidden" name="sid" value="<% $ds->id %>">
+        <input type="submit" value="Remove" />
+    </form>
+    </li> 
+% }
+</ol>
+
+<h2>Add a new domain</h2>
+<form action="/com/add_domain_to_set">
+    <input type="hidden" name="sid" value="<% $ds->id %>">
+    <input type="text" name="name" />
+    <input type="submit" value="Add">
+</form>
+
+<%init>
+$r->content_type('text/html');
+my $id = $m->dhandler_arg;
+my $ds = $zs->present->dbx('Domainset')->find($id);
+unless ($ds) {
+    $m->clear_buffer;
+    $m->abort(404);
+}
+
+</%init>

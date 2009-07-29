@@ -1,0 +1,24 @@
+% unless($ds) {
+   <p>No such domainset.</p> 
+% }
+
+% unless($dom) {
+  <p>No such domain: <% $name %></p>  
+% }
+
+<%init>
+my $ds = $zs->present->dbx('Domainset')->find($sid);
+my $dom = $zs->present->dbx('Domains')->search({domain => $name})->first;
+
+if ($ds and $dom) {
+    $ds->add_to_domains($dom);
+    $m->redirect("/domainset/$sid")
+}
+
+$m->content_type('text/html');
+</%init>
+
+<%args>
+$name
+$sid
+</%args>

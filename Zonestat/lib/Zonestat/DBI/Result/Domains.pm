@@ -17,6 +17,6 @@ __PACKAGE__->has_many(
     glue => 'Zonestat::DBI::Result::DomainSetGlue',
     'domain_id'
 );
-__PACKAGE__->many_to_many( sets => 'glue', 'domainset');
+__PACKAGE__->many_to_many(sets => 'glue', 'domainset');
 
 1;
