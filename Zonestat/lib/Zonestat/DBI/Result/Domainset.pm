@@ -11,4 +11,10 @@ __PACKAGE__->has_many(
 );
 __PACKAGE__->many_to_many(domains => 'glue', 'domain');
 
+sub tests {
+    my $self = shift;
+
+    $self->glue->search_related('domain', {})->search_related('tests', {});
+}
+
 1;

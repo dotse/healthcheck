@@ -14,6 +14,10 @@ __PACKAGE__->add_columns(
 __PACKAGE__->set_primary_key('id');
 __PACKAGE__->has_many(results => 'Zonestat::DBI::Result::Results', 'test_id');
 __PACKAGE__->belongs_to(source => 'Zonestat::DBI::Result::Source', 'source_id');
+__PACKAGE__->belongs_to(
+    tested_domain => 'Zonestat::DBI::Result::Domains',
+    { 'foreign.domain' => 'self.domain' }
+);
 
 sub maybe_format {
     my ($formatted, $time) = @_;
