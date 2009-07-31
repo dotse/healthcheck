@@ -15,7 +15,7 @@ if ($ds and $dom) {
     $m->redirect("/domainset/$sid")
 }
 
-$m->content_type('text/html');
+$r->content_type('text/html');
 </%init>
 
 <%args>

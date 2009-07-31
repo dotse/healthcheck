@@ -24,6 +24,9 @@
     <input type="submit" value="Add">
 </form>
 
+<h1>Test results for set</h1>
+<& /table/all_tests, sid => $id &>
+
 <%init>
 $r->content_type('text/html');
 my $id = $m->dhandler_arg;

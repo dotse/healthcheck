@@ -1,0 +1,8 @@
+<%init>
+$zs->present->dbx('Domainset')->create({name => $name});
+$m->redirect('/index.html');
+</%init>
+
+<%args>
+$name
+</%args>

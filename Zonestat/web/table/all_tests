@@ -25,13 +25,23 @@
         
 <%init>
 my @data;
-if (defined($page)) {
-    @data = $zs->present->all_dnscheck_tests->search({},{rows => 100, page => $page})->all;
+my $pres = $zs->present;
+my $rs;
+
+if (defined($sid)) {
+    $rs = $pres->dbx('Domainset')->find($sid)->tests;
 } else {
-    @data = $zs->present->all_dnscheck_tests->all;
+    $rs = $pres->all_dnscheck_tests;
+}
+
+if (defined($page)) {
+    @data = $rs->search({},{rows => 100, page => $page})->all;
+} else {
+    @data = $rs->all;
 }
 my $c;
 </%init>
 <%args>
 $page => undef
+$sid => undef
 </%args>
