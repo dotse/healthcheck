@@ -11,6 +11,7 @@ use base 'Zonestat::Common';
 use LWP::Parallel::UserAgent;
 use HTTP::Request;
 use IO::Socket::SSL;
+use Carp;
 
 our $VERSION = '0.01';
 my $debug = 0;
@@ -135,6 +136,11 @@ sub get_http_server_data {
             }
 
             my $ddb = $db->search({ domain => $dom })->first;
+            unless (defined($ddb)) {
+                carp "Failed to find domain: $dom";
+                next DOMAIN;
+            }
+
             my $issuer;
 
             if (my $s = $res->header('Server')) {
