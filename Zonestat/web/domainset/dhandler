@@ -2,20 +2,8 @@
 
 <form action="/domainset/enqueue_domainset.html" method="post">
     <input type="hidden" name="sid" value="<% $id %>">
-    <input type="submit" value="Enqueue domainset">
+    <input type="submit" value="Add all domains in set to gathering queue">
 </form>
-
-<ol>
-% foreach my $domain ($ds->domains) {
-   <li>
-    <% $domain->domain %><form action="/com/remove_domain_from_set" method="post">
-        <input type="hidden" name="did" value="<% $domain->id %>">
-        <input type="hidden" name="sid" value="<% $ds->id %>">
-        <input type="submit" value="Remove" />
-    </form>
-    </li> 
-% }
-</ol>
 
 <h2>Add a new domain</h2>
 <form action="/com/add_domain_to_set">
@@ -24,16 +12,41 @@
     <input type="submit" value="Add">
 </form>
 
-<h1>Test results for set</h1>
+<h1>Statistics</h1>
+<h2>DNSCheck</h2>
 <& /table/all_tests, sid => $id &>
+<h2>Common problems</h2>
+<& /table/common_problems, sid => $id &>
+<h2>Webserver software</h2>
+<& /table/webserver_types, sid => $id &>
+<h2>Unknown webserver identifications</h2>
+<& /table/unknown_server_types, sid => $id &>
+<h1>List of domains in set</h1>
+<table>
+    <tr>
+        <th>Domain</th>
+        <th>Action</th>
+    </tr>
+% foreach my $domain ($ds->domains) {
+   <tr class="<% ++$c%2==0?'even':'odd' %>">
+    <td><% $domain->domain %></td>
+    <td><form action="/com/remove_domain_from_set" method="post">
+        <input type="hidden" name="did" value="<% $domain->id %>">
+        <input type="hidden" name="sid" value="<% $ds->id %>">
+        <input type="submit" value="Remove" />
+    </form></td>
+    </tr> 
+% }
+</table>
 
 <%init>
 $r->content_type('text/html');
+my $c;
+
 my $id = $m->dhandler_arg;
 my $ds = $zs->present->dbx('Domainset')->find($id);
 unless ($ds) {
     $m->clear_buffer;
     $m->abort(404);
 }
-
 </%init>

@@ -10,6 +10,15 @@
         </table>
         
 <%init>
-my @data  = $zs->present->unknown_server_strings;
+my $ds;
+if (defined($sid)) {
+    $ds = $zs->present->dbx('Domainset')->find($sid);
+    $m->abort(404) unless defined($ds);
+}
+
+my @data  = $zs->present->unknown_server_strings($ds);
 my $c;
 </%init>
+<%args>
+$sid => undef
+</%args>

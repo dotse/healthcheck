@@ -12,7 +12,17 @@
         </table>
         
 <%init>
-my @data  = $zs->present->number_of_domains_with_message;
-my $total = $zs->present->total_tested_domains;
+my $ds;
+
+if (defined($sid)) {
+    $ds = $zs->present->dbx('Domainset')->find($sid);
+    $m->abort(404) unless defined($ds);
+}
+
+my @data  = $zs->present->number_of_domains_with_message('ERROR',$ds);
+my $total = $zs->present->all_dnscheck_tests($ds)->count;
 my $c;
 </%init>
+<%args>
+$sid => undef
+</%args>

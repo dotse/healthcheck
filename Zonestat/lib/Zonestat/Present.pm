@@ -10,8 +10,15 @@ our $VERSION = '0.01';
 
 sub total_tested_domains {
     my $self = shift;
+    my $ds   = shift;
 
-    return $self->dbx('Tests')->search(
+    if (defined($ds)) {
+        $ds = $ds->tests;
+    } else {
+        $ds = $self->dbx('Tests');
+    }
+
+    return $ds->search(
         {},
         {
             columns  => ['domain'],
@@ -84,16 +91,32 @@ sub number_of_servers_with_software {
 
 sub unknown_server_strings {
     my $self = shift;
+    my $ds   = shift;
 
-    my $s = $self->dbx('Webserver');
-    return map { $_->raw } $s->search({ type => 'Unknown' },
+    if (defined($ds)) {
+        $ds =
+          $ds->glue->search_related('domain', {})
+          ->search_related('webservers',      {});
+    } else {
+        $ds = $self->dbx('Webserver');
+    }
+
+    return map { $_->raw } $ds->search({ type => 'Unknown' },
         { columns => ['raw'], distinct => 1, order_by => ['raw'] })->all;
 }
 
 sub all_dnscheck_tests {
     my $self = shift;
+    my $ds   = shift;
 
-    my $s = $self->dbx('Tests');
+    my $s;
+
+    if (defined($ds)) {
+        $s = $ds->tests;
+    } else {
+        $s = $self->dbx('Tests');
+    }
+
     return $s->search({}, { order_by => ['domain'] });
 }
 

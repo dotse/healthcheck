@@ -12,11 +12,23 @@
         </table>
         
 <%init>
-my $total = $zs->present->dbx('Webserver')->search({https => $https})->count;
+my $ds;
+my $ws;
+
+if (defined($sid)) {
+    $ds = $zs->present->dbx('Domainset')->find($sid);
+    $m->abort(404) unless defined($ds);
+    $ws = $ds->glue->search_related('domain',{})->search_related('webservers',{});
+} else {
+    $ws = $zs->present->dbx('Webserver');
+}
+
+my $total = $ws->search({https => $https})->count;
 my @data  = map {[$_->[0], $_->[1], sprintf('%5.2f', 100*$_->[1]/$total)]}
-    $zs->present->number_of_servers_with_software($https);
+    $zs->present->number_of_servers_with_software($https, $ds);
 my $c;
 </%init>
 <%args>
 $https => 0
+$sid => undef
 </%args>
