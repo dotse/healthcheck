@@ -6,6 +6,8 @@ th {
     font-variant: small-caps;
     color: white;
     background: black;
+    padding-left: 1em;
+    padding-right: 1em;
 }
 
 tr.even {
@@ -16,12 +18,18 @@ td.numeric {
     text-align: right;
 }
 
-h1 {
-    text-align: center;
+h1, h2 {
+    text-align: left;
+    margin-left: 50px;
+    padding-left: 1em;
     text-decoration: underline;
-    color: gray;
-    background-color: white;
+    background-color: #ccc;
+    color: #333;
     clear: both;
+}
+
+h2 {
+    background-color: #eee;
 }
 
 dl {
