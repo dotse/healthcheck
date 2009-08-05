@@ -46,6 +46,8 @@ dd {
     border: thin black solid;
     float: right;
     background-color: #ddd;
+    margin-left: 10px;
+    margin-bottom: 10px;
 }
 
 #status th {
@@ -59,27 +61,31 @@ dd {
     font-weight: bold;
 }
 
+#testinfo {
+    border-collapse: collapse;
+}
+
 #testinfo td {
-    border: thin black solid;
+    padding-right: 1em;
 }
 
 #testinfo tr.info {
-    color: #060;
+    background-color: #dfd;
 }
 
 #testinfo tr.notice {
-    color: #0b0;
+    background-color: #afa;
 }
 
 #testinfo tr.error {
-    color: #f00;
+    background-color: #faa;
 }
 
 #testinfo tr.warning {
-    color: #c80;
+    background-color: #ffa;
 }
 
 #testinfo tr.critical {
-    color: #f00;
-    font-weight: bold;
+    background-color: red;
+    color: yellow;
 }

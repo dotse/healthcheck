@@ -2,7 +2,7 @@
 
 <table id="testinfo">
     <tr>
-        <th colspan="11">Test results</th>
+        <th colspan="6">Test results</th>
     </tr>
 % foreach my $res ($test->results->all) {
     <tr class="<% lc($res->level) %>">
@@ -12,56 +12,18 @@
         <td>
             <% $res->message %>
         </td>
-% if($res->arg0) {
         <td>
             <% $res->arg0 %>
         </td>
-% }
-% if($res->arg1) {
         <td>
             <% $res->arg1 %>
         </td>
-% }
-% if($res->arg2) {
         <td>
             <% $res->arg2 %>
         </td>
-% }
-% if($res->arg3) {
         <td>
             <% $res->arg3 %>
         </td>
-% }
-% if($res->arg4) {
-        <td>
-            <% $res->arg4 %>
-        </td>
-% }
-% if($res->arg5) {
-        <td>
-            <% $res->arg5 %>
-        </td>
-% }
-% if($res->arg6) {
-        <td>
-            <% $res->arg6 %>
-        </td>
-% }
-% if($res->arg7) {
-        <td>
-            <% $res->arg7 %>
-        </td>
-% }
-% if($res->arg8) {
-        <td>
-            <% $res->arg8 %>
-        </td>
-% }
-% if($res->arg9) {
-        <td>
-            <% $res->arg9 %>
-        </td>
-% }
     </tr>
 % }
 </table>
