@@ -1,6 +1,5 @@
-<p>
-    <% $ds->domains->count %> domains put on gathering queue.
-</p>
+<h2><% $ds->domains->count %> domains put on gathering queue.</h2>
+<p><a href="/">Go back to top.</a></p>
 
 <%init>
 my $ds = $zs->gather->dbx('Domainset')->find($sid);

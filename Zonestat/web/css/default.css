@@ -28,6 +28,10 @@ h1, h2 {
     clear: both;
 }
 
+h1.top {
+    clear: none;
+}
+
 h2 {
     background-color: #eee;
 }

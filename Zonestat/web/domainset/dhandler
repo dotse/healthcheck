@@ -1,8 +1,8 @@
-<h1><% $ds->name %></h1>
+<h1 class="top"><% $ds->name %></h1>
 
 <form action="/domainset/enqueue_domainset.html" method="post">
     <input type="hidden" name="sid" value="<% $id %>">
-    <input type="submit" value="Add all domains in set to gathering queue">
+    <input type="submit" value="Add all <% $ds->domains->count %> domains in set to gathering queue">
 </form>
 
 <h2>Add a new domain</h2>
