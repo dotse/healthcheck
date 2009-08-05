@@ -31,5 +31,30 @@ dt {
 }
 
 dd {
+    color: blue;
+}
+
+.problem {
+    color: red;
+}
+
+.fine {
     color: green;
+}
+
+#status {
+    border: thin black solid;
+    float: right;
+    background-color: #ddd;
+}
+
+#status th {
+    background-color: grey;
+    padding: 0;
+    margin: 0;
+}
+
+#status td:first-child {
+    text-align: right;
+    font-weight: bold;
 }

@@ -1,4 +1,10 @@
-<% $res %>
+% if (!defined($res)) {
+<span class="problem">Can't read pid file.</span>
+% } elsif ($res == 0) {
+<span class="problem">Not OK</span>
+% } else {
+<span class="fine">OK</span>
+% }
 
 <%init>
 my $res = 'Unknown';
@@ -6,12 +12,8 @@ my $pidfile = $dc->config->get("daemon")->{pidfile};
 if(open my $fh, '<', $pidfile) {
     my $pid = <$fh>;
     chomp($pid);
-    if (kill 0, $pid) {
-        $res = "Ok"
-    } else {
-        $res = "Not ok"
-    }
+    $res = kill 0, $pid;
 } else {
-    $res = "Pidfile problem: $!"
+    $res = undef;
 }
 </%init>
