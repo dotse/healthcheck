@@ -1,12 +1,17 @@
 <%init>
 
+my $ds;
+if (defined($sid)) {
+    $ds = $zs->present->dbx('Domainset')->find($sid)
+}
+
 my (@d1, @d2);
-my @raw = $zs->present->number_of_servers_with_software;
+my @raw = $zs->present->number_of_servers_with_software($https, $ds);
 my $tmp;
 foreach (splice(@raw, 4)) {
     $tmp += $_->[1];
 }
-push @raw, ['Other', $tmp];
+push @raw, ['Other', $tmp] if $tmp > 0;
 
 foreach (@raw) {
     push @d1, $_->[0];
@@ -14,7 +19,9 @@ foreach (@raw) {
 }
 my $chart = GD::Graph::hbars->new(320,240);
 $chart->set(
-    title => 'Webserver Software',
+    title => $https?'HTTPS server software' : 'HTTP server software',
+    cycle_clrs => 1,
+    dclrs => [qw(green yellow blue red purple)]
     
 ) or die $chart->error;
 
@@ -28,3 +35,7 @@ $r->content_type('image/png');
 $m->print($gd->png);
 $m->abort(200);
 </%init>
+<%args>
+$https => 0
+$sid => undef
+</%args>

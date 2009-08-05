@@ -1,0 +1,28 @@
+        <table>
+            <tr>
+                <th>Highest severity</th>
+                <th>Count</th>
+            </tr>
+% for my $i (@data) {
+                <tr class="<% ++$c%2==0?'even':'odd' %>">
+                    <td><% uc $i->[0] %></td>
+                    <td class="numeric"><% 0+$i->[1] %></td>
+                </tr>
+% }
+        </table>
+        
+<%init>
+my $ds;
+my $ws;
+
+if (defined($sid)) {
+    $ds = $zs->present->dbx('Domainset')->find($sid);
+    $m->abort(404) unless defined($ds);
+}
+
+my @data  = $zs->present->tests_with_max_severity($ds);
+my $c;
+</%init>
+<%args>
+$sid => undef
+</%args>

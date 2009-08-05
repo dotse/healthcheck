@@ -13,14 +13,20 @@
 </form>
 
 <h1>Statistics</h1>
+
 <h2>DNSCheck</h2>
 <& /table/all_tests, sid => $id &>
+
 <h2>Common problems</h2>
 <& /table/common_problems, sid => $id &>
+
 <h2>Webserver software</h2>
+<img src="/chart/webserver?sid=<% $id %>">
 <& /table/webserver_types, sid => $id &>
+
 <h2>Unknown webserver identifications</h2>
 <& /table/unknown_server_types, sid => $id &>
+
 <h1>List of domains in set</h1>
 <table>
     <tr>
