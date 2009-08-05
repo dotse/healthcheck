@@ -5,6 +5,7 @@
         <link rel="stylesheet" href="/css/default.css" media="all" type="text/css">
     </head>
     <body>
+        <& /com/status &>
         <% $m->call_next %>
     </body>
 </html>
