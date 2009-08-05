@@ -11,7 +11,7 @@
             </tr>
 % for my $i (@data) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
-                    <td><% $i->domain %></td>
+                    <td><a href="/tests/<% $i->id %>"><% $i->domain %></a></td>
                     <td><% $i->begin(1) %></td>
                     <td class="numeric"><% $i->end - $i->begin %>s</td>
                     <td class="numeric"><% $i->count_critical %></td>

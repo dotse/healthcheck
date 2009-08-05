@@ -58,3 +58,28 @@ dd {
     text-align: right;
     font-weight: bold;
 }
+
+#testinfo td {
+    border: thin black solid;
+}
+
+#testinfo tr.info {
+    color: #060;
+}
+
+#testinfo tr.notice {
+    color: #0b0;
+}
+
+#testinfo tr.error {
+    color: #f00;
+}
+
+#testinfo tr.warning {
+    color: #c80;
+}
+
+#testinfo tr.critical {
+    color: #f00;
+    font-weight: bold;
+}
