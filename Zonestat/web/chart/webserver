@@ -1,0 +1,30 @@
+<%init>
+
+my (@d1, @d2);
+my @raw = $zs->present->number_of_servers_with_software;
+my $tmp;
+foreach (splice(@raw, 4)) {
+    $tmp += $_->[1];
+}
+push @raw, ['Other', $tmp];
+
+foreach (@raw) {
+    push @d1, $_->[0];
+    push @d2, $_->[1];
+}
+my $chart = GD::Graph::hbars->new(320,240);
+$chart->set(
+    title => 'Webserver Software',
+    
+) or die $chart->error;
+
+my $gd = $chart->plot([
+    \@d1,
+    \@d2
+]) or die $chart->error;
+
+$m->clear_buffer;
+$r->content_type('image/png');
+$m->print($gd->png);
+$m->abort(200);
+</%init>
