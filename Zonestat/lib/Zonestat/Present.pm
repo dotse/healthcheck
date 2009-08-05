@@ -129,40 +129,40 @@ sub all_domainsets {
 
 sub tests_with_max_severity {
     my $self = shift;
-    my $ds = shift;
-    
+    my $ds   = shift;
+
     my $tests;
     if (defined($ds)) {
         $tests = $ds->tests;
     } else {
-        $tests = $self->dbx('Tests')->search({})
+        $tests = $self->dbx('Tests')->search({});
     }
 
     my %res;
-    
+
     foreach my $t ($tests->all) {
         if ($t->count_critical > 0) {
-            $res{critical}++
+            $res{critical}++;
         } elsif ($t->count_error > 0) {
-            $res{error}++
+            $res{error}++;
         } elsif ($t->count_warning > 0) {
-            $res{warning}++
+            $res{warning}++;
         } elsif ($t->count_notice > 0) {
-            $res{notice}++
+            $res{notice}++;
         } elsif ($t->count_info > 0) {
-            $res{info}++
+            $res{info}++;
         } else {
-            $res{clear}++
+            $res{clear}++;
         }
     }
-    
+
     return (
         [critical => $res{critical}],
-        [error => $res{error}],
-        [warning => $res{warning}],
-        [notice => $res{notice}],
-        [info => $res{info}],
-        [clear => $res{clear}]
+        [error    => $res{error}],
+        [warning  => $res{warning}],
+        [notice   => $res{notice}],
+        [info     => $res{info}],
+        [clear    => $res{clear}]
     );
 }
 
