@@ -351,7 +351,7 @@ sub running_in_child {
 
     $dbh->do(q[UPDATE queue SET tester_pid = ? WHERE id = ?], undef, $$, $id);
     $dbh->do(
-q[INSERT INTO tests (domain,begin, source_id, source_data, run_id) VALUES (?,NOW(),?,?)],
+q[INSERT INTO tests (domain,begin, source_id, source_data, run_id) VALUES (?,NOW(),?,?,?)],
         undef, $domain, $source, $source_data, $source_data
     );
 
