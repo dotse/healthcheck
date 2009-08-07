@@ -18,6 +18,7 @@ __PACKAGE__->belongs_to(
     tested_domain => 'Zonestat::DBI::Result::Domains',
     { 'foreign.domain' => 'self.domain' }
 );
+__PACKAGE__->belongs_to(testrun => 'Zonestat::DBI::Result::Testrun', 'run_id');
 
 sub maybe_format {
     my ($formatted, $time) = @_;

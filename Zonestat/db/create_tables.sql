@@ -41,3 +41,12 @@ CREATE TABLE IF NOT EXISTS `domain_set_glue` (
     CONSTRAINT `glue_domainid` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
     CONSTRAINT `glue_setid` FOREIGN KEY (`set_id`) REFERENCES `domainset` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB;
+    
+CREATE TABLE IF NOT EXISTS `testruns` (
+    `id` serial primary key,
+    `set_id` bigint(20) unsigned not null,
+    `name` varchar(255) unique not null,
+    `start` timestamp DEFAULT CURRENT_TIMESTAMP,
+    `finish` timestamp NULL,
+    CONSTRAINT `testruns_setid` FOREIGN KEY (`set_id`) REFERENCES `domainset` (`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
