@@ -12,6 +12,7 @@ use LWP::Parallel::UserAgent;
 use HTTP::Request;
 use IO::Socket::SSL;
 use Carp;
+use POSIX qw[strftime];
 
 our $VERSION = '0.01';
 my $debug = 0;
@@ -48,30 +49,20 @@ q[INSERT INTO queue (domain, priority, source_id, source_data) SELECT domain, 4,
     );
 }
 
-sub enqueue_domains {
+sub enqueue_domainset {
     my $self = shift;
+    my $ds   = shift;
+    my $name = shift || strftime('%F %T', localtime());
 
+    my $run = $ds->add_to_testruns({ name => $name });
     my $q = $self->dbx('Queue');
-    foreach my $dom (@_) {
-        if (ref($dom) eq 'Zonestat::DBI::Result::Domains') {
-            $q->create(
-                {
-                    domain      => $dom->domain,
-                    source_id   => $self->source_id,
-                    source_data => $self->run_id,
-                    priority    => 4
-                }
-            );
-        } else {
-            $q->create(
-                {
-                    domain      => $dom,
-                    source_id   => $self->source_id,
-                    source_data => $self->run_id,
-                    priority    => 4
-                }
-            );
-        }
+    foreach my $d ($ds->domains->all) {
+        $q->create({
+            domain      => $d->domain,
+            source_id   => $self->source_id,
+            source_data => $run->id,
+            priority    => 4
+        });
     }
 }
 

@@ -7,7 +7,7 @@ __PACKAGE__->load_components(qw[Core]);
 __PACKAGE__->table('tests');
 __PACKAGE__->add_columns(
     qw[id domain source_id source_data count_critical count_error
-      count_warning count_notice count_info],
+      count_warning count_notice count_info run_id],
     begin => { accessor => '_begin' },
     end   => { accessor => '_end' },
 );

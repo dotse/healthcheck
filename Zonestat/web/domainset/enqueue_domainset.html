@@ -4,7 +4,7 @@
 <%init>
 my $ds = $zs->gather->dbx('Domainset')->find($sid);
 if ($ds) {
-    $zs->gather->enqueue_domains($ds->domains->all);
+    $zs->gather->enqueue_domainset($ds);
 } else {
     $m->clear_buffers;
     $m->abort(404);

@@ -9,6 +9,8 @@ __PACKAGE__->has_many(
     glue => 'Zonestat::DBI::Result::DomainSetGlue',
     'set_id'
 );
+__PACKAGE__->has_many(testruns => 'Zonestat::DBI::Result::Testrun', 'set_id');
+
 __PACKAGE__->many_to_many(domains => 'glue', 'domain');
 
 sub tests {

@@ -1,9 +1,9 @@
-package Zonestat::DBI::Result::Zone;
+package Zonestat::DBI::Result::Testrun;
 use base 'DBIx::Class';
 
 __PACKAGE__->load_components(qw[Core]);
-__PACKAGE__->table('testrun');
-__PACKAGE__->add_columns(qw[id name ttl class type data]);
+__PACKAGE__->table('testruns');
+__PACKAGE__->add_columns(qw[id name set_id start finish]);
 __PACKAGE__->set_primary_key('id');
 
 __PACKAGE__->belongs_to(
