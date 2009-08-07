@@ -1,0 +1,45 @@
+* Export av tabeller i CSV-format.
+
+* Export av domänset i CSV-format.
+
+* Geografisk placering av webservrar (AS och GeoIP).
+
+* Geografisk placering av namnservrar.
+
+* Tabell över namnservrar, mappning till domäner.
+
+* Samma för mailservrar och webservrar.
+
+* GoogleMaps-hack för GIS-data?
+
+* Statistik per körning och domänset.
+
+* Webinnehåll:
+
+ - Content-type
+
+ - Remote JS? Vilket? Lagra URLarna.
+
+ - Flash på sidan? Lagra URL.
+
+ - HTML-version. DOCTYPE? 
+
+ - Lagra hela sidan för framtida bruk.
+
+ - Länk till Pingdoms timing-testsida.
+
+* Skillnader mellan olika körningar för samma domänset.
+
+* Sökmöjligheter i datat? 
+
+ - Orgnummer?
+
+ - Registrar?
+
+ - Domänset baserade på sparade sökningar à la Spotlight?
+
+* Plugin-system?
+
+* Lägg till i huvud-domäntabellen när en okänd domän adderas till ett domänset.
+
+* Metadata om foo-servrar (IPv4, IPv6, …)
