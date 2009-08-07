@@ -1,9 +1,20 @@
         <h1 class="top">Defined domainsets</h1>
-        <ol>
+        <dl>
 % foreach my $set ($zs->present->all_domainsets) {
-            <li><a href="/domainset/<% $set->id %>"><% $set->name %></a></li>
+            <dt>
+                <a href="/domainset/<% $set->id %>"><% $set->name %></a>
+            </dt>
+            <dd>
+                <ol>
+% foreach my $tr ($set->testruns) {
+                    <li>
+                        <a href="/testrun/<% $tr->id %>"><% $tr->name %></a>
+                    </li>
+% }                    
+                </ol>
+            </dd>
 % }
-        </ol>
+        </dl>
         <h2>Create a new domainset</h2>
         <form action="/com/create_domainset" method="post" enctype="multipart/form-data">
             <label for="name">Name:</label><input type="text" name="name" />

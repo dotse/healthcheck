@@ -1,0 +1,9 @@
+<h1>Test run <% $tr->name %> for <% $tr->domainset->name %></h1>
+
+<%init>
+$r->content_type('text/html');
+my $tid = $m->dhandler_arg;
+$m->clear_buffers, $m->abort(404) unless defined($tid);
+my $tr = $zs->present->dbx('Testrun')->find($tid);
+$m->clear_buffers, $m->abort(404) unless defined($tr);
+</%init>
