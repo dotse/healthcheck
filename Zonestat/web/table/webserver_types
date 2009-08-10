@@ -16,9 +16,9 @@ my $ds;
 my $ws;
 
 if (defined($sid)) {
-    $ds = $zs->present->dbx('Domainset')->find($sid);
+    $ds = $zs->present->dbx('Testrun')->find($sid);
     $m->abort(404) unless defined($ds);
-    $ws = $ds->glue->search_related('domain',{})->search_related('webservers',{});
+    $ws = $ds->tests->search_related('tested_domain',{})->search_related('webservers',{});
 } else {
     $ws = $zs->present->dbx('Webserver');
 }

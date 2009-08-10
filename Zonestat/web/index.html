@@ -8,7 +8,7 @@
                 <ol>
 % foreach my $tr ($set->testruns) {
                     <li>
-                        <a href="/testrun/<% $tr->id %>"><% $tr->name %></a>
+                        <a href="/testrun/<% $tr->id %>"><% $tr->name %> (<% $tr->tests->count %> tests)</a>
                     </li>
 % }                    
                 </ol>

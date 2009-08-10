@@ -1,0 +1,9 @@
+<%init>
+my $tr = $zs->present->dbx('Testrun')->find($tid)
+    or $m->abort(404);
+$tr->delete;
+$m->redirect('/index.html');
+</%init>
+<%args>
+$tid
+</%args>

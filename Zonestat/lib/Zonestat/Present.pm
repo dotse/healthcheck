@@ -10,15 +10,15 @@ our $VERSION = '0.01';
 
 sub total_tested_domains {
     my $self = shift;
-    my $ds   = shift;
+    my $tr   = shift;
 
-    if (defined($ds)) {
-        $ds = $ds->tests;
+    if (defined($tr)) {
+        $tr = $tr->tests;
     } else {
-        $ds = $self->dbx('Tests');
+        $tr = $self->dbx('Tests');
     }
 
-    return $ds->search(
+    return $tr->search(
         {},
         {
             columns  => ['domain'],
@@ -66,14 +66,14 @@ sub number_of_domains_with_message {
 
 sub number_of_servers_with_software {
     my $self = shift;
-    my ($https, $ds) = @_;
+    my ($https, $tr) = @_;
 
     my $s;
 
-    if (defined($ds)) {
+    if (defined($tr)) {
         $s =
-          $ds->glue->search_related('domain', {})
-          ->search_related('webservers',      {});
+          $tr->tests->search_related('tested_domain', {})
+          ->search_related('webservers',              {});
     } else {
         $s = $self->dbx('Webserver');
     }
@@ -95,8 +95,8 @@ sub unknown_server_strings {
 
     if (defined($ds)) {
         $ds =
-          $ds->glue->search_related('domain', {})
-          ->search_related('webservers',      {});
+          $ds->tests->search_related('tested_domain', {})
+          ->search_related('webservers',              {});
     } else {
         $ds = $self->dbx('Webserver');
     }

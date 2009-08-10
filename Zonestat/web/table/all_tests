@@ -35,7 +35,7 @@ my $pres = $zs->present;
 my $rs;
 
 if (defined($sid)) {
-    $rs = $pres->dbx('Domainset')->find($sid)->tests;
+    $rs = $pres->dbx('Testrun')->find($sid)->tests;
 } else {
     $rs = $pres->all_dnscheck_tests;
 }

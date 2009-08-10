@@ -12,7 +12,7 @@
 <%init>
 my $ds;
 if (defined($sid)) {
-    $ds = $zs->present->dbx('Domainset')->find($sid);
+    $ds = $zs->present->dbx('Testrun')->find($sid);
     $m->abort(404) unless defined($ds);
 }
 
