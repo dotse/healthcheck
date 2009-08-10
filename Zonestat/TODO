@@ -43,3 +43,6 @@
 * Lägg till i huvud-domäntabellen när en okänd domän adderas till ett domänset.
 
 * Metadata om foo-servrar (IPv4, IPv6, …)
+
+* dns2db-data
+
