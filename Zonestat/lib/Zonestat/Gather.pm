@@ -57,12 +57,14 @@ sub enqueue_domainset {
     my $run = $ds->add_to_testruns({ name => $name });
     my $q = $self->dbx('Queue');
     foreach my $d ($ds->domains->all) {
-        $q->create({
-            domain      => $d->domain,
-            source_id   => $self->source_id,
-            source_data => $run->id,
-            priority    => 4
-        });
+        $q->create(
+            {
+                domain      => $d->domain,
+                source_id   => $self->source_id,
+                source_data => $run->id,
+                priority    => 4
+            }
+        );
     }
 }
 
