@@ -46,6 +46,7 @@ sub number_of_domains_with_message {
     my $self  = shift;
     my $level = shift || 'ERROR';
     my $ds    = shift;
+    my %res;
 
     if (defined($ds)) {
         $ds = $ds->tests->search_related('results', {});
@@ -53,15 +54,16 @@ sub number_of_domains_with_message {
         $ds = $self->dbx('Results');
     }
 
-    return map { [$_->message, $_->get_column('count')] } $ds->search(
+    $res{ $_->message }++
+      for $ds->search(
         { level => $level },
         {
-            select   => ['message', { count => '*' }],
-            as       => [qw/message count/],
-            group_by => ['message'],
-            order_by => ['count(*) DESC']
+            columns  => [qw(test_id message)],
+            distinct => 1
         }
-    )->all;
+      )->all;
+
+    return map { [$_, $res{$_}] } sort { $res{$b} <=> $res{$a} } keys %res;
 }
 
 sub number_of_servers_with_software {
