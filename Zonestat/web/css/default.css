@@ -1,11 +1,20 @@
+/* @override http://dev.cyberpomo.com/css/default.css */
+
 img {
     float: right;
+	padding-bottom: 20px;
+	padding-left: 10px;
+}
+
+table {
+	margin-left: 40px;
+	border: thin solid silver;
 }
 
 th {
     font-variant: small-caps;
     color: white;
-    background: black;
+    background: #55a155;
     padding-left: 1em;
     padding-right: 1em;
 }
@@ -20,12 +29,13 @@ td.numeric {
 
 h1, h2 {
     text-align: left;
-    margin-left: 50px;
     padding-left: 1em;
-    text-decoration: underline;
-    background-color: #ccc;
-    color: #333;
-    clear: both;
+    color: gray;
+	border-top-style: solid;
+	border-left-style: solid;
+	width: 66%;
+	border-left-color: black;
+	border-top-color: black;
 }
 
 h1.top {
@@ -33,7 +43,10 @@ h1.top {
 }
 
 h2 {
-    background-color: #eee;
+	margin-left: 25px;
+	border-top-color: gray;
+	border-left-color: gray;
+	clear: both;
 }
 
 dl {
@@ -106,4 +119,12 @@ dd {
 #testinfo tr.critical {
     background-color: red;
     color: yellow;
+}
+
+form {
+	border: thin dotted gray;
+	background-color: silver;
+	margin-left: 40px;
+	margin-right: 40px;
+	padding: 4px;
 }
