@@ -9,6 +9,9 @@
                     <td class="numeric"><% 0+$i->[1] %></td>
                 </tr>
 % }
+            <tr>
+                <th colspan="8"><a href="/csv/max_severity<% (defined($sid) ? "?sid=$sid" : "") %>">CSV file</a></th>
+            </tr>
         </table>
         
 <%init>

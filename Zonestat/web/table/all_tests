@@ -27,6 +27,9 @@
                     <td class="numeric"><% $i->count_info %></td>
                 </tr>
 % }
+            <tr>
+                <th colspan="8"><a href="/csv/all_tests<% (defined($sid) ? "?sid=$sid" : "") %>">CSV file</a></th>
+            </tr>
         </table>
         
 <%init>

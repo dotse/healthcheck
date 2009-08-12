@@ -7,6 +7,9 @@
                     <td><% $i %></td>
                 </tr>
 % }
+            <tr>
+                <th colspan="8"><a href="/csv/unknown_server_types<% (defined($sid) ? "?sid=$sid" : "") %>">CSV file</a></th>
+            </tr>
         </table>
         
 <%init>

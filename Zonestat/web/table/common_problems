@@ -9,6 +9,9 @@
                     <td><% $i->[0] %></td>
                 </tr>
 % }
+            <tr>
+                <th colspan="8"><a href="/csv/common_problems<% (defined($sid) ? "?sid=$sid" : "") %>">CSV file</a></th>
+            </tr>
         </table>
         
 <%init>

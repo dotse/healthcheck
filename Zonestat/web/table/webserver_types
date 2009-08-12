@@ -9,6 +9,9 @@
                     <td><% $i->[0] %></td>
                 </tr>
 % }
+            <tr>
+                <th colspan="8"><a href="/csv/webserver_types?https=<% $https %><% (defined($sid) ? "&sid=$sid" : "") %>">CSV file</a></th>
+            </tr>
         </table>
         
 <%init>
