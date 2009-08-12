@@ -12,6 +12,7 @@ use HTML::Mason::ApacheHandler;
     use Zonestat;
     use DNSCheck;
     use Apache2::Request;
+    use Text::CSV_XS;
     use Data::Dumper;
     our $zs = Zonestat->new('/opt/local/share/dnscheck/site_config.yaml');
     our $dc = DNSCheck->new;

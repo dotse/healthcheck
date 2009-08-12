@@ -12,7 +12,7 @@
 
 * GoogleMaps-hack för GIS-data?
 
-* Statistik per körning och domänset.
+(* Statistik per körning och domänset.)
 
 * Webinnehåll:
 
@@ -40,7 +40,7 @@
 
 * Plugin-system?
 
-* Lägg till i huvud-domäntabellen när en okänd domän adderas till ett domänset.
+(* Lägg till i huvud-domäntabellen när en okänd domän adderas till ett domänset.)
 
 * Metadata om foo-servrar (IPv4, IPv6, …)
 
