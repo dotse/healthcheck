@@ -8,7 +8,7 @@
 
 <%init>
 my $ds = $zs->present->dbx('Domainset')->find($sid);
-my $dom = $zs->present->dbx('Domains')->search({domain => $name})->first;
+my $dom = $zs->present->dbx('Domains')->find_or_create({domain => $name},{key => 'domain'});
 
 if ($ds and $dom) {
     $ds->add_to_domains($dom);

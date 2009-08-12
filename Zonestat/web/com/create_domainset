@@ -15,7 +15,7 @@ if ($userfile) {
 
 my $ds = $zs->present->dbx('Domainset')->create({name => $name});
 foreach my $name (@content) {
-    my $dom = $zs->present->dbx('Domains')->search({domain => $name})->first;
+    my $dom = $zs->present->dbx('Domains')->find_or_create({domain => $name},{key => 'domain'});
     if (defined($dom)) {
         $ds->add_to_domains($dom)
     } else {
