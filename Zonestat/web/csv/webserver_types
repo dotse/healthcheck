@@ -1,0 +1,31 @@
+% for my $i (@data) {$csv->combine(@{$i});
+<% $csv->string %>
+% }
+<%init>
+$r->content_type('text/csv');
+
+my $ds;
+my $ws;
+my $csv = Text::CSV_XS->new;
+
+if (defined($sid)) {
+    $ds = $zs->present->dbx('Testrun')->find($sid);
+    $m->abort(404) unless defined($ds);
+    $ws = $ds->tests->search_related('tested_domain',{})->search_related('webservers',{});
+    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$ds->domainset->name."_".$ds->name.".csv");
+} else {
+    $ws = $zs->present->dbx('Webserver');
+    $r->headers_out->add('Content-disposition' => "attachment;  filename=max_severity.csv");
+}
+
+my $total = $ws->search({https => $https})->count;
+my @data  = map {[$_->[0], $_->[1], sprintf('%0.2f%%', 100*$_->[1]/$total)]}
+    $zs->present->number_of_servers_with_software($https, $ds);
+</%init>
+<%args>
+$https => 0
+$sid => undef
+</%args>
+<%flags>
+inherit => undef
+</%flags>

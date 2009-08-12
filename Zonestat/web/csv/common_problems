@@ -1,0 +1,28 @@
+% for my $i (@data) {$csv->combine(@{$i});
+<% $csv->string %>
+% }
+<%init>
+$r->content_type('text/csv');
+
+my $ds;
+my $csv = Text::CSV_XS->new;
+
+if (defined($sid)) {
+    $ds = $zs->present->dbx('Testrun')->find($sid);
+    $m->abort(404) unless defined($ds);
+    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$ds->domainset->name."_".$ds->name.".csv");
+} else {
+    $r->headers_out->add('Content-disposition' => "attachment;  filename=common_problems.csv");
+}
+
+my @data  = $zs->present->number_of_domains_with_message('ERROR',$ds);
+my $total = $zs->present->all_dnscheck_tests($ds)->count;
+@data = map {[$_->[0], 100*$_->[1]/$total]} @data;
+
+</%init>
+<%args>
+$sid => undef
+</%args>
+<%flags>
+inherit => undef
+</%flags>

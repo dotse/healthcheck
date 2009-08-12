@@ -1,0 +1,26 @@
+% for my $i (@data) {$csv->combine(@{$i});
+<% $csv->string %>
+% }
+<%init>
+$r->content_type('text/csv');
+
+my $ds;
+my $ws;
+my $csv = Text::CSV_XS->new;
+
+if (defined($sid)) {
+    $ds = $zs->present->dbx('Testrun')->find($sid);
+    $m->abort(404) unless defined($ds);
+    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$ds->domainset->name."_".$ds->name.".csv");
+} else {
+    $r->headers_out->add('Content-disposition' => "attachment;  filename=max_severity.csv");
+}
+
+my @data  = map {[$_->[0], 0+$_->[1]]} $zs->present->tests_with_max_severity($ds);
+</%init>
+<%args>
+$sid => undef
+</%args>
+<%flags>
+inherit => undef
+</%flags>
