@@ -12,7 +12,9 @@ if (defined($sid)) {
     $ds = $zs->present->dbx('Testrun')->find($sid);
     $m->abort(404) unless defined($ds);
     $ws = $ds->tests->search_related('tested_domain',{})->search_related('webservers',{});
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$ds->domainset->name."_".$ds->name.".csv");
+    my $name = $ds->domainset->name."_".$ds->name;
+    $name =~ s/\s+/_/g;
+    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
 } else {
     $ws = $zs->present->dbx('Webserver');
     $r->headers_out->add('Content-disposition' => "attachment;  filename=max_severity.csv");
@@ -21,6 +23,7 @@ if (defined($sid)) {
 my $total = $ws->search({https => $https})->count;
 my @data  = map {[$_->[0], $_->[1], sprintf('%0.2f%%', 100*$_->[1]/$total)]}
     $zs->present->number_of_servers_with_software($https, $ds);
+unshift @data, ["Server type", "Count", "Percentage"];
 </%init>
 <%args>
 $https => 0

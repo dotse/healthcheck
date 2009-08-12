@@ -9,7 +9,9 @@ my $csv = Text::CSV_XS->new;
 if (defined($sid)) {
     $ds = $zs->present->dbx('Testrun')->find($sid);
     $m->abort(404) unless defined($ds);
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$ds->domainset->name."_".$ds->name.".csv");
+    my $name = $ds->domainset->name."_".$ds->name;
+    $name =~ s/\s+/_/g;
+    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
 } else {
     $r->headers_out->add('Content-disposition' => "attachment;  filename=unknown_server_types.csv");
 }

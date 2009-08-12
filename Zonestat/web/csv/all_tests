@@ -22,7 +22,9 @@ $r->content_type('text/csv');
 if (defined($sid)) {
     my $tmp = $pres->dbx('Testrun')->find($sid);
     $rs = $tmp->tests;
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$tmp->domainset->name."_".$tmp->name.".csv");
+    my $name = $tmp->domainset->name."_".$tmp->name;
+    $name =~ s/\s+/_/g;
+    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
 } else {
     $rs = $pres->all_dnscheck_tests;
     $r->headers_out->add('Content-disposition' => "attachment;  filename=all_tests.csv");
