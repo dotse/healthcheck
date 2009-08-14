@@ -160,7 +160,7 @@ sub get_http_server_data {
                                 raw_type     => $s,
                                 https        => $https,
                                 issuer       => $issuer,
-                                raw_response => $res->as_string,
+                                raw_response => $res,
                                 testrun_id   => $tr->id,
                                 url          => $url,
                                 ip           => (
@@ -175,7 +175,7 @@ sub get_http_server_data {
                     {
                         type         => 'Unknown',
                         raw_type     => $s,
-                        raw_response => $res->as_string,
+                        raw_response => $res,
                         testrun_id   => $tr->id,
                         url          => $url,
                         ip => ((split(/:/, $res->header('Client-Peer')))[0]),
