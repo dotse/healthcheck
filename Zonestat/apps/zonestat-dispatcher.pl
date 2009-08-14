@@ -361,7 +361,7 @@ q[INSERT INTO tests (domain,begin, source_id, source_data, run_id) VALUES (?,NOW
 
     # This line hides all the actual useful work.
     $dc->zone->test($domain);
-    $zs->gather->get_http_server_data($domain);
+    $zs->gather->get_http_server_data($source_data, $domain);
 
     my $sth = $dbh->prepare(
         q[

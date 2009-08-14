@@ -11,5 +11,9 @@ __PACKAGE__->belongs_to(
     'set_id'
 );
 __PACKAGE__->has_many(tests => 'Zonestat::DBI::Result::Tests', 'run_id');
+__PACKAGE__->has_many(
+    webservers => 'Zonestat::DBI::Result::Webserver',
+    'testrun_id'
+);
 
 1;

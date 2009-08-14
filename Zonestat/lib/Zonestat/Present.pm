@@ -73,9 +73,7 @@ sub number_of_servers_with_software {
     my $s;
 
     if (defined($tr)) {
-        $s =
-          $tr->tests->search_related('tested_domain', {})
-          ->search_related('webservers',              {});
+        $s = $tr->search_related('webservers', {});
     } else {
         $s = $self->dbx('Webserver');
     }
@@ -96,15 +94,14 @@ sub unknown_server_strings {
     my $ds   = shift;
 
     if (defined($ds)) {
-        $ds =
-          $ds->tests->search_related('tested_domain', {})
-          ->search_related('webservers',              {});
+        $ds = $ds->search_related('webservers', {});
     } else {
         $ds = $self->dbx('Webserver');
     }
 
-    return map { $_->raw } $ds->search({ type => 'Unknown' },
-        { columns => ['raw'], distinct => 1, order_by => ['raw'] })->all;
+    return map { $_->raw_type } $ds->search({ type => 'Unknown' },
+        { columns => ['raw_type'], distinct => 1, order_by => ['raw_type'] })
+      ->all;
 }
 
 sub all_dnscheck_tests {

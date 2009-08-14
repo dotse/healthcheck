@@ -8,14 +8,19 @@ CREATE TABLE IF NOT EXISTS `zone` (
 
 CREATE TABLE IF NOT EXISTS `webserver` (
     `id` serial primary key,
-    `raw` varchar(512) NOT NULL,
+    `raw_type` varchar(512) NOT NULL,
     `type` varchar(255),
     `version` varchar(255),
     `https` boolean default FALSE,
     `issuer` varchar(512),
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `domain_id` INT(10) unsigned,
-    CONSTRAINT `webserver_domain` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE
+    `testrun_id` bigint(20) unsigned not null,
+    `ip` varchar(15) not null,
+    `url` varchar(255) not null,
+    `raw_response` text,
+    CONSTRAINT `webserver_domain` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `webserver_testrun` FOREIGN KEY (`testrun_id`) REFERENCES `testruns` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 
 CREATE TABLE IF NOT EXISTS `user` (

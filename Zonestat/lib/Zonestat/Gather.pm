@@ -79,9 +79,12 @@ sub get_zone_list {
 
 sub get_http_server_data {
     my $self    = shift;
+    my $tr_id   = shift;
     my @domains = @_;
     my $db      = $self->dbx('Domains');
     my %urls    = map { ($_, 'http://www.' . $_) } @domains;
+
+    my $tr = $self->dbx('Testrun')->find($tr_id);
 
     print "Got " . scalar(@domains) . " domains to check.\n" if $debug;
 
@@ -95,8 +98,8 @@ sub get_http_server_data {
         print "Domains remaining: " . scalar(@domains) . "\n" if $debug;
 
         foreach my $u (splice(@domains, 0, 25)) {
-            $ua->register(HTTP::Request->new(HEAD => 'http://www.' . $u));
-            $ua->register(HTTP::Request->new(HEAD => 'https://www.' . $u));
+            $ua->register(HTTP::Request->new(GET => 'http://www.' . $u));
+            $ua->register(HTTP::Request->new(GET => 'https://www.' . $u));
             print "Registered $u\n" if $debug;
         }
 
@@ -152,11 +155,17 @@ sub get_http_server_data {
                     if ($s =~ $r) {
                         $ddb->add_to_webservers(
                             {
-                                type    => $server_regexps{$r},
-                                version => $1,
-                                raw     => $s,
-                                https   => $https,
-                                issuer  => $issuer,
+                                type         => $server_regexps{$r},
+                                version      => $1,
+                                raw_type     => $s,
+                                https        => $https,
+                                issuer       => $issuer,
+                                raw_response => $res->as_string,
+                                testrun_id   => $tr->id,
+                                url          => $url,
+                                ip           => (
+                                    (split(/:/, $res->header('Client-Peer')))[0]
+                                ),
                             }
                         );
                         next DOMAIN;
@@ -164,8 +173,12 @@ sub get_http_server_data {
                 }
                 $ddb->add_to_webservers(
                     {
-                        type => 'Unknown',
-                        raw  => $s
+                        type         => 'Unknown',
+                        raw_type     => $s,
+                        raw_response => $res->as_string,
+                        testrun_id   => $tr->id,
+                        url          => $url,
+                        ip => ((split(/:/, $res->header('Client-Peer')))[0]),
                     }
                 );
             }
