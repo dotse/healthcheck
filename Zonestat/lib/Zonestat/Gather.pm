@@ -114,6 +114,8 @@ sub get_http_server_data {
             my $url = $res->request->url;
             my $dom;
             my $https;
+            my $ip;
+
             print "Processing result for $url.\n" if $debug;
 
             if ($url =~ m|^http://www\.([^/]+)|) {
@@ -137,6 +139,10 @@ sub get_http_server_data {
                 next DOMAIN;
             }
 
+            if ($res->header('Client-Peer')) {
+                $ip = ((split(/:/, $res->header('Client-Peer')))[0]);
+            }
+
             my $issuer;
 
             if (my $s = $res->header('Server')) {
@@ -153,7 +159,7 @@ sub get_http_server_data {
 
                 foreach my $r (keys %server_regexps) {
                     if ($s =~ $r) {
-                        $ddb->add_to_webservers(
+                        my $obj = $ddb->add_to_webservers(
                             {
                                 type         => $server_regexps{$r},
                                 version      => $1,
@@ -163,24 +169,22 @@ sub get_http_server_data {
                                 raw_response => $res,
                                 testrun_id   => $tr->id,
                                 url          => $url,
-                                ip           => (
-                                    (split(/:/, $res->header('Client-Peer')))[0]
-                                ),
                             }
                         );
+                        $obj->update({ ip => $ip }) if defined($ip);
                         next DOMAIN;
                     }
                 }
-                $ddb->add_to_webservers(
+                my $obj = $ddb->add_to_webservers(
                     {
                         type         => 'Unknown',
                         raw_type     => $s,
                         raw_response => $res,
                         testrun_id   => $tr->id,
                         url          => $url,
-                        ip => ((split(/:/, $res->header('Client-Peer')))[0]),
                     }
                 );
+                $obj->update({ ip => $ip }) if defined($ip);
             }
         }
     }

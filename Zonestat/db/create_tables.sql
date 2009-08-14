@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `webserver` (
     `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     `domain_id` INT(10) unsigned,
     `testrun_id` bigint(20) unsigned not null,
-    `ip` varchar(15) not null,
+    `ip` varchar(15) null,
     `url` varchar(255) not null,
     `raw_response` text,
     CONSTRAINT `webserver_domain` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
