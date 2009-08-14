@@ -1,6 +1,7 @@
 package Zonestat::DBI::Result::Webserver;
 use base 'DBIx::Class';
-use YAML;
+use Storable qw[nfreeze thaw];
+use MIME::Base64;
 
 __PACKAGE__->load_components(qw[Core]);
 __PACKAGE__->table('webserver');
@@ -9,8 +10,8 @@ __PACKAGE__->add_columns(
 );
 __PACKAGE__->inflate_column(
     raw_response => {
-        inflate => sub { Load(shift) },
-        deflate => sub { Dump(shift) },
+        inflate => sub { thaw(decode_base64(shift)) },
+        deflate => sub { encode_base64(nfreeze(shift)) },
     }
 );
 
