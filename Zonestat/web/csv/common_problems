@@ -1,29 +1,39 @@
-% for my $i (@data) {$csv->combine(@{$i});
-<% $csv->string %>
-% }
+<% $str %>
 <%init>
 $r->content_type('text/csv');
 
-my $ds;
+my @ds;
 my $csv = Text::CSV_XS->new;
 
-if (defined($sid)) {
-    $ds = $zs->present->dbx('Testrun')->find($sid);
-    $m->abort(404) unless defined($ds);
-    my $name = $ds->domainset->name."_".$ds->name;
-    $name =~ s/\s+/_/g;
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
-} else {
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=common_problems.csv");
+foreach my $sid (@sid) {
+    push @ds, $zs->present->dbx('Testrun')->find($sid) or $m->abort(404);
 }
+my $name = 'Common Problems '. $ds[0]->domainset->name;
+$name =~ s/\s+/_/g;
+$r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
 
-my @data  = $zs->present->number_of_domains_with_message('ERROR',$ds);
-my $total = $zs->present->all_dnscheck_tests($ds)->count;
-@data = map {[$_->[0], 100*$_->[1]/$total]} @data;
+my %res = $zs->present->number_of_domains_with_message('ERROR', @ds);
+my @keys = sort { $res{$b}{ $ds[0]->id } <=> $res{$a}{ $ds[0]->id } } keys %res;
+
+$csv->combine((map {$_->name} @ds),'Message');
+my $str = $csv->string;
+$str .= "\n";
+
+foreach my $k (@keys) {
+    my @tmp;
+    foreach my $t (@ds) {
+        push @tmp, $res{$k}{ $t->id };
+    }
+    push @tmp, $k;
+    $csv->combine(@tmp);
+    $str .= $csv->string;
+    $str .= "\n";
+}
+chomp($str);
 
 </%init>
 <%args>
-$sid => undef
+@sid
 </%args>
 <%flags>
 inherit => undef
