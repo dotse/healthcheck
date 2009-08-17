@@ -21,23 +21,3 @@
             <label for="userfile">Data file (optional):</label><input name="userfile" type="file" class="button">
             <input type="submit" value="Create">
         </form>
-        
-        <h1>Common problem types</h1>
-        <& /table/common_problems &>
-        
-        <h1>Number of tests by highest severity problem</h1>
-        <& /table/max_severity &>
-        
-        <h1>Webserver Software (http)</h1>
-        <img src="/chart/webserver">
-        <& /table/webserver_types &>
-        
-        <h1>Webserver Software (https)</h1>
-        <img src="/chart/webserver?https=1">
-        <& /table/webserver_types, https => 1 &>
-        
-        <h1>Unrecognized Server Software</h1>
-        <& /table/unknown_server_types &>
-        
-        <h2>See a table of <a href="all_tests.html">all
-        <% $zs->present->all_dnscheck_tests->count %> DNSCheck tests</a>.</h2>

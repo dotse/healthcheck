@@ -44,26 +44,25 @@ sub lame_delegated_domains {
 
 sub number_of_domains_with_message {
     my $self  = shift;
-    my $level = shift || 'ERROR';
-    my $ds    = shift;
+    my $level = shift;
+    my @ds    = @_;
     my %res;
 
-    if (defined($ds)) {
-        $ds = $ds->tests->search_related('results', {});
-    } else {
-        $ds = $self->dbx('Results');
+    # @ds = map { $_->tests->search_related('results', {}) } @ds;
+
+    foreach my $ds (@ds) {
+        my @rows = $ds->tests->search_related(
+            'results',
+            { level => $level },
+            {
+                columns  => [qw(test_id message)],
+                distinct => 1
+            }
+        )->all;
+        foreach my $r (@rows) { $res{ $r->message }{ $ds->id }++ }
     }
 
-    $res{ $_->message }++
-      for $ds->search(
-        { level => $level },
-        {
-            columns  => [qw(test_id message)],
-            distinct => 1
-        }
-      )->all;
-
-    return map { [$_, $res{$_}] } sort { $res{$b} <=> $res{$a} } keys %res;
+    return %res;
 }
 
 sub number_of_servers_with_software {

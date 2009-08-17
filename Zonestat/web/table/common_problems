@@ -1,31 +1,39 @@
         <table>
             <tr>
-                <th>%</th>
                 <th>Error</th>
+% foreach my $i (@ds) {
+                <th><% $i->name %></th>
+%}
             </tr>
-% for my $i (@data) {
+% for my $k (@keys) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
-                    <td><% sprintf("%5.2f%%",($i->[1] / $total) * 100) %></td>
-                    <td><% $i->[0] %></td>
+                    <td><% $k %></td>
+% foreach my $i (@ds) {
+                    <td class="numeric"><% $data{$k}{$i->id} %></td>
+% }
                 </tr>
 % }
             <tr>
-                <th colspan="8"><a href="/csv/common_problems<% (defined($sid) ? "?sid=$sid" : "") %>">CSV file</a></th>
+                <th colspan="8"><a href="/csv/common_problems<% ((@sid>0) ? $sidstring : "") %>">CSV file</a></th>
             </tr>
         </table>
         
 <%init>
-my $ds;
+my @ds;
+my $total;
 
-if (defined($sid)) {
-    $ds = $zs->present->dbx('Testrun')->find($sid);
-    $m->abort(404) unless defined($ds);
+foreach my $s (@sid) {
+    push @ds, $zs->present->dbx('Testrun')->find($s) or $m->abort(404);
 }
 
-my @data  = $zs->present->number_of_domains_with_message('ERROR',$ds);
-my $total = $zs->present->all_dnscheck_tests($ds)->count;
+my %data  = $zs->present->number_of_domains_with_message('ERROR',@ds);
+my @keys = sort {$data{$b}{$ds[0]->id} <=> $data{$a}{$ds[0]->id}} keys %data;
+
+my $sidstring = '?';
+$sidstring .= join('&', map {"sid=$_"} @sid);
+
 my $c;
 </%init>
 <%args>
-$sid => undef
+@sid
 </%args>
