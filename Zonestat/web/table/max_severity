@@ -1,31 +1,35 @@
         <table>
             <tr>
                 <th>Highest severity</th>
-                <th>Count</th>
+% foreach my $s (@ds) {
+                <th><% $s->name %></th>
+% }
             </tr>
-% for my $i (@data) {
+% for my $i (keys %data) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
-                    <td><% uc $i->[0] %></td>
-                    <td class="numeric"><% 0+$i->[1] %></td>
+                    <td><% uc $i %></td>
+% for my $k (@ds) {
+                    <td class="numeric"><% 0+$data{$i}{$k->id} %></td>
+% }
                 </tr>
 % }
             <tr>
-                <th colspan="8"><a href="/csv/max_severity<% (defined($sid) ? "?sid=$sid" : "") %>">CSV file</a></th>
+                <th colspan="<% 1+@ds %>"><a href="/csv/max_severity<% $sidstring %>">CSV file</a></th>
             </tr>
         </table>
         
 <%init>
-my $ds;
-my $ws;
+my @ds;
 
-if (defined($sid)) {
-    $ds = $zs->present->dbx('Testrun')->find($sid);
-    $m->abort(404) unless defined($ds);
-}
+@ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;
+$m->abort(404) unless @ds;
 
-my @data  = $zs->present->tests_with_max_severity($ds);
+my %data  = $zs->present->tests_with_max_severity(@ds);
+my $sidstring = '?';
+$sidstring .= join('&', map {"sid=$_"} @sid);
+
 my $c;
 </%init>
 <%args>
-$sid => undef
+@sid
 </%args>

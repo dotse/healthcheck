@@ -90,17 +90,24 @@ sub number_of_servers_with_software {
 
 sub unknown_server_strings {
     my $self = shift;
-    my $ds   = shift;
+    my @ds   = @_;
+    my %res;
 
-    if (defined($ds)) {
-        $ds = $ds->search_related('webservers', {});
-    } else {
-        $ds = $self->dbx('Webserver');
+    foreach my $ds (@ds) {
+        $res{ $ds->id } = [
+            map { $_->raw_type } $ds->search_related(
+                'webservers',
+                { type => 'Unknown' },
+                {
+                    columns  => ['raw_type'],
+                    distinct => 1,
+                    order_by => ['raw_type']
+                }
+              )->all
+        ];
     }
 
-    return map { $_->raw_type } $ds->search({ type => 'Unknown' },
-        { columns => ['raw_type'], distinct => 1, order_by => ['raw_type'] })
-      ->all;
+    return %res;
 }
 
 sub all_dnscheck_tests {
@@ -127,41 +134,29 @@ sub all_domainsets {
 
 sub tests_with_max_severity {
     my $self = shift;
-    my $ds   = shift;
-
-    my $tests;
-    if (defined($ds)) {
-        $tests = $ds->tests;
-    } else {
-        $tests = $self->dbx('Tests')->search({});
-    }
+    my @ds   = @_;
 
     my %res;
 
-    foreach my $t ($tests->all) {
-        if ($t->count_critical > 0) {
-            $res{critical}++;
-        } elsif ($t->count_error > 0) {
-            $res{error}++;
-        } elsif ($t->count_warning > 0) {
-            $res{warning}++;
-        } elsif ($t->count_notice > 0) {
-            $res{notice}++;
-        } elsif ($t->count_info > 0) {
-            $res{info}++;
-        } else {
-            $res{clear}++;
+    foreach my $ds (@ds) {
+        foreach my $t ($ds->tests->all) {
+            if ($t->count_critical > 0) {
+                $res{critical}{ $ds->id }++;
+            } elsif ($t->count_error > 0) {
+                $res{error}{ $ds->id }++;
+            } elsif ($t->count_warning > 0) {
+                $res{warning}{ $ds->id }++;
+            } elsif ($t->count_notice > 0) {
+                $res{notice}{ $ds->id }++;
+            } elsif ($t->count_info > 0) {
+                $res{info}{ $ds->id }++;
+            } else {
+                $res{clear}{ $ds->id }++;
+            }
         }
     }
 
-    return (
-        [critical => $res{critical}],
-        [error    => $res{error}],
-        [warning  => $res{warning}],
-        [notice   => $res{notice}],
-        [info     => $res{info}],
-        [clear    => $res{clear}]
-    );
+    return %res;
 }
 
 1;
