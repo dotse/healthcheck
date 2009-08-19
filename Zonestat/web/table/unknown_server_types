@@ -1,27 +1,34 @@
         <table>
             <tr>
-                <th>Server Identification String</th>
+                <th colspan="<% scalar(@ds) %>">Server Identification String</th>
             </tr>
-% for my $i (@data) {
+            <tr>
+% foreach my $ds (@ds) {
+            <th><% $ds->name %></th>
+% }
+            </tr>
+% while (map {@$_} @data{map {$_->id} @ds}) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
-                    <td><% $i %></td>
+% foreach my $ds (@ds) {
+                    <td><% shift(@{$data{$ds->id}}) %></td>
+% }
                 </tr>
 % }
             <tr>
-                <th colspan="8"><a href="/csv/unknown_server_types<% (defined($sid) ? "?sid=$sid" : "") %>">CSV file</a></th>
+                <th colspan="8"><a href="/csv/unknown_server_types<% $sidstring %>">CSV file</a></th>
             </tr>
         </table>
         
 <%init>
-my $ds;
-if (defined($sid)) {
-    $ds = $zs->present->dbx('Testrun')->find($sid);
-    $m->abort(404) unless defined($ds);
-}
+my @ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;
+$m->abort(404) unless @ds;
 
-my @data  = $zs->present->unknown_server_strings($ds);
+my %data  = $zs->present->unknown_server_strings(@ds);
+my $sidstring = '?';
+$sidstring .= join('&', map {"sid=$_"} @sid);
+
 my $c;
 </%init>
 <%args>
-$sid => undef
+@sid
 </%args>
