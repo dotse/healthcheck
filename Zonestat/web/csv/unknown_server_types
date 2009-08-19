@@ -1,25 +1,21 @@
-% for my $i (@data) {$csv->combine($i);
+% for my $i (@ds) {$csv->combine($i->name, @{$data{$i->id}});
 <% $csv->string %>
 % }
 <%init>
 $r->content_type('text/csv');
-my $ds;
+
 my $csv = Text::CSV_XS->new;
 
-if (defined($sid)) {
-    $ds = $zs->present->dbx('Testrun')->find($sid);
-    $m->abort(404) unless defined($ds);
-    my $name = $ds->domainset->name."_".$ds->name;
-    $name =~ s/\s+/_/g;
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
-} else {
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=unknown_server_types.csv");
-}
+my @ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;
+$m->abort(404) unless @ds;
+my $name = $ds[0]->domainset->name;
+$name =~ s/\s+/_/g;
+$r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
 
-my @data  = $zs->present->unknown_server_strings($ds);
+my %data  = $zs->present->unknown_server_strings(@ds);
 </%init>
 <%args>
-$sid => undef
+@sid
 </%args>
 <%flags>
 inherit => undef
