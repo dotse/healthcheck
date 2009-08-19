@@ -5,7 +5,7 @@
                 <th><% $s->name %></th>
 % }
             </tr>
-% for my $i (keys %data) {
+% for my $i (qw[critical error warning notice info clear]) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
                     <td><% uc $i %></td>
 % for my $k (@ds) {
