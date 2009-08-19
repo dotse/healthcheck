@@ -1,33 +1,25 @@
-% for my $i (@data) {$csv->combine(@{$i});
+<% $csv->string %>
+% for my $i (keys %data) {$csv->combine($i, map {$data{$i}{$_->id}} @ds);
 <% $csv->string %>
 % }
 <%init>
 $r->content_type('text/csv');
 
-my $ds;
-my $ws;
+my @ds;
 my $csv = Text::CSV_XS->new;
 
-if (defined($sid)) {
-    $ds = $zs->present->dbx('Testrun')->find($sid);
-    $m->abort(404) unless defined($ds);
-    $ws = $ds->tests->search_related('tested_domain',{})->search_related('webservers',{});
-    my $name = $ds->domainset->name."_".$ds->name;
-    $name =~ s/\s+/_/g;
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
-} else {
-    $ws = $zs->present->dbx('Webserver');
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=max_severity.csv");
-}
+@ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;
+$m->abort(404) unless @ds;
+my $name = $ds[0]->domainset->name;
+$name =~ s/\s+/_/g;
+$r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
 
-my $total = $ws->search({https => $https})->count;
-my @data  = map {[$_->[0], $_->[1], sprintf('%0.2f%%', 100*$_->[1]/$total)]}
-    $zs->present->number_of_servers_with_software($https, $ds);
-unshift @data, ["Server type", "Count", "Percentage"];
+my %data = $zs->present->number_of_servers_with_software($https, @ds);
+$csv->combine('Type',map {$_->name} @ds);
 </%init>
 <%args>
 $https => 0
-$sid => undef
+@sid
 </%args>
 <%flags>
 inherit => undef

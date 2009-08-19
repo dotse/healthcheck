@@ -48,8 +48,6 @@ sub number_of_domains_with_message {
     my @ds    = @_;
     my %res;
 
-    # @ds = map { $_->tests->search_related('results', {}) } @ds;
-
     foreach my $ds (@ds) {
         my @rows = $ds->tests->search_related(
             'results',
@@ -67,25 +65,27 @@ sub number_of_domains_with_message {
 
 sub number_of_servers_with_software {
     my $self = shift;
-    my ($https, $tr) = @_;
+    my ($https, @tr) = @_;
 
-    my $s;
+    my %res;
 
-    if (defined($tr)) {
-        $s = $tr->search_related('webservers', {});
-    } else {
-        $s = $self->dbx('Webserver');
+    foreach my $s (@tr) {
+        my @data = $s->search_related(
+            'webservers',
+            { https => ($https ? 1 : 0) },
+            {
+                select   => ['type', { count => '*' }],
+                as       => ['type', 'count'],
+                group_by => ['type'],
+                order_by => ['count(*) DESC'],
+            }
+        )->all;
+        foreach my $row (@data) {
+            $res{ $row->type }{ $s->id } = $row->get_column('count');
+        }
     }
 
-    return map { [$_->type, $_->get_column('count')] } $s->search(
-        { https => ($https ? 1 : 0) },
-        {
-            select   => ['type', { count => '*' }],
-            as       => ['type', 'count'],
-            group_by => ['type'],
-            order_by => ['count(*) DESC'],
-        }
-    )->all;
+    return %res;
 }
 
 sub unknown_server_strings {

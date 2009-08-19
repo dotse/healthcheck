@@ -1,37 +1,34 @@
         <table>
             <tr>
-                <th>Count</th>
                 <th>Type</th>
-            </tr>
-% for my $i (@data) {
+% foreach my $n (@ds) {
+                    <th><% $n->name %></th>
+% }
+                </tr>
+% for my $k (sort {$data{$b}{$ds[0]->id} <=> $data{$a}{$ds[0]->id}} keys %data) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
-                    <td class="numeric"><% $i->[2] %>% (<% $i->[1] %>)</td>
-                    <td><% $i->[0] %></td>
+                    <td><% $k %></td>
+% foreach my $n (@ds) {
+                    <td class="numeric"><% $data{$k}{$n->id} %></td>
+% }
+
                 </tr>
 % }
             <tr>
-                <th colspan="8"><a href="/csv/webserver_types?https=<% $https %><% (defined($sid) ? "&sid=$sid" : "") %>">CSV file</a></th>
+                <th colspan="<% 1+@ds %>"><a href="/csv/webserver_types?https=<% $https %><% (@sid ? "&sid=@sid" : "") %>">CSV file</a></th>
             </tr>
         </table>
         
 <%init>
-my $ds;
 my $ws;
 
-if (defined($sid)) {
-    $ds = $zs->present->dbx('Testrun')->find($sid);
-    $m->abort(404) unless defined($ds);
-    $ws = $ds->tests->search_related('tested_domain',{})->search_related('webservers',{});
-} else {
-    $ws = $zs->present->dbx('Webserver');
-}
+my @ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;
+$m->abort(404) unless @ds;
 
-my $total = $ws->search({https => $https})->count;
-my @data  = map {[$_->[0], $_->[1], sprintf('%5.2f', 100*$_->[1]/$total)]}
-    $zs->present->number_of_servers_with_software($https, $ds);
+my %data = $zs->present->number_of_servers_with_software($https, @ds);
 my $c;
 </%init>
 <%args>
 $https => 0
-$sid => undef
+@sid
 </%args>
