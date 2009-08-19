@@ -30,7 +30,7 @@
 % }
 </table>
 
-<%init>
+<%shared>
 $r->content_type('text/html');
 my $c;
 
@@ -40,4 +40,5 @@ unless ($ds) {
     $m->clear_buffer;
     $m->abort(404);
 }
-</%init>
+</%shared>
+<%method title>ZoneStat: Domainset <% $ds->name %></%method>

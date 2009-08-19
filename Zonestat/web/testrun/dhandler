@@ -25,10 +25,11 @@
     <input type="submit" value="Delete this test run">
 </form>
 
-<%init>
+<%shared>
 $r->content_type('text/html');
 my $tid = $m->dhandler_arg;
 $m->clear_buffers, $m->abort(404) unless defined($tid);
 my $tr = $zs->present->dbx('Testrun')->find($tid);
 $m->clear_buffers, $m->abort(404) unless defined($tr);
-</%init>
+</%shared>
+<%method title>ZoneStat: Testrun <% $tr->name %></%method>
