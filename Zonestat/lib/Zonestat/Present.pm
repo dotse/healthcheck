@@ -159,6 +159,13 @@ sub tests_with_max_severity {
     return %res;
 }
 
+sub domainset_being_tested {
+    my $self = shift;
+    my $ds = shift;
+    
+    return ($ds->testruns->search_related('tests',{ end => undef})->count > 0);
+}
+
 1;
 __END__
 
