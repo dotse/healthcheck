@@ -9,7 +9,7 @@
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
                     <td><% $k %></td>
 % foreach my $n (@ds) {
-                    <td class="numeric"><% $data{$k}{$n->id} %></td>
+                    <td class="numeric"><% sprintf '%0.2f',100*($data{$k}{$n->id}/$n->tests->count) %>%</td>
 % }
 
                 </tr>
