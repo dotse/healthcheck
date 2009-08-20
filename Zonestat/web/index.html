@@ -3,15 +3,22 @@
 % foreach my $set ($zs->present->all_domainsets) {
             <dt>
                 <a href="/domainset/<% $set->id %>"><% $set->name %></a>
+                <a href="/domainset/enqueue_domainset.html?sid=<% $set->id %>">(start gathering)</a>
             </dt>
             <dd>
+% if ($set->testruns->count > 0) {
+                <form action="/testrun/view.html" method="get">
                 <ol>
 % foreach my $tr ($set->testruns) {
                     <li>
-                        <a href="/testrun/<% $tr->id %>"><% $tr->name %> (<% $tr->tests->count %> tests)</a>
+                        <input type="checkbox" name="tid" value="<% $tr->id %>" />
+                        <% $tr->name %> (<% $tr->tests->count %> tests)
                     </li>
 % }                    
                 </ol>
+                <input type="submit" value="View">
+                </form>
+% }
             </dd>
 % }
         </dl>
