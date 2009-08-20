@@ -1,4 +1,4 @@
-<h1>Testruns for <% $tr[0]->domainset->name %></h1>
+<h1>Testruns for <% $name %></h1>
 
 <h2>Common problems</h2>
 <& /table/common_problems, sid => \@tid &>
@@ -16,10 +16,17 @@
 <& /table/unknown_server_types, sid => \@tid &>
 
 <%args>
-@tid
+@tid => ()
 </%args>
 <%init>
-my @tr = map {$zs->present->dbx('Testrun')->find($_)} @tid;
-$m->clear_buffers, $m->abort(404) unless @tr;
+my @tr;
+my $name;
+
+if (@tid) {
+    @tr = map {$zs->present->dbx('Testrun')->find($_)} @tid;
+    $name = $tr[0]->domainset->name;
+} else {
+    $m->redirect('/')
+}
 </%init>
 <%method title>ZoneStat: Testruns</%method>
