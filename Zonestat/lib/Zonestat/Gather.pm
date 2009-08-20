@@ -55,17 +55,20 @@ sub enqueue_domainset {
     my $name = shift || strftime('%g%m%d %H:%M', localtime());
 
     my $run = $ds->add_to_testruns({ name => $name });
-    my $q = $self->dbx('Queue');
-    foreach my $d ($ds->domains->all) {
-        $q->create(
-            {
-                domain      => $d->domain,
-                source_id   => $self->source_id,
-                source_data => $run->id,
-                priority    => 4
-            }
-        );
-    }
+    my $dbh = $self->dbh;
+
+    # We use a direct DBI call here, since not having to bring the data up from
+    # the database and then back into it again speeds things up by several orders
+    # of magnitude.        
+    $dbh->do(
+        'INSERT INTO queue (domain, priority, source_id, source_data)
+         SELECT domains.domain, 4, ?, ? FROM domains, domain_set_glue
+         WHERE domain_set_glue.set_id = ? AND domains.id = domain_set_glue.domain_id',
+        undef,
+        $self->source_id,
+        $run->id,
+        $ds->id
+    );
 }
 
 sub get_zone_list {
