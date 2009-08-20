@@ -52,7 +52,7 @@ q[INSERT INTO queue (domain, priority, source_id, source_data) SELECT domain, 4,
 sub enqueue_domainset {
     my $self = shift;
     my $ds   = shift;
-    my $name = shift || strftime('%F %T', localtime());
+    my $name = shift || strftime('%g%m%d %H:%M', localtime());
 
     my $run = $ds->add_to_testruns({ name => $name });
     my $q = $self->dbx('Queue');
