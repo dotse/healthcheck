@@ -50,15 +50,6 @@ our %server_regexps = (
     qr|^Mongrel (\S+)|                         => 'Mongrel',
 );
 
-sub start_dnscheck_entire_zone {
-    my $self = shift;
-
-    $self->dbh->do(
-q[INSERT INTO queue (domain, priority, source_id, source_data) SELECT domain, 4, ?, ? FROM domains ORDER BY rand()],
-        undef, $self->source_id, $self->run_id
-    );
-}
-
 sub enqueue_domainset {
     my $self = shift;
     my $ds   = shift;
