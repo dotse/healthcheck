@@ -92,7 +92,7 @@ sub get_http_server_data {
     print "Got " . scalar(@domains) . " domains to check.\n" if $debug;
 
     while (@domains) {
-        my $ua = LWP::Parallel::UserAgent->new;
+        my $ua = LWP::Parallel::UserAgent->new(max_size => 1024*1024); # Don't get more content than one megabyte
         $ua->redirect(0);
         $ua->max_hosts(50);
         $ua->timeout(10);
