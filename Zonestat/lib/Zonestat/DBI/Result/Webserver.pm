@@ -6,7 +6,8 @@ use MIME::Base64;
 __PACKAGE__->load_components(qw[Core]);
 __PACKAGE__->table('webserver');
 __PACKAGE__->add_columns(
-    qw[id raw_type type version created_at domain_id https issuer testrun_id ip url raw_response]
+    qw[id raw_type type version created_at domain_id https issuer testrun_id ip url
+       raw_response response_code content_type content_length]
 );
 __PACKAGE__->inflate_column(
     raw_response => {

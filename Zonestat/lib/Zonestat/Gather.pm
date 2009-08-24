@@ -57,9 +57,9 @@ sub enqueue_domainset {
     my $run = $ds->add_to_testruns({ name => $name });
     my $dbh = $self->dbh;
 
-    # We use a direct DBI call here, since not having to bring the data up from
-    # the database and then back into it again speeds things up by several orders
-    # of magnitude.        
+   # We use a direct DBI call here, since not having to bring the data up from
+   # the database and then back into it again speeds things up by several orders
+   # of magnitude.
     $dbh->do(
         'INSERT INTO queue (domain, priority, source_id, source_data)
          SELECT domains.domain, 4, ?, ? FROM domains, domain_set_glue
@@ -92,7 +92,8 @@ sub get_http_server_data {
     print "Got " . scalar(@domains) . " domains to check.\n" if $debug;
 
     while (@domains) {
-        my $ua = LWP::Parallel::UserAgent->new(max_size => 1024*1024); # Don't get more content than one megabyte
+        my $ua = LWP::Parallel::UserAgent->new(max_size => 1024 * 1024)
+          ;    # Don't get more content than one megabyte
         $ua->redirect(0);
         $ua->max_hosts(50);
         $ua->timeout(10);
@@ -164,14 +165,19 @@ sub get_http_server_data {
                     if ($s =~ $r) {
                         my $obj = $ddb->add_to_webservers(
                             {
-                                type         => $server_regexps{$r},
-                                version      => $1,
-                                raw_type     => $s,
-                                https        => $https,
-                                issuer       => $issuer,
-                                raw_response => $res,
-                                testrun_id   => $tr->id,
-                                url          => $url,
+                                type          => $server_regexps{$r},
+                                version       => $1,
+                                raw_type      => $s,
+                                https         => $https,
+                                issuer        => $issuer,
+                                raw_response  => $res,
+                                testrun_id    => $tr->id,
+                                url           => $url,
+                                response_code => $res->code,
+                                content_type =>
+                                  scalar($res->header('Content-Type')),
+                                content_length =>
+                                  scalar($res->header('Content-Length')),
                             }
                         );
                         $obj->update({ ip => $ip }) if defined($ip);
@@ -180,11 +186,15 @@ sub get_http_server_data {
                 }
                 my $obj = $ddb->add_to_webservers(
                     {
-                        type         => 'Unknown',
-                        raw_type     => $s,
-                        raw_response => $res,
-                        testrun_id   => $tr->id,
-                        url          => $url,
+                        type          => 'Unknown',
+                        raw_type      => $s,
+                        raw_response  => $res,
+                        testrun_id    => $tr->id,
+                        url           => $url,
+                        response_code => $res->code,
+                        content_type  => scalar($res->header('Content-Type')),
+                        content_length =>
+                          scalar($res->header('Content-Length')),
                     }
                 );
                 $obj->update({ ip => $ip }) if defined($ip);

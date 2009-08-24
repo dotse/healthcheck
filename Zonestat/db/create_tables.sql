@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS `webserver` (
     `ip` varchar(15) null,
     `url` varchar(255) not null,
     `raw_response` longtext,
+    `response_code` int(10) unsigned,
+    `content_type` varchar(255),
+    `content_length` int(10) unsigned,
     CONSTRAINT `webserver_domain` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
     CONSTRAINT `webserver_testrun` FOREIGN KEY (`testrun_id`) REFERENCES `testruns` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
