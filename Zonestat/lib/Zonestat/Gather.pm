@@ -215,12 +215,12 @@ sub rescan_unknown_servers {
 
   DOMAIN:
     while (my $row = $db->next) {
-        my $str = $row->raw;
+        my $str = $row->raw_type;
         foreach my $r (keys %server_regexps) {
             if ($str =~ $r) {
                 print "Updating to "
                   . $server_regexps{$r} . ": "
-                  . $row->raw . "\n"
+                  . $row->raw_response . "\n"
                   if $debug;
                 $row->update(
                     {
