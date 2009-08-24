@@ -24,7 +24,7 @@ our %server_regexps = (
     qr|^nginx/?(\S+)?|                    => 'nginx',
     qr|^Lotus-Domino|                     => 'Lotus Domino',
     qr|^GFE/(\S+)|                        => 'Google Web Server',
-    qr|^lighttpd/?(\S+)|                  => 'lighttpd',
+    qr|^lighttpd/?(\S+)?|                 => 'lighttpd',
     qr|^WebServerX|                       => 'WebServerX',
     qr|^Zope/\(Zope ([-a-zA-Z0-9.]+)|     => 'Zope',
     qr|^Resin/?(\S+)?|                    => 'Resin',
@@ -36,8 +36,14 @@ our %server_regexps = (
     qr|^Oversee Webserver v(\S+)|         => 'Oversee',
     qr|^Sun Java System Application Server (\S+)| =>
       'Sun Java System Application Server (GlassFish)',
-    qr|^AkamaiGHost|       => 'Akamai',
-    qr|^Stronghold/?(\S+)| => 'RedHat Stronghold',
+    qr|^AkamaiGHost|                           => 'Akamai',
+    qr|^Stronghold/?(\S+)|                     => 'RedHat Stronghold',
+    qr|^Stoned Webserver (\S+)?|               => 'Stoned Webserver',
+    qr|^Oracle HTTP Server Powered by Apache|  => 'Oracle HTTP Server',
+    qr|^Oracle-Application-Server-10g/(\S+)|   => 'Oracle Application Server',
+    qr|^TimmiT HTTPD Server powered by Apache| => 'TimmiT HTTPD Server',
+    qr|^Sun-ONE-Web-Server/(\S+)?|             => 'Sun ONE',
+    qr|^Server\d|                              => 'Oderland',
 );
 
 sub start_dnscheck_entire_zone {
