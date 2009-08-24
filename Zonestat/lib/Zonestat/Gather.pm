@@ -44,6 +44,10 @@ our %server_regexps = (
     qr|^TimmiT HTTPD Server powered by Apache| => 'TimmiT HTTPD Server',
     qr|^Sun-ONE-Web-Server/(\S+)?|             => 'Sun ONE',
     qr|^Server\d|                              => 'Oderland',
+    qr|^mod-xslt/(\S+) Apache|                 => 'Apache (mod_xslt)',
+    qr|^AppleIDiskServer-(\S+)|                => 'Apple iDisk',
+    qr|^Microsoft-HTTPAPI/(\S+)|               => 'Microsoft HTTPAPI',
+    qr|^Mongrel (\S+)|                         => 'Mongrel',
 );
 
 sub start_dnscheck_entire_zone {
