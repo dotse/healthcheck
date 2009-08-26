@@ -64,7 +64,8 @@ CREATE TABLE IF NOT EXISTS `testruns` (
 
 CREATE TABLE IF NOT EXISTS `dns2db` (
     `id` serial primary key,
-    `imported_at` date unique not null
+    `imported_at` date unique not null,
+    `server` varchar(255) not null
     ) ENGINE=InnoDB;
     
 CREATE TABLE IF NOT EXISTS `d2d_ipv6stats` (

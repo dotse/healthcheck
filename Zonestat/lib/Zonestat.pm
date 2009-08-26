@@ -21,7 +21,7 @@ sub new {
     my $self = bless {}, $class;
 
     unless (@_) {
-        @_ = ($Config{siteprefix} . '/share/dnscheck/site_config.yaml')
+        @_ = ($Config{siteprefix} . '/share/dnscheck/site_config.yaml');
     }
 
     $self->{conf}    = Zonestat::Config->new(@_);
