@@ -4,6 +4,8 @@ use 5.008008;
 use strict;
 use warnings;
 
+use Config;
+
 use Zonestat::Config;
 use Zonestat::DBI;
 use Zonestat::Common;
@@ -17,6 +19,10 @@ our $VERSION = '0.01';
 sub new {
     my $class = shift;
     my $self = bless {}, $class;
+
+    unless (@_) {
+        @_ = ($Config{siteprefix} . '/share/dnscheck/site_config.yaml')
+    }
 
     $self->{conf}    = Zonestat::Config->new(@_);
     $self->{prepare} = Zonestat::Prepare->new($self);
