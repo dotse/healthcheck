@@ -6,7 +6,7 @@ use strict;
 use Zonestat;
 use DBI;
 use Getopt::Long;
-use File::Path qw[make_path remove_tree];
+use File::Path;
 use Cwd;
 
 my $debug;
@@ -110,7 +110,7 @@ sub v6as_import {
 
 unless (-d $workdir) {
     debug "Creating $workdir";
-    make_path $workdir;
+    mkpath $workdir;
 }
 
 chdir $workdir;
@@ -141,5 +141,5 @@ foreach my $name (@ARGV) {
 END {
     chdir $startdir;
     debug "Removing $workdir";
-    remove_tree $workdir;
+    rmtree $workdir;
 }
