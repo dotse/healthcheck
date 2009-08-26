@@ -32,11 +32,15 @@ sub debug {
 sub ipv6stats_import {
     my ($date, $server, $d2d) = @_;
     my $name = "$date/ipv6stats_$date.db";
-    my $dbh  = DBI->connect("dbi:SQLite:dbname=$name")
+    my $dbh =
+      DBI->connect("dbi:SQLite:dbname=$name", '', '', { RaiseError => 1 })
       or die "Failed to open $name: " . $DBI::errstr;
     debug "Using database $name";
 
-    my $sth = $dbh->prepare(q[SELECT * FROM stats]);
+    my $sth;
+    eval { $sth = $dbh->prepare(q[SELECT * FROM stats]) };
+    return if $@;
+
     $sth->execute;
     while (my $r = $sth->fetchrow_hashref) {
         $d2d->add_to_ipv6stats(
@@ -68,11 +72,15 @@ sub ipv6stats_import {
 sub topresolvers_import {
     my ($date, $server, $d2d) = @_;
     my $name = "$date/topresolvers$date.db";
-    my $dbh  = DBI->connect("dbi:SQLite:dbname=$name")
+    my $dbh =
+      DBI->connect("dbi:SQLite:dbname=$name", '', '', { RaiseError => 1 })
       or die "Failed to open $name: " . $DBI::errstr;
     debug "Using database $name";
 
-    my $sth = $dbh->prepare(q[SELECT * FROM dnssum]);
+    my $sth;
+    eval { $sth = $dbh->prepare(q[SELECT * FROM dnssum]); };
+    return if $@;
+
     $sth->execute;
     while (my $r = $sth->fetchrow_hashref) {
         $d2d->add_to_topresolvers(
@@ -88,11 +96,15 @@ sub topresolvers_import {
 sub v6as_import {
     my ($date, $server, $d2d) = @_;
     my $name = "$date/v6as$date.db";
-    my $dbh  = DBI->connect("dbi:SQLite:dbname=$name")
+    my $dbh =
+      DBI->connect("dbi:SQLite:dbname=$name", '', '', { RaiseError => 1 })
       or die "Failed to open $name: " . $DBI::errstr;
     debug "Using database $name";
 
-    my $sth = $dbh->prepare(q[SELECT * FROM asnets]);
+    my $sth;
+    eval { $sth = $dbh->prepare(q[SELECT * FROM asnets]); };
+    return if $@;
+
     $sth->execute;
     while (my $r = $sth->fetchrow_hashref) {
         $d2d->add_to_v6as(
