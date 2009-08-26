@@ -58,3 +58,57 @@ CREATE TABLE IF NOT EXISTS `testruns` (
     `finish` timestamp NULL,
     CONSTRAINT `testruns_setid` FOREIGN KEY (`set_id`) REFERENCES `domainset` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+    
+    
+# Tables for dns2db import
+
+CREATE TABLE IF NOT EXISTS `dns2db` (
+    `id` serial primary key,
+    `imported_at` date unique not null
+    ) ENGINE=InnoDB;
+    
+CREATE TABLE IF NOT EXISTS `d2d_ipv6stats` (
+    `id` serial primary key,
+    datum varchar(255),
+    tid varchar(255),
+    iptot integer,
+    ipv6total integer,
+    ipv6aaaa integer,
+    ipv6ns integer,
+    ipv6mx integer,
+    ipv6a integer,
+    ipv6soa integer,
+    ipv6ds integer,
+    ipv6a6 integer,
+    ipv4total integer,
+    ipv4aaaa integer,
+    ipv4ns integer,
+    ipv4mx integer,
+    ipv4a integer,
+    ipv4soa integer,
+    ipv4ds integer,
+    ipv4a6 integer,
+    dns2db_id bigint(20) unsigned not null,
+    CONSTRAINT `ipv6stats_d2did` FOREIGN KEY (`dns2db_id`) REFERENCES `dns2db` (`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+    
+CREATE TABLE IF NOT EXISTS `d2d_topresolvers` (
+    `id` serial primary key,
+    src varchar(255), 
+    qcount integer,
+    dnssec integer,
+    dns2db_id bigint(20) unsigned not null,
+    CONSTRAINT `topresolvers_d2did` FOREIGN KEY (`dns2db_id`) REFERENCES `dns2db` (`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+        
+CREATE TABLE IF NOT EXISTS `d2d_v6as` (
+    `id` serial primary key,
+    foreign_id integer,
+    date text,
+    count integer,
+    asname text,
+    country text,
+    description text,
+    dns2db_id bigint(20) unsigned not null,
+    CONSTRAINT `v6as_d2did` FOREIGN KEY (`dns2db_id`) REFERENCES `dns2db` (`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
