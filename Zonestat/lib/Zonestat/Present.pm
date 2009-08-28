@@ -65,8 +65,12 @@ sub number_of_domains_with_message {
 
 sub number_of_servers_with_software {
     my $self = shift;
-    my ($https, @tr) = @_;
+    return $self->webservers_by_field('type', @_);
+}
 
+sub webservers_by_field {
+    my $self = shift;
+    my ($field, $https, @tr) = @_;
     my %res;
 
     foreach my $s (@tr) {
@@ -74,18 +78,24 @@ sub number_of_servers_with_software {
             'webservers',
             { https => ($https ? 1 : 0) },
             {
-                select   => ['type', { count => '*' }],
-                as       => ['type', 'count'],
-                group_by => ['type'],
+                select   => [$field, { count => '*' }],
+                as       => [$field, 'count'],
+                group_by => [$field],
                 order_by => ['count(*) DESC'],
             }
         )->all;
         foreach my $row (@data) {
-            $res{ $row->type }{ $s->id } = $row->get_column('count');
+            $res{ $row->get_column($field) }{ $s->id } =
+              $row->get_column('count');
         }
     }
 
     return %res;
+}
+
+sub webservers_by_responsecode {
+    my $self = shift;
+    return $self->webservers_by_field('response_code', @_);
 }
 
 sub unknown_server_strings {
