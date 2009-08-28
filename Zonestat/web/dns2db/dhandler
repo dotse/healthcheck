@@ -1,0 +1,18 @@
+<p>
+    <% $d2d->v6as->count %> v6as.
+</p>
+<p>
+    <% $d2d->ipv6stats->count %> ipv6stats.
+</p>
+<p>
+    <% $d2d->topresolvers->count %> topresolvers.
+</p>
+
+<%init>
+my $id = $m->dhandler_arg;
+my $d2d = $zs->present->dbx('Dns2db')->find($id);
+unless (defined($d2d)) {
+    $m->clear_buffers;
+    $m->abort(404)
+}
+</%init>

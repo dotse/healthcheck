@@ -25,8 +25,8 @@ my $dns2db = Zonestat->new->gather->dbx('Dns2db');
 sub debug {
     if ($debug) {
         print STDERR @_;
+        print "\n";
     }
-    print "\n";
 }
 
 sub ipv6stats_import {
