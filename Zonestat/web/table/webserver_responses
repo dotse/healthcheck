@@ -1,6 +1,6 @@
         <table>
             <tr>
-                <th>Type</th>
+                <th>Response Code</th>
 % foreach my $n (@ds) {
                     <th><% $n->name %></th>
 % }
@@ -15,7 +15,7 @@
                 </tr>
 % }
             <tr>
-                <th colspan="<% 1+@ds %>"><a href="/csv/webserver_types?https=<% $https %><% $sidstring %>">CSV file</a></th>
+                <th colspan="<% 1+@ds %>"><a href="/csv/webserver_responses?https=<% $https %><% $sidstring %>">CSV file</a></th>
             </tr>
         </table>
         
@@ -25,7 +25,7 @@ my $ws;
 my @ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;
 $m->abort(404) unless @ds;
 
-my %data = $zs->present->number_of_servers_with_software($https, @ds);
+my %data = $zs->present->webservers_by_responsecode($https, @ds);
 my $sidstring = '&';
 $sidstring .= join('&', map {"sid=$_"} @sid);
 my $c;
