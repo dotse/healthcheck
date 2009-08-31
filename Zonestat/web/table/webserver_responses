@@ -7,7 +7,12 @@
                 </tr>
 % for my $k (sort {$data{$b}{$ds[0]->id} <=> $data{$a}{$ds[0]->id}} keys %data) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
-                    <td><% $k %></td>
+                    <td>
+                        <% $k %>
+% if ($code{$k}) {
+                    <% $code{$k} %>
+% }
+                    </td>
 % foreach my $n (@ds) {
                     <td class="numeric"><% sprintf '%0.2f',100*($data{$k}{$n->id}/$n->webservers({https => $https})->count) %>%</td>
 % }
@@ -21,6 +26,60 @@
         
 <%init>
 my $ws;
+
+my %code = (
+    100 => q{Continue},
+    101 => q{Switching Protocols},
+    102 => q{Processing},
+    200 => q{OK},
+    201 => q{Created},
+    202 => q{Accepted},
+    203 => q{Non-Authoritative Information},
+    204 => q{No Content},
+    205 => q{Reset Content},
+    206 => q{Partial Content},
+    207 => q{Multi-Status},
+    226 => q{IM Used},
+    300 => q{Multiple Choices},
+    301 => q{Moved Permanently},
+    302 => q{Found},
+    303 => q{See Other},
+    304 => q{Not Modified},
+    305 => q{Use Proxy},
+    306 => q{Reserved},
+    307 => q{Temporary Redirect},
+    400 => q{Bad Request},
+    401 => q{Unauthorized},
+    402 => q{Payment Required},
+    403 => q{Forbidden},
+    404 => q{Not Found},
+    405 => q{Method Not Allowed},
+    406 => q{Not Acceptable},
+    407 => q{Proxy Authentication Required},
+    408 => q{Request Timeout},
+    409 => q{Conflict},
+    410 => q{Gone},
+    411 => q{Length Required},
+    412 => q{Precondition Failed},
+    413 => q{Request Entity Too Large},
+    414 => q{Request-URI Too Long},
+    415 => q{Unsupported Media Type},
+    416 => q{Requested Range Not Satisfiable},
+    417 => q{Expectation Failed},
+    422 => q{Unprocessable Entity},
+    423 => q{Locked},
+    424 => q{Failed Dependency},
+    426 => q{Upgrade Required},
+    500 => q{Internal Server Error},
+    501 => q{Not Implemented},
+    502 => q{Bad Gateway},
+    503 => q{Service Unavailable},
+    504 => q{Gateway Timeout},
+    505 => q{HTTP Version Not Supported},
+    506 => q{Variant Also Negotiates (Experimental)},
+    507 => q{Insufficient Storage},
+    510 => q{Not Extended},
+    );
 
 my @ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;
 $m->abort(404) unless @ds;
