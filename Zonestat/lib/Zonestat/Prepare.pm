@@ -3,6 +3,7 @@ package Zonestat::Prepare;
 use 5.008008;
 use strict;
 use warnings;
+use POSIX 'strftime';
 
 use base 'Zonestat::Common';
 
@@ -47,6 +48,10 @@ sub db_import_zone {
     my $self = shift;
 
     my $dbh = $self->dbh;
+    my $ds =
+      $self->dbx('Domainsets')
+      ->create({ name => strftime('%g%m%d', localtime) });
+
     open my $fh, '<', $self->cget(qw[zone datafile])
       or die "Failed to open zone file: $!\n";
     $dbh->begin_work;
@@ -70,8 +75,16 @@ sub db_import_zone {
       )
     {
         $dname =~ s/\.$//;
-        $dbh->do(q[INSERT INTO domains (domain) VALUES (?) ON DUPLICATE KEY UPDATE last_import = now()],
+        $dbh->do(
+q[INSERT INTO domains (domain) VALUES (?) ON DUPLICATE KEY UPDATE last_import = now()],
+            undef, $dname
+        );
+        my $id =
+          $dbh->selectall_arrayref(q[SELECT id FROM domains WHERE domain = ?],
             undef, $dname);
+        $dbh->do(
+            q[INSERT INTO domain_set_glue (domain_id, set_id) VALUES (?,?)],
+            undef, $id->[0][0], $ds->id);
     }
     $dbh->commit;
 }
