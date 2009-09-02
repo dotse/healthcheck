@@ -70,7 +70,7 @@ sub db_import_zone {
       )
     {
         $dname =~ s/\.$//;
-        $dbh->do(q[INSERT IGNORE INTO domains (domain) values (?)],
+        $dbh->do(q[INSERT INTO domains (domain) VALUES (?) ON DUPLICATE KEY UPDATE last_import = now()],
             undef, $dname);
     }
     $dbh->commit;
