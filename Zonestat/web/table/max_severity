@@ -2,7 +2,7 @@
             <tr>
                 <th>Highest severity</th>
 % foreach my $s (@ds) {
-                <th><% $s->name %></th>
+                <th><% $s->domainset->name %><br> <% $s->name %></th>
 % }
             </tr>
 % for my $i (qw[critical error warning notice info clear]) {

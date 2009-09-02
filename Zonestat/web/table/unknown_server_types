@@ -4,7 +4,7 @@
             </tr>
             <tr>
 % foreach my $ds (@ds) {
-            <th><% $ds->name %></th>
+            <th><% $ds->domainset->name %><br> <% $ds->name %></th>
 % }
             </tr>
 % while (map {@$_} @data{map {$_->id} @ds}) {

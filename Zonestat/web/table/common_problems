@@ -2,7 +2,7 @@
             <tr>
                 <th>Error</th>
 % foreach my $i (@ds) {
-                <th><% $i->name %></th>
+                <th><% $i->domainset->name %> <br><% $i->name %></th>
 %}
             </tr>
 % for my $k (@keys) {

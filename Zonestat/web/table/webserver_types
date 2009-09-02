@@ -2,7 +2,7 @@
             <tr>
                 <th>Type</th>
 % foreach my $n (@ds) {
-                    <th><% $n->name %></th>
+                    <th><% $n->domainset->name %><br> <% $n->name %></th>
 % }
                 </tr>
 % for my $k (sort {$data{$b}{$ds[0]->id} <=> $data{$a}{$ds[0]->id}} keys %data) {
