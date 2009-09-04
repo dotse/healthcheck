@@ -1,4 +1,4 @@
-* Export av tabeller i CSV-format.
+(* Export av tabeller i CSV-format.)
 
 * Export av domänset i CSV-format.
 
@@ -28,7 +28,7 @@
 
  - Länk till Pingdoms timing-testsida.
 
-* Skillnader mellan olika körningar för samma domänset.
+(* Skillnader mellan olika körningar för samma domänset.)
 
 * Sökmöjligheter i datat? 
 
@@ -46,3 +46,4 @@
 
 * dns2db-data
 
+* Finns robots.txt?

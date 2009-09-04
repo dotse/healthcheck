@@ -81,6 +81,26 @@ sub get_zone_list {
       };
 }
 
+sub content_type_from_header {
+    my @data = @_;
+    my ($type, $encoding);
+    
+    foreach my $h (@data) {
+        my ($t, $e) = $h =~ m|^(\w+/\w+)(?:;\s*charset\s*=\s*(\S+))?|;
+        unless ($type) {
+            $type = $t
+        }
+        unless ($encoding) {
+            $encoding = $e
+        }
+        unless ($type or $encoding) {
+            print STDERR "$h\n";
+        }
+        
+    }
+    return ($type, $encoding);
+}
+
 sub get_http_server_data {
     my $self    = shift;
     my $tr_id   = shift;
@@ -164,6 +184,7 @@ sub get_http_server_data {
 
                 foreach my $r (keys %server_regexps) {
                     if ($s =~ $r) {
+                        my ($type, $encoding) = content_type_from_header($res->header('Content-Type'));
                         my $obj = $ddb->add_to_webservers(
                             {
                                 type          => $server_regexps{$r},
@@ -175,8 +196,8 @@ sub get_http_server_data {
                                 testrun_id    => $tr->id,
                                 url           => $url,
                                 response_code => $res->code,
-                                content_type =>
-                                  scalar($res->header('Content-Type')),
+                                content_type => $type,
+                                charset => $encoding,
                                 content_length =>
                                   scalar($res->header('Content-Length')),
                             }
@@ -185,6 +206,7 @@ sub get_http_server_data {
                         next DOMAIN;
                     }
                 }
+                my ($type, $encoding) = content_type_from_header($res->header('Content-Type'));
                 my $obj = $ddb->add_to_webservers(
                     {
                         type          => 'Unknown',
@@ -193,7 +215,8 @@ sub get_http_server_data {
                         testrun_id    => $tr->id,
                         url           => $url,
                         response_code => $res->code,
-                        content_type  => scalar($res->header('Content-Type')),
+                        content_type  => $type,
+                        charset => $encoding,
                         content_length =>
                           scalar($res->header('Content-Length')),
                     }
