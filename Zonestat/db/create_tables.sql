@@ -53,11 +53,12 @@ CREATE TABLE IF NOT EXISTS `domain_set_glue` (
 CREATE TABLE IF NOT EXISTS `testruns` (
     `id` serial primary key,
     `set_id` bigint(20) unsigned not null,
-    `name` varchar(255) unique not null,
+    `name` varchar(255) not null,
     `start` timestamp DEFAULT CURRENT_TIMESTAMP,
     `finish` timestamp NULL,
     CONSTRAINT `testruns_setid` FOREIGN KEY (`set_id`) REFERENCES `domainset` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+CREATE UNIQUE INDEX `testruns_name_setid` ON `testruns` (`name`,`set_id`);
     
     
 # Tables for dns2db import
