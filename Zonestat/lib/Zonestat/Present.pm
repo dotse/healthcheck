@@ -98,6 +98,16 @@ sub webservers_by_responsecode {
     return $self->webservers_by_field('response_code', @_);
 }
 
+sub webservers_by_contenttype {
+    my $self = shift;
+    return $self->webservers_by_field('content_type', @_);
+}
+
+sub webservers_by_charset {
+    my $self = shift;
+    return $self->webservers_by_field('charset', @_);
+}
+
 sub unknown_server_strings {
     my $self = shift;
     my @ds   = @_;

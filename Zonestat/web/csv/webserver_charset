@@ -1,0 +1,26 @@
+<% $csv->string %>
+% for my $i (keys %data) {$csv->combine($i, map {$data{$i}{$_->id}} @ds);
+<% $csv->string %>
+% }
+<%init>
+$r->content_type('text/csv');
+
+my @ds;
+my $csv = Text::CSV_XS->new;
+
+@ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;
+$m->abort(404) unless @ds;
+my $name = $ds[0]->domainset->name;
+$name =~ s/\s+/_/g;
+$r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
+
+my %data = $zs->present->webservers_by_charset($https, @ds);
+$csv->combine('Type',map {$_->name} @ds);
+</%init>
+<%args>
+$https => 0
+@sid
+</%args>
+<%flags>
+inherit => undef
+</%flags>
