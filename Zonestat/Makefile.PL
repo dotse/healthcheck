@@ -17,6 +17,7 @@ WriteMakefile(
         MasonX::Request::WithApacheSession => 0,
         IO::Socket::SSL => 0,
         Text::CSV_XS => 0,
+        Geo::IP => 0,
     }, 
     ($] >= 5.005 ?     
       (ABSTRACT_FROM  => 'lib/Zonestat.pm', # retrieve abstract from module

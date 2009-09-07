@@ -13,6 +13,7 @@ use HTTP::Request;
 use IO::Socket::SSL;
 use Carp;
 use POSIX qw[strftime];
+use Geo::IP;
 
 our $VERSION = '0.01';
 my $debug = 0;
@@ -84,19 +85,19 @@ sub get_zone_list {
 sub content_type_from_header {
     my @data = @_;
     my ($type, $encoding);
-    
+
     foreach my $h (@data) {
         my ($t, $e) = $h =~ m|^(\w+/\w+)(?:;\s*charset\s*=\s*(\S+))?|;
         unless ($type) {
-            $type = $t
+            $type = $t;
         }
         unless ($encoding) {
-            $encoding = $e
+            $encoding = $e;
         }
         unless ($type or $encoding) {
-            print STDERR "$h\n";
+            print STDERR "Failed to parse Content-Type header: $h\n";
         }
-        
+
     }
     return ($type, $encoding);
 }
@@ -184,7 +185,8 @@ sub get_http_server_data {
 
                 foreach my $r (keys %server_regexps) {
                     if ($s =~ $r) {
-                        my ($type, $encoding) = content_type_from_header($res->header('Content-Type'));
+                        my ($type, $encoding) = content_type_from_header(
+                            $res->header('Content-Type'));
                         my $obj = $ddb->add_to_webservers(
                             {
                                 type          => $server_regexps{$r},
@@ -196,8 +198,8 @@ sub get_http_server_data {
                                 testrun_id    => $tr->id,
                                 url           => $url,
                                 response_code => $res->code,
-                                content_type => $type,
-                                charset => $encoding,
+                                content_type  => $type,
+                                charset       => $encoding,
                                 content_length =>
                                   scalar($res->header('Content-Length')),
                             }
@@ -206,7 +208,8 @@ sub get_http_server_data {
                         next DOMAIN;
                     }
                 }
-                my ($type, $encoding) = content_type_from_header($res->header('Content-Type'));
+                my ($type, $encoding) =
+                  content_type_from_header($res->header('Content-Type'));
                 my $obj = $ddb->add_to_webservers(
                     {
                         type          => 'Unknown',
@@ -216,7 +219,7 @@ sub get_http_server_data {
                         url           => $url,
                         response_code => $res->code,
                         content_type  => $type,
-                        charset => $encoding,
+                        charset       => $encoding,
                         content_length =>
                           scalar($res->header('Content-Length')),
                     }
@@ -244,6 +247,51 @@ sub rescan_unknown_servers {
                     {
                         type    => $server_regexps{$r},
                         version => $1
+                    }
+                );
+            }
+        }
+    }
+}
+
+sub collect_server_information {
+    my $self   = shift;
+    my ($tr)   = @_;
+    my $ds     = $tr->domainset->domains;
+    my $geoip  = Geo::IP->open('/opt/local/share/GeoIP/GeoLiteCity.dat');
+    my $server = $self->dbx('Server');
+
+    while (my $domain = $ds->next) {
+        my $results =
+          $tr->search_related('tests', { domain => $domain->domain })
+          ->search_related('results', {});
+        foreach my $t (
+            $results->search(
+                { message => 'DNS:NAMESERVER_FOUND', arg0 => $domain->domain }
+            )->all
+          )
+        {
+            my $g = $geoip->record_by_addr($t->arg3);
+            if ($g) {
+                $server->update_or_create(
+                    {
+                        domain_id => $domain->id,
+                        run_id    => $tr->id,
+                        ip        => $t->arg3,
+                        kind      => 'DNS',
+                        country   => $g->country_name,
+                        city      => $g->city,
+                        longitude => $g->longitude,
+                        latitude  => $g->latitude,
+                    }
+                );
+            } else {
+                $server->update_or_create(
+                    {
+                        domain_id => $domain->id,
+                        run_id    => $tr->id,
+                        ip        => $t->arg3,
+                        kind      => 'DNS',
                     }
                 );
             }

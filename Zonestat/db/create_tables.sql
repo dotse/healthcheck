@@ -58,9 +58,7 @@ CREATE TABLE IF NOT EXISTS `testruns` (
     `start` timestamp DEFAULT CURRENT_TIMESTAMP,
     `finish` timestamp NULL,
     CONSTRAINT `testruns_setid` FOREIGN KEY (`set_id`) REFERENCES `domainset` (`id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
-CREATE UNIQUE INDEX `testruns_name_setid` ON `testruns` (`name`,`set_id`);
-    
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;    
     
 # Tables for dns2db import
 
@@ -115,4 +113,21 @@ CREATE TABLE IF NOT EXISTS `d2d_v6as` (
     description text,
     dns2db_id bigint(20) unsigned not null,
     CONSTRAINT `v6as_d2did` FOREIGN KEY (`dns2db_id`) REFERENCES `dns2db` (`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+    
+CREATE TABLE IF NOT EXISTS `server` (
+    `id` serial primary key,
+    `kind` varchar(10),
+    `country` varchar(128),
+    `ip` varchar(255),
+    `asn` bigint,
+    `city` varchar(255),
+    `latitude` double,
+    `longitude` double,
+    `run_id` bigint(20) unsigned not null,
+    `domain_id` int(10) unsigned not null,
+    `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT `server_runid` FOREIGN KEY (`run_id`) REFERENCES `testruns` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `server_domainid` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
+    UNIQUE (`kind`, `ip`, `run_id`, `domain_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
