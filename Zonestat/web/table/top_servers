@@ -1,0 +1,37 @@
+<table>
+    <tr>
+        <th>Count</th>
+        <th>Server</th>
+        <th>Location</th>
+    </tr>
+% foreach my $j (0..($count-1)) {
+    <tr class="<% ++$c%2==0?'even':'odd' %>">
+% foreach my $i (0..$#trid) {
+        <td>
+            <% $s[$i][$j]->get_column('count') %>
+        </td>
+        <td>
+            <% $s[$i][$j]->reverse %>
+        </td>
+        <td>
+            <a href="http://maps.google.com/maps?q=<% $s[$i][$j]->latitude %>+<% $s[$i][$j]->longitude %>" target="_blank">
+                <% join ', ', ($s[$i][$j]->city, $s[$i][$j]->country) %>
+            </a>
+        </td>
+% }
+    </tr>
+% }
+</table>
+
+<%init>
+my @tr = map {$zs->present->dbx('Testrun')->find($_)} @trid;
+$m->clear_buffers, $m->abort(404) unless @tr;
+
+my @s = map {[$zs->present->top_foo_servers($kind, $_, $count)]} @tr;
+my $c;
+</%init>
+<%args>
+@trid
+$kind
+$count => 10
+</%args>

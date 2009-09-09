@@ -187,6 +187,40 @@ sub domainset_being_tested {
         $ds->testruns->search_related('tests', { end => undef })->count > 0);
 }
 
+sub top_foo_servers {
+    my $self   = shift;
+    my $kind   = uc(shift);
+    my $tr     = shift;
+    my $number = shift || 10;
+
+    return $self->dbx('Server')->search(
+        { kind => $kind, run_id => $tr->id },
+        {
+            select =>
+              [qw[ip latitude longitude country city], { count => '*' }],
+            as       => [qw[ip latitude longitude country city], 'count'],
+            group_by => [qw[ip latitude longitude country city]],
+            order_by => ['count(*) DESC'],
+            rows     => $number
+        }
+    )->all;
+}
+
+sub top_dns_servers {
+    my $self = shift;
+    return $self->top_foo_servers('DNS', @_);
+}
+
+sub top_http_servers {
+    my $self = shift;
+    return $self->top_foo_servers('HTTP', @_);
+}
+
+sub top_smtp_servers {
+    my $self = shift;
+    return $self->top_foo_servers('SMTP', @_);
+}
+
 1;
 __END__
 

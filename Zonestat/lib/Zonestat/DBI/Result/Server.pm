@@ -1,6 +1,8 @@
 package Zonestat::DBI::Result::Server;
 use base 'DBIx::Class';
 
+use Socket;
+
 __PACKAGE__->load_components(qw[Core]);
 __PACKAGE__->table('server');
 __PACKAGE__->add_columns(
@@ -15,5 +17,18 @@ __PACKAGE__->belongs_to(
     'domain_id'
 );
 __PACKAGE__->belongs_to(testrun => 'Zonestat::DBI::Result::Testrun', 'run_id');
+
+sub reverse {
+    my $self = shift;
+
+    my ($name, $aliases, $addrtype, $length, @addrs) =
+      gethostbyaddr(inet_aton($self->ip), AF_INET);
+
+    if (defined($name)) {
+        return $name;
+    } else {
+        return $self->ip;
+    }
+}
 
 1;
