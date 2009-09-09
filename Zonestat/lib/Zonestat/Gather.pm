@@ -102,6 +102,20 @@ sub content_type_from_header {
     return ($type, $encoding);
 }
 
+sub get_server_data {
+    my $self = shift;
+    my ($trid, $domainname) = @_;
+
+    my $tr = $self->dbx('Testrun')->find($trid);
+    my $domain =
+      $self->dbx('Domains')->search({ domain => $domainname })->first;
+
+    print "Gathering for " . $domain->domain . " in testrun " . $tr->name . "\n"
+      if $debug;
+    $self->get_http_server_data($tr->id, $domain->domain);
+    $self->collect_geoip_information_for_server($tr, $domain);
+}
+
 sub get_http_server_data {
     my $self    = shift;
     my $tr_id   = shift;
@@ -111,8 +125,6 @@ sub get_http_server_data {
 
     my $tr = $self->dbx('Testrun')->find($tr_id);
 
-    print "Got " . scalar(@domains) . " domains to check.\n" if $debug;
-
     while (@domains) {
         my $ua = LWP::Parallel::UserAgent->new(max_size => 1024 * 1024)
           ;    # Don't get more content than one megabyte
@@ -120,19 +132,13 @@ sub get_http_server_data {
         $ua->max_hosts(50);
         $ua->timeout(10);
         $ua->agent('.SE Zonestat');
-        print "Created agent.\n" if $debug;
-        print "Domains remaining: " . scalar(@domains) . "\n" if $debug;
 
         foreach my $u (splice(@domains, 0, 25)) {
             $ua->register(HTTP::Request->new(GET => 'http://www.' . $u));
             $ua->register(HTTP::Request->new(GET => 'https://www.' . $u));
-            print "Registered $u\n" if $debug;
         }
 
-        print "Waiting..." if $debug;
-        my $debug_t = time();
-        my $rr      = $ua->wait;
-        print time() - $debug_t, " seconds.\n" if $debug;
+        my $rr = $ua->wait;
 
       DOMAIN:
         foreach my $k (keys %$rr) {
@@ -141,8 +147,6 @@ sub get_http_server_data {
             my $dom;
             my $https;
             my $ip;
-
-            print "Processing result for $url.\n" if $debug;
 
             if ($url =~ m|^http://www\.([^/]+)|) {
                 $dom   = $1;
@@ -254,48 +258,78 @@ sub rescan_unknown_servers {
     }
 }
 
-sub collect_server_information {
-    my $self   = shift;
-    my ($tr)   = @_;
-    my $ds     = $tr->domainset->domains;
-    my $geoip  = Geo::IP->open('/opt/local/share/GeoIP/GeoLiteCity.dat');
-    my $server = $self->dbx('Server');
+sub collect_geoip_information_for_server {
+    my $self = shift;
+    my ($tr, $domain) = @_;
+    my $ds  = $tr->domainset->domains;
+    my $dns = DNSCheck->new->dns;
 
-    while (my $domain = $ds->next) {
-        my $results =
-          $tr->search_related('tests', { domain => $domain->domain })
-          ->search_related('results', {});
-        foreach my $t (
-            $results->search(
-                { message => 'DNS:NAMESERVER_FOUND', arg0 => $domain->domain }
-            )->all
-          )
-        {
-            my $g = $geoip->record_by_addr($t->arg3);
-            if ($g) {
-                $server->update_or_create(
-                    {
-                        domain_id => $domain->id,
-                        run_id    => $tr->id,
-                        ip        => $t->arg3,
-                        kind      => 'DNS',
-                        country   => $g->country_name,
-                        city      => $g->city,
-                        longitude => $g->longitude,
-                        latitude  => $g->latitude,
-                    }
-                );
-            } else {
-                $server->update_or_create(
-                    {
-                        domain_id => $domain->id,
-                        run_id    => $tr->id,
-                        ip        => $t->arg3,
-                        kind      => 'DNS',
-                    }
-                );
+    # Fetch data from DNSCheck results for DNS and SMTP servers.
+    my $results =
+      $tr->search_related('tests', { domain => $domain->domain })
+      ->search_related('results', {});
+
+    # Nameservers
+    foreach my $t (
+        $results->search(
+            { message => q[DNS:NAMESERVER_FOUND], arg0 => $domain->domain }
+        )->all
+      )
+    {
+        $self->collect_server_information($tr->id, $domain->id, $t->arg3,
+            'DNS');
+    }
+
+    # Mailservers
+    print "About to look up MX servers for " . $domain->domain . "\n" if $debug;
+    my $mxnames =
+      $results->search({ message => q[MAIL:MAIL_EXCHANGER] })->first;
+    if ($mxnames) {
+        foreach my $name (split /,/, $mxnames->arg1) {
+            foreach my $addr ($dns->find_addresses($name, 'IN')) {
+                print "Found address $addr\n" if $debug;
+                $self->collect_server_information($tr->id, $domain->id, $addr,
+                    'SMTP');
             }
         }
+    }
+
+    # Webservers
+    foreach my $addr ($dns->find_addresses('www.' . $domain->domain, 'IN')) {
+        $self->collect_server_information($tr->id, $domain->id, $addr, 'HTTP');
+    }
+}
+
+sub collect_server_information {
+    my $self = shift;
+    my ($trid, $domainid, $ip, $kind) = @_;
+    my $geoip  = Geo::IP->open($self->cget(qw[daemon geoip]));
+    my $server = $self->dbx('Server');
+
+    print "GeoIP lookup for $kind/$trid/$domainid\n" if $debug;
+    my $g = $geoip->record_by_addr($ip);
+    if ($g) {
+        $server->update_or_create(
+            {
+                domain_id => $domainid,
+                run_id    => $trid,
+                ip        => $ip,
+                kind      => $kind,
+                country   => $g->country_name,
+                city      => $g->city,
+                longitude => $g->longitude,
+                latitude  => $g->latitude,
+            }
+        );
+    } else {
+        $server->update_or_create(
+            {
+                domain_id => $domainid,
+                run_id    => $trid,
+                ip        => $ip,
+                kind      => $kind,
+            }
+        );
     }
 }
 

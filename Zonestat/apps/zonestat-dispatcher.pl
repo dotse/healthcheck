@@ -359,9 +359,8 @@ q[INSERT INTO tests (domain,begin, source_id, source_data, run_id) VALUES (?,NOW
     slog 'debug', "$$ running test number $test_id.";
     my $line = 0;
 
-    # This line hides all the actual useful work.
+    # These lines hides all the actual useful work.
     $dc->zone->test($domain);
-    $zs->gather->get_http_server_data($source_data, $domain);
 
     my $sth = $dbh->prepare(
         q[
@@ -384,6 +383,10 @@ q[INSERT INTO tests (domain,begin, source_id, source_data, run_id) VALUES (?,NOW
             $e->{arg}[8],           $e->{arg}[9],
         );
     }
+
+    $zs->gather->get_server_data($source_data, $domain);
+
+    # End of useful work
 
     $dbh->do(
 q[UPDATE tests SET end = NOW(), count_critical = ?, count_error = ?, count_warning = ?, count_notice = ?, count_info = ?
