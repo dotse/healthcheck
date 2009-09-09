@@ -1,37 +1,36 @@
 <table>
+    <tr><th colspan="3"><% $tr->name %></th></tr>
     <tr>
         <th>Count</th>
         <th>Server</th>
         <th>Location</th>
     </tr>
-% foreach my $j (0..($count-1)) {
+% foreach my $s (@s) {
     <tr class="<% ++$c%2==0?'even':'odd' %>">
-% foreach my $i (0..$#trid) {
         <td>
-            <% $s[$i][$j]->get_column('count') %>
+            <% $s->get_column('count') %>
         </td>
         <td>
-            <% $s[$i][$j]->reverse %>
+            <% $s->reverse %>
         </td>
         <td>
-            <a href="http://maps.google.com/maps?q=<% $s[$i][$j]->latitude %>+<% $s[$i][$j]->longitude %>" target="_blank">
-                <% join ', ', ($s[$i][$j]->city, $s[$i][$j]->country) %>
+            <a href="http://maps.google.com/maps?q=<% $s->latitude %>+<% $s->longitude %>" target="_blank">
+                <% join ', ', ($s->city, $s->country) %>
             </a>
         </td>
-% }
     </tr>
 % }
 </table>
 
 <%init>
-my @tr = map {$zs->present->dbx('Testrun')->find($_)} @trid;
-$m->clear_buffers, $m->abort(404) unless @tr;
+my $tr = $zs->present->dbx('Testrun')->find($trid);
+$m->clear_buffers, $m->abort(404) unless defined($tr);
 
-my @s = map {[$zs->present->top_foo_servers($kind, $_, $count)]} @tr;
+my @s = $zs->present->top_foo_servers($kind, $tr, $count);
 my $c;
 </%init>
 <%args>
-@trid
+$trid
 $kind
 $count => 10
 </%args>

@@ -31,7 +31,9 @@
 <& /table/webserver_charset, sid => \@tid, https => 1 &>
 
 <h2>DNS servers hosting most domains</h2>
-<& /table/top_servers, kind => 'DNS', trid => \@tid &>
+% foreach my $t (@tid) {
+<& /table/top_servers, kind => 'DNS', trid => $t &>
+% }
 
 <h2>Unknown webserver identifications</h2>
 <& /table/unknown_server_types, sid => \@tid &>
