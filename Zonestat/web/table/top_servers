@@ -14,8 +14,8 @@
             <% $s->reverse %>
         </td>
         <td>
-            <a href="http://maps.google.com/maps?q=<% $s->latitude %>+<% $s->longitude %>" target="_blank">
-                <% join ', ', ($s->city, $s->country) %>
+            <a href="http://maps.google.com/maps?q=<% sprintf "%02.2f", $s->latitude %>+<% sprintf "%02.2f", $s->longitude %>" target="_blank">
+                <% join ', ', grep {$_} ($s->city, $s->country) %>
             </a>
         </td>
     </tr>
