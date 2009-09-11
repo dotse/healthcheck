@@ -16,7 +16,7 @@
 
 * Webinnehåll:
 
- - Content-type
+ (- Content-type)
 
  - Remote JS? Vilket? Lagra URLarna.
 
@@ -24,9 +24,9 @@
 
  - HTML-version. DOCTYPE? 
 
- - Lagra hela sidan för framtida bruk.
+ (- Lagra hela sidan för framtida bruk.)
 
- - Länk till Pingdoms timing-testsida.
+ [- Länk till Pingdoms timing-testsida. => integrera Ragnars verktyg istället]
 
 (* Skillnader mellan olika körningar för samma domänset.)
 
