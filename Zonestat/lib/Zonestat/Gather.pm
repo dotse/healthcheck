@@ -16,7 +16,7 @@ use POSIX qw[strftime];
 use Geo::IP;
 
 our $VERSION = '0.01';
-our $debug = 0;
+our $debug   = 0;
 STDOUT->autoflush(1) if $debug;
 
 our %server_regexps = (

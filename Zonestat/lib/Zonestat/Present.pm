@@ -197,13 +197,47 @@ sub top_foo_servers {
         { kind => $kind, run_id => $tr->id },
         {
             select =>
-              [qw[ip latitude longitude country city], { count => '*' }],
-            as       => [qw[ip latitude longitude country city], 'count'],
-            group_by => [qw[ip latitude longitude country city]],
+              [qw[ip latitude longitude country code city], { count => '*' }],
+            as       => [qw[ip latitude longitude country code city], 'count'],
+            group_by => [qw[ip latitude longitude country code city]],
             order_by => ['count(*) DESC'],
             rows     => $number
         }
     )->all;
+}
+
+sub google_mapchart_url {
+    my $self = shift;
+    my ($trid, $kind) = @_;
+    my $tr = $self->dbx('Testrun')->find($trid);
+
+    my %data =
+      map { $_->code, $_->get_column('count') } grep {$_->code} $self->dbx('Server')->search(
+        { kind => uc($kind), run_id => $tr->id },
+        {
+            select   => [qw[code], { count => '*' }],
+            as       => [qw[code], 'count'],
+            group_by => [qw[code]],
+            order_by => ['count(*) DESC'],
+        }
+      )->all;
+
+    my $max = 0;
+    foreach my $v (values %data) {
+        $max = $v if $v > $max;
+    }
+
+    foreach my $k (keys %data) {
+        $data{$k} = sprintf "%0.1f", 100 * ($data{$k} / $max);
+    }
+
+    my $chd  = 'chd=t:' . join ',', values %data;
+    my $chld = 'chld=' . join '',  keys %data;
+
+    return
+'http://chart.apis.google.com/chart?chs=440x220&cht=t&chtm=world&chco=FFFFFF,CCFFCC,00FF00&chf=bg,s,EAF7FE&'
+      . $chld . '&'
+      . $chd;
 }
 
 sub top_dns_servers {
