@@ -119,6 +119,7 @@ CREATE TABLE IF NOT EXISTS `server` (
     `id` serial primary key,
     `kind` varchar(10),
     `country` varchar(128),
+    `code` char(2),
     `ip` varchar(255),
     `asn` bigint,
     `city` varchar(255),
