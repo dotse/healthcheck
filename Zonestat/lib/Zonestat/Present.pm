@@ -191,7 +191,7 @@ sub top_foo_servers {
     my $self   = shift;
     my $kind   = uc(shift);
     my $tr     = shift;
-    my $number = shift || 10;
+    my $number = shift || 25;
 
     return $self->dbx('Server')->search(
         { kind => $kind, run_id => $tr->id },
