@@ -49,8 +49,8 @@ sub db_import_zone {
 
     my $dbh = $self->dbh;
     my $ds =
-      $self->dbx('Domainsets')
-      ->create({ name => strftime('%g%m%d', localtime) });
+      $self->dbx('Domainset')
+      ->create({ name => strftime('.se %g%m%d', localtime) });
 
     open my $fh, '<', $self->cget(qw[zone datafile])
       or die "Failed to open zone file: $!\n";
