@@ -258,6 +258,21 @@ sub rescan_unknown_servers {
     }
 }
 
+sub lookup_asn_from_results {
+    my ($ip, $tr, $domain) = @_;
+
+    my $res =
+      $tr->search_related('tests', { domain => $domain })
+      ->search_related('results',
+        { message => 'CONNECTIVITY:ANNOUNCED_BY_ASN', arg0 => $ip })->first;
+
+    if (defined($res)) {
+        return $res->arg1;
+    } else {
+        return;
+    }
+}
+
 sub collect_geoip_information_for_server {
     my $self = shift;
     my ($tr, $domain) = @_;
@@ -276,8 +291,8 @@ sub collect_geoip_information_for_server {
         )->all
       )
     {
-        $self->collect_server_information($tr->id, $domain->id, $t->arg3,
-            'DNS');
+        $self->collect_server_information($tr->id, $domain->id, $t->arg3, 'DNS',
+            lookup_asn_from_results($t->arg3, $tr, $domain->domain));
     }
 
     # Mailservers
@@ -289,20 +304,22 @@ sub collect_geoip_information_for_server {
             foreach my $addr ($dns->find_addresses($name, 'IN')) {
                 print "Found address $addr\n" if $debug;
                 $self->collect_server_information($tr->id, $domain->id, $addr,
-                    'SMTP');
+                    'SMTP',
+                    lookup_asn_from_results($addr, $tr, $domain->domain));
             }
         }
     }
 
     # Webservers
     foreach my $addr ($dns->find_addresses('www.' . $domain->domain, 'IN')) {
-        $self->collect_server_information($tr->id, $domain->id, $addr, 'HTTP');
+        $self->collect_server_information($tr->id, $domain->id, $addr, 'HTTP',
+            lookup_asn_from_results($addr, $tr, $domain->domain));
     }
 }
 
 sub collect_server_information {
     my $self = shift;
-    my ($trid, $domainid, $ip, $kind) = @_;
+    my ($trid, $domainid, $ip, $kind, $asn) = @_;
     my $geoip  = Geo::IP->open($self->cget(qw[daemon geoip]));
     my $server = $self->dbx('Server');
 
@@ -320,6 +337,7 @@ sub collect_server_information {
                 city      => $g->city,
                 longitude => $g->longitude,
                 latitude  => $g->latitude,
+                asn       => $asn,
             }
         );
     } else {
@@ -329,6 +347,7 @@ sub collect_server_information {
                 run_id    => $trid,
                 ip        => $ip,
                 kind      => $kind,
+                asn       => $asn,
             }
         );
     }
