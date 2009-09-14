@@ -212,7 +212,8 @@ sub google_mapchart_url {
     my $tr = $self->dbx('Testrun')->find($trid);
 
     my %data =
-      map { $_->code, $_->get_column('count') } grep {$_->code} $self->dbx('Server')->search(
+      map { $_->code, $_->get_column('count') }
+      grep { $_->code } $self->dbx('Server')->search(
         { kind => uc($kind), run_id => $tr->id },
         {
             select   => [qw[code], { count => '*' }],
@@ -232,7 +233,7 @@ sub google_mapchart_url {
     }
 
     my $chd  = 'chd=t:' . join ',', values %data;
-    my $chld = 'chld=' . join '',  keys %data;
+    my $chld = 'chld=' . join '',   keys %data;
 
     return
 'http://chart.apis.google.com/chart?chs=440x220&cht=t&chtm=world&chco=FFFFFF,CCFFCC,00FF00&chf=bg,s,EAF7FE&'
