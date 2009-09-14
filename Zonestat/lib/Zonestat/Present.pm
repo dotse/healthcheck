@@ -196,10 +196,12 @@ sub top_foo_servers {
     return $self->dbx('Server')->search(
         { kind => $kind, run_id => $tr->id },
         {
-            select =>
-              [qw[ip latitude longitude country code city], { count => '*' }],
-            as       => [qw[ip latitude longitude country code city], 'count'],
-            group_by => [qw[ip latitude longitude country code city]],
+            select => [
+                qw[ip latitude longitude country code city asn],
+                { count => '*' }
+            ],
+            as => [qw[ip latitude longitude country code city asn], 'count'],
+            group_by => [qw[ip latitude longitude country code city asn]],
             order_by => ['count(*) DESC'],
             rows     => $number
         }
@@ -254,6 +256,31 @@ sub top_http_servers {
 sub top_smtp_servers {
     my $self = shift;
     return $self->top_foo_servers('SMTP', @_);
+}
+
+sub nameservers_per_asn {
+    my $self = shift;
+    my @tr   = shift;
+    my %res;
+
+    foreach my $t (@tr) {
+        foreach my $r (
+            $self->dbx('Server')->search(
+                { kind => 'DNS', run_id => $t->id },
+                {
+                    select   => [qw[asn], { count => '*' }],
+                    as       => [qw[asn], 'count'],
+                    group_by => [qw[asn]],
+                    order_by => ['count(*) DESC'],
+                }
+            )->all
+          )
+        {
+            $res{ $r->asn }{ $t->id } = $r->get_column('count');
+        }
+    }
+
+    return %res;
 }
 
 1;

@@ -48,6 +48,9 @@
 <& /table/top_servers, kind => 'SMTP', trid => $t &>
 % }
 
+<h2>ASNs with most nameservers</h2>
+<& /table/top_asn, sid => \@tid &>
+
 <h2>Unknown webserver identifications</h2>
 <& /table/unknown_server_types, sid => \@tid &>
 
