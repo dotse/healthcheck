@@ -132,3 +132,10 @@ CREATE TABLE IF NOT EXISTS `server` (
     CONSTRAINT `server_domainid` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
     UNIQUE (`kind`, `ip`, `run_id`, `domain_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+    
+CREATE TABLE IF NOT EXISTS `asdata` (
+    `id` serial primary key,
+    `asn` varchar(10) unique not null,
+    `asname` varchar(255),
+    `descr` text
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;

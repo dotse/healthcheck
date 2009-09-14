@@ -5,6 +5,11 @@ use strict;
 use warnings;
 use POSIX 'strftime';
 
+use LWP::UserAgent;
+use IO::Uncompress::Gunzip;
+use File::Temp 'tempfile';
+use Data::Dumper;
+
 use base 'Zonestat::Common';
 
 our $VERSION = '0.01';
@@ -87,6 +92,152 @@ q[INSERT INTO domains (domain) VALUES (?) ON DUPLICATE KEY UPDATE last_import = 
             undef, $id->[0][0], $ds->id);
     }
     $dbh->commit;
+}
+
+sub update_asn_table_from_ripe {
+    my $self = shift;
+
+    # ftp://ftp.ripe.net/ripe/dbase/split/ripe.db.aut-num.gz
+    my $url = 'ftp://ftp.ripe.net/ripe/dbase/split/ripe.db.aut-num.gz';
+    my ($fh, $fname) = tempfile();
+
+    my $ua  = LWP::UserAgent->new;
+    my $res = $ua->request(
+        HTTP::Request->new(GET => $url),
+        sub {
+            my ($chunk) = @_;
+            print $fh $chunk;
+        }
+    );
+    seek $fh, 0, 0;
+
+    my $db = $self->dbx('Asdata');
+    $db->delete;
+    my ($asn, $asname, $asdescr) = (undef, '', '');
+    my $gz = IO::Uncompress::Gunzip->new($fh);
+    while (my $line = $gz->getline) {
+        if ($line =~ /^aut-num:\s+AS(\w+)/) {
+            if (defined($asn)) {
+                chomp($asdescr);
+                $db->create(
+                    { asn => $asn, asname => $asname, descr => $asdescr });
+                $asn     = undef;
+                $asname  = '';
+                $asdescr = '';
+            }
+            $asn = $1;
+        } elsif ($line =~ /^as-name:\s+([^#\n]+)$/) {
+            $asname = $1;
+        } elsif ($line =~ /^descr:\s+(.*)$/) {
+            $asdescr .= "\t$1\n";
+        } else {
+
+            # print "[$line]\n";
+        }
+    }
+    unlink $fname or die $!;
+}
+
+# The following is pretty much the entire content of Steffen Ullrich's
+# Net::INET6Glue::FTP module. It's Cut-and-pasted into here due to .SE's
+# restrictions on using modules off of CPAN on production servers. If the
+# module and its siblings ever show up in Ubuntu's package repository, we can
+# remove this as well as some hideous code in DNSCheck::Test::SMTP.
+
+BEGIN {
+    use Net::FTP;    # tested with version 2.77
+    use Socket;
+    use Carp 'croak';
+
+    # implement EPRT
+    sub Net::FTP::_EPRT {
+        shift->command("EPRT", @_)->response() == Net::FTP::CMD_OK;
+    }
+
+    sub Net::FTP::eprt {
+        @_ == 1 || @_ == 2 or croak 'usage: $ftp->eprt([PORT])';
+        my ($ftp, $port) = @_;
+        delete ${*$ftp}{net_ftp_intern_port};
+        unless ($port) {
+            my $listen = ${*$ftp}{net_ftp_listen} ||= IO::Socket::INET6->new(
+                Listen    => 1,
+                Timeout   => $ftp->timeout,
+                LocalAddr => $ftp->sockhost,
+            );
+            ${*$ftp}{net_ftp_intern_port} = 1;
+            $port = "|2|" . $listen->sockhost . "|" . $listen->sockport . "|";
+        }
+        my $ok = $ftp->_EPRT($port);
+        ${*$ftp}{net_ftp_port} = $port if $ok;
+        return $ok;
+    }
+
+    # implement EPSV
+    sub Net::FTP::_EPSV {
+        shift->command("EPSV", @_)->response() == Net::FTP::CMD_OK;
+    }
+
+    sub Net::FTP::epsv {
+        my $ftp = shift;
+        @_ and croak 'usage: $ftp->epsv()';
+        delete ${*$ftp}{net_ftp_intern_port};
+
+        $ftp->_EPSV && $ftp->message =~ m{\(([\x33-\x7e])\1\1(\d+)\1\)}
+          ? ${*$ftp}{'net_ftp_pasv'} = $2
+          : undef;
+    }
+
+    {
+
+        # redefine PORT and PASV so that they use EPRT and EPSV if necessary
+        no warnings 'redefine';
+        my $old_port = \&Net::FTP::port;
+        *Net::FTP::port = sub {
+            goto &$old_port if $_[0]->sockdomain == AF_INET or @_ < 1 or @_ > 2;
+            goto &Net::FTP::eprt;
+        };
+
+        my $old_pasv = \&Net::FTP::pasv;
+        *Net::FTP::pasv = sub {
+            goto &$old_pasv if $_[0]->sockdomain == AF_INET or @_ < 1 or @_ > 2;
+            goto &Net::FTP::epsv;
+        };
+
+        # redefined _dataconn to make use of the data it got from EPSV
+        # copied and adapted from Net::FTP::_dataconn
+        my $old_dataconn = \&Net::FTP::_dataconn;
+        *Net::FTP::_dataconn = sub {
+            goto &$old_dataconn if $_[0]->sockdomain == AF_INET;
+            my $ftp = shift;
+
+            my $pkg = "Net::FTP::" . $ftp->type;
+            eval "require $pkg";
+            $pkg =~ s/ /_/g;
+            delete ${*$ftp}{net_ftp_dataconn};
+
+            my $data;
+            if (my $port = ${*$ftp}{net_ftp_pasv}) {
+                $data = $pkg->new(
+                    PeerAddr  => $ftp->peerhost,
+                    PeerPort  => $port,
+                    LocalAddr => ${*$ftp}{net_ftp_localaddr},
+                );
+            } elsif (my $listen = delete ${*$ftp}{net_ftp_listen}) {
+                $data = $listen->accept($pkg);
+                close($listen);
+            }
+
+            return if !$data;
+
+            $data->timeout($ftp->timeout);
+            ${*$ftp}{net_ftp_dataconn} = $data;
+            ${*$data}                  = "";
+            ${*$data}{net_ftp_cmd}     = $ftp;
+            ${*$data}{net_ftp_blksize} = ${*$ftp}{net_ftp_blksize};
+            return $data;
+        };
+    }
+
 }
 
 1;
