@@ -121,6 +121,7 @@ CREATE TABLE IF NOT EXISTS `server` (
     `country` varchar(128),
     `code` char(2),
     `ip` varchar(255),
+    `ipv6` boolean not null default false,
     `asn` bigint,
     `city` varchar(255),
     `latitude` double,

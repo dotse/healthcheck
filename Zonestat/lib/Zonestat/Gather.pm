@@ -14,6 +14,7 @@ use IO::Socket::SSL;
 use Carp;
 use POSIX qw[strftime];
 use Geo::IP;
+use Net::IP;
 
 our $VERSION = '0.01';
 our $debug   = 0;
@@ -261,10 +262,21 @@ sub rescan_unknown_servers {
 sub lookup_asn_from_results {
     my ($ip, $tr, $domain) = @_;
 
+    $ip = Net::IP->new($ip)->ip;
+
     my $res =
       $tr->search_related('tests', { domain => $domain })
       ->search_related('results',
         { message => 'CONNECTIVITY:ANNOUNCED_BY_ASN', arg0 => $ip })->first;
+
+    if (defined($res) and $res->arg1) {
+        return $res->arg1;
+    }
+
+    $res =
+      $tr->search_related('tests', { domain => $domain })
+      ->search_related('results',
+        { message => 'CONNECTIVITY:V6_ANNOUNCED_BY_ASN', arg0 => $ip })->first;
 
     if (defined($res)) {
         return $res->arg1;
@@ -322,6 +334,14 @@ sub collect_server_information {
     my ($trid, $domainid, $ip, $kind, $asn) = @_;
     my $geoip  = Geo::IP->open($self->cget(qw[daemon geoip]));
     my $server = $self->dbx('Server');
+    my $ipv6   = 0;
+
+    my $nip = Net::IP->new($ip);
+    if (!defined($nip)) {
+        croak "Malformed IP adress: $ip";
+    } elsif ($nip->version == 6) {
+        $ipv6 = 1;
+    }
 
     print "GeoIP lookup for $kind/$trid/$domainid\n" if $debug;
     my $g = $geoip->record_by_addr($ip);
@@ -330,7 +350,8 @@ sub collect_server_information {
             {
                 domain_id => $domainid,
                 run_id    => $trid,
-                ip        => $ip,
+                ip        => $nip->ip,
+                ipv6      => $ipv6,
                 kind      => $kind,
                 country   => $g->country_name,
                 code      => $g->country_code,
@@ -345,7 +366,8 @@ sub collect_server_information {
             {
                 domain_id => $domainid,
                 run_id    => $trid,
-                ip        => $ip,
+                ip        => $nip->ip,
+                ipv6      => $ipv6,
                 kind      => $kind,
                 asn       => $asn,
             }

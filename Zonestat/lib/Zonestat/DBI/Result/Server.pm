@@ -6,7 +6,7 @@ use Socket;
 __PACKAGE__->load_components(qw[Core]);
 __PACKAGE__->table('server');
 __PACKAGE__->add_columns(
-    qw[id kind country ip asn city latitude longitude run_id domain_id created_at code]
+    qw[id kind country ip ipv6 asn city latitude longitude run_id domain_id created_at code]
 );
 
 # http://maps.google.com/maps?q=<latitude>+<longitude>

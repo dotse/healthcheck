@@ -260,13 +260,19 @@ sub top_smtp_servers {
 
 sub nameservers_per_asn {
     my $self = shift;
-    my @tr   = shift;
+    my $ipv6 = shift;
+    my @tr   = @_;
     my %res;
 
     foreach my $t (@tr) {
         foreach my $r (
             $self->dbx('Server')->search(
-                { kind => 'DNS', run_id => $t->id },
+                {
+                    kind   => 'DNS',
+                    run_id => $t->id,
+                    ipv6   => $ipv6,
+                    asn    => { '!=', undef }
+                },
                 {
                     select   => [qw[asn], { count => '*' }],
                     as       => [qw[asn], 'count'],
