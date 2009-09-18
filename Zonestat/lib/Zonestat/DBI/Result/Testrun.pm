@@ -15,5 +15,6 @@ __PACKAGE__->has_many(
     webservers => 'Zonestat::DBI::Result::Webserver',
     'testrun_id'
 );
+__PACKAGE__->has_many(servers => 'Zonestat::DBI::Result::Server', 'run_id');
 
 1;

@@ -21,5 +21,6 @@ __PACKAGE__->has_many(
     'domain_id'
 );
 __PACKAGE__->many_to_many(sets => 'glue', 'domainset');
+__PACKAGE__->has_many(servers => 'Zonestat::DBI::Result::Server', 'domain_id');
 
 1;

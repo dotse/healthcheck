@@ -289,6 +289,63 @@ sub nameservers_per_asn {
     return %res;
 }
 
+sub ipv6_percentage_for_testrun {
+    my $self = shift;
+    my $tr   = shift;
+
+    my $all = $tr->domainset->domains->count;
+    my $v6 =
+      $tr->search_related('servers', { ipv6 => 1 })
+      ->search_related('domain', {}, { group_by => ['domain'] })->count;
+
+    return 100 * ($v6 / $all);
+}
+
+sub multihome_percentage_for_testrun {
+    my $self = shift;
+    my ($tr, $ipv6) = @_;
+
+    my $message;
+    if ($ipv6) {
+        $message = 'CONNECTIVITY:V6_ASN_COUNT_OK';
+    } else {
+        $message = 'CONNECTIVITY:ASN_COUNT_OK';
+    }
+
+    my $all = $tr->tests->count;
+    my $ok =
+      $tr->search_related('tests', {})
+      ->search_related('results', { message => $message })->count;
+
+    return 100 * ($ok / $all);
+}
+
+sub dnssec_percentage_for_testrun {
+    my $self = shift;
+    my $tr   = shift;
+
+    my $all = $tr->tests->count;
+    my $ds =
+      $tr->search_related('tests', {})
+      ->search_related('results', { message => 'DNSSEC:DS_FOUND' })->count;
+
+    return 100 * ($ds / $all);
+}
+
+sub recursing_percentage_for_testrun {
+    my $self = shift;
+    my $tr   = shift;
+
+    my $all = $tr->tests->count;
+    my $ds = $tr->search_related('tests', {})->search_related(
+        'results',
+        { message  => 'NAMESERVER:RECURSIVE' },
+        { group_by => ['test_id'] }
+    )->count;
+
+    return 100 * ($ds / $all);
+}
+
 1;
 __END__
 

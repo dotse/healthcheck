@@ -48,10 +48,10 @@
 <& /table/top_servers, kind => 'SMTP', trid => $t &>
 % }
 
-<h2>20 ASNs with most nameservers (ipv4)</h2>
+<h2>ASNs hosting most domains (ipv4)</h2>
 <& /table/top_asn, sid => \@tid &>
 
-<h2>20 ASNs with most nameservers (ipv6)</h2>
+<h2>ASNs hosting most domains (ipv6)</h2>
 <& /table/top_asn, sid => \@tid, ipv6 => 1 &>
 
 <h2>Unknown webserver identifications</h2>
