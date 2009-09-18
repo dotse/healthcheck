@@ -1,5 +1,45 @@
 <h1>Testruns for <% $name %></h1>
 
+<h2>Data points</h2>
+<table>
+    <tr>
+        <td>&nbsp;</td>
+%foreach my $t (@tr) {
+        <th><% $t->name %></th>
+% }
+    </tr>
+    <tr>
+        <th>Domains using IPv6</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% sprintf "%0.2f", $zs->present->ipv6_percentage_for_testrun($t) %>%</td>
+% }
+    </tr>
+    <tr>
+        <th>Domains announced in more than one AS (IPv4)</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% sprintf "%0.2f", $zs->present->multihome_percentage_for_testrun($t,0) %>%</td>
+% }
+    </tr>
+    <tr>
+        <th>Domains announced in more than one AS (IPv6)</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% sprintf "%0.2f", $zs->present->multihome_percentage_for_testrun($t,1) %>%</td>
+% }
+    </tr>
+    <tr>
+        <th>Domains using DNSSEC</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% sprintf "%0.2f", $zs->present->dnssec_percentage_for_testrun($t) %>%</td>
+% }
+    </tr>
+    <tr>
+        <th>Domains with open recursive nameserver(s)</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% sprintf "%0.2f", $zs->present->recursing_percentage_for_testrun($t) %>%</td>
+% }
+    </tr>
+</table>
+
 <h2>Common problems</h2>
 <& /table/common_problems, sid => \@tid &>
 
