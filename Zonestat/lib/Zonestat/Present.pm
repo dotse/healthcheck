@@ -159,21 +159,38 @@ sub tests_with_max_severity {
     my %res;
 
     foreach my $ds (@ds) {
-        foreach my $t ($ds->tests->all) {
-            if ($t->count_critical > 0) {
-                $res{critical}{ $ds->id }++;
-            } elsif ($t->count_error > 0) {
-                $res{error}{ $ds->id }++;
-            } elsif ($t->count_warning > 0) {
-                $res{warning}{ $ds->id }++;
-            } elsif ($t->count_notice > 0) {
-                $res{notice}{ $ds->id }++;
-            } elsif ($t->count_info > 0) {
-                $res{info}{ $ds->id }++;
-            } else {
-                $res{clear}{ $ds->id }++;
+        $res{critical}{ $ds->id } =
+          $ds->search_related('tests', { count_critical => { '>', 0 } })->count;
+        $res{error}{ $ds->id } =
+          $ds->search_related('tests',
+            { count_critical => 0, count_error => { '>', 0 } })->count;
+        $res{warning}{ $ds->id } = $ds->search_related(
+            'tests',
+            {
+                count_critical => 0,
+                count_error    => 0,
+                count_warning  => { '>', 0 }
             }
-        }
+        )->count;
+        $res{notice}{ $ds->id } = $ds->search_related(
+            'tests',
+            {
+                count_critical => 0,
+                count_error    => 0,
+                count_warning  => 0,
+                count_notice   => { '>', 0 }
+            }
+        )->count;
+        $res{info}{ $ds->id } = $ds->search_related(
+            'tests',
+            {
+                count_critical => 0,
+                count_error    => 0,
+                count_warning  => 0,
+                count_notice   => 0,
+                count_info     => { '>', 0 }
+            }
+        )->count;
     }
 
     return %res;
