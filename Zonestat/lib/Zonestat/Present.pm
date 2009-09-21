@@ -45,19 +45,23 @@ sub lame_delegated_domains {
 sub number_of_domains_with_message {
     my $self  = shift;
     my $level = shift;
-    my @ds    = @_;
+    my @trs   = @_;
     my %res;
 
-    foreach my $ds (@ds) {
-        my @rows = $ds->tests->search_related(
+    foreach my $tr (@trs) {
+        my $mr = $tr->search_related('tests', {})->search_related(
             'results',
-            { level => $level },
-            {
-                columns  => [qw(test_id message)],
-                distinct => 1
-            }
-        )->all;
-        foreach my $r (@rows) { $res{ $r->message }{ $ds->id }++ }
+            { level    => $level },
+            { group_by => ['message'] }
+        );
+        while (my $m = $mr->next) {
+            $res{ $m->message }{ $tr->id } =
+              $tr->search_related('tests', {})->search_related(
+                'results',
+                { message  => $m->message },
+                { group_by => ['test_id'] }
+              )->count;
+        }
     }
 
     return %res;
