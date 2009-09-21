@@ -11,7 +11,11 @@
                         <% (defined($k) and $k) ? $k : 'None given' %>
                     </td>
 % foreach my $n (@ds) {
+% if ($n->webservers({https => $https})->count == 0) {
+                    <td class="numeric">N/A</td>
+% } else {
                     <td class="numeric"><% sprintf '%0.2f',100*($data{$k}{$n->id}/$n->webservers({https => $https})->count) %>%</td>
+% }
 % }
 
                 </tr>

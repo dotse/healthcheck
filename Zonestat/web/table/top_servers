@@ -1,5 +1,5 @@
 <table>
-    <tr><th colspan="3"><% $tr->name %></th></tr>
+    <tr><th colspan="3"><% $tr->domainset->name %> <% $tr->name %></th></tr>
     <tr>
         <th>Count</th>
         <th>Server</th>

@@ -5,34 +5,34 @@
     <tr>
         <td>&nbsp;</td>
 %foreach my $t (@tr) {
-        <th><% $t->name %></th>
+        <th><% $t->domainset->name %> <% $t->name %></th>
 % }
     </tr>
-    <tr>
+    <tr class="odd">
         <th>Domains using IPv6</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f", $zs->present->ipv6_percentage_for_testrun($t) %>%</td>
 % }
     </tr>
-    <tr>
+    <tr class="even">
         <th>Domains announced in more than one AS (IPv4)</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f", $zs->present->multihome_percentage_for_testrun($t,0) %>%</td>
 % }
     </tr>
-    <tr>
+    <tr class="odd">
         <th>Domains announced in more than one AS (IPv6)</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f", $zs->present->multihome_percentage_for_testrun($t,1) %>%</td>
 % }
     </tr>
-    <tr>
+    <tr class="even">
         <th>Domains using DNSSEC</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f", $zs->present->dnssec_percentage_for_testrun($t) %>%</td>
 % }
     </tr>
-    <tr>
+    <tr class="odd">
         <th>Domains with open recursive nameserver(s)</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f", $zs->present->recursing_percentage_for_testrun($t) %>%</td>
@@ -110,5 +110,6 @@ if (@tid) {
 } else {
     $m->redirect('/')
 }
+my $c;
 </%init>
 <%method title>ZoneStat: Testruns</%method>
