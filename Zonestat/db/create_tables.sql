@@ -140,3 +140,19 @@ CREATE TABLE IF NOT EXISTS `asdata` (
     `asname` varchar(255),
     `descr` text
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+    
+CREATE TABLE IF NOT EXISTS `mailserver` (
+    `id` serial primary key,
+    `name` varchar(255) not null,
+    `starttls` boolean not null default false,
+    `adsp` text,
+    `ip` varchar(255) not null,
+    `run_id` bigint(20) unsigned not null,
+    `domain_id` int(10) unsigned not null,
+    `banner` varchar(255),
+    CONSTRAINT `mailserver_runid` FOREIGN KEY (`run_id`) REFERENCES `testruns` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `mailserver_domainid` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
+    INDEX (`name`),
+    INDEX (`run_id`),
+    INDEX (`domain_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;

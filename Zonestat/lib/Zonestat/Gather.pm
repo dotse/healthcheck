@@ -15,6 +15,7 @@ use Carp;
 use POSIX qw[strftime];
 use Geo::IP;
 use Net::IP;
+use Net::SMTP;
 
 our $VERSION = '0.01';
 our $debug   = 0;
@@ -285,13 +286,54 @@ sub lookup_asn_from_results {
     }
 }
 
+sub collect_smtp_information {
+    my $self = shift;
+    my ($tr, $domain, $addr) = @_;
+    my $ms = $self->dbx('Mailserver');
+
+    my $adsp;
+    my $starttls = 0;
+    my $banner;
+
+    my $ip = Net::IP->new($addr);
+    croak "Malformed IP address: $addr" unless defined($ip);
+
+    my $dns = DNSCheck->new->dns;
+    my $packet =
+      $dns->query_resolver('_adsp._domainkey.' . $domain->domain, 'IN', 'TXT');
+
+    if (defined($packet) and $packet->header->ancount > 0) {
+        my $rr = ($packet->answer)[0];
+        if ($rr->type eq 'TXT') {
+            $adsp = $rr->txtdata;
+        }
+    }
+
+    my $smtp = Net::SMTP->new($addr);
+    if (defined($smtp)) {
+        $starttls = 1 if $smtp->message =~ m|STARTTLS|;
+        $banner = $smtp->banner;
+    }
+
+    $ms->create(
+        {
+            starttls  => $starttls,
+            adsp      => $adsp,
+            ip        => $ip->ip,
+            banner    => $banner,
+            run_id    => $tr->id,
+            domain_id => $domain->id
+        }
+    );
+}
+
 sub collect_geoip_information_for_server {
     my $self = shift;
     my ($tr, $domain) = @_;
     my $ds  = $tr->domainset->domains;
     my $dns = DNSCheck->new->dns;
 
-    # Fetch data from DNSCheck results for DNS and SMTP servers.
+    # Fetch data from DNSCheck results for DNS servers.
     my $results =
       $tr->search_related('tests', { domain => $domain->domain })
       ->search_related('results', {});
@@ -309,16 +351,13 @@ sub collect_geoip_information_for_server {
 
     # Mailservers
     print "About to look up MX servers for " . $domain->domain . "\n" if $debug;
-    my $mxnames =
-      $results->search({ message => q[MAIL:MAIL_EXCHANGER] })->first;
-    if ($mxnames) {
-        foreach my $name (split /,/, $mxnames->arg1) {
-            foreach my $addr ($dns->find_addresses($name, 'IN')) {
-                print "Found address $addr\n" if $debug;
-                $self->collect_server_information($tr->id, $domain->id, $addr,
-                    'SMTP',
-                    lookup_asn_from_results($addr, $tr, $domain->domain));
-            }
+    my @mxnames = $dns->find_mx($domain->domain);
+    foreach my $name (@mxnames) {
+        foreach my $addr ($dns->find_addresses($name, 'IN')) {
+            print "Found address $addr\n" if $debug;
+            $self->collect_smtp_information($tr, $domain, $addr);
+            $self->collect_server_information($tr->id, $domain->id, $addr,
+                'SMTP', lookup_asn_from_results($addr, $tr, $domain->domain));
         }
     }
 
