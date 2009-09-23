@@ -367,6 +367,35 @@ sub recursing_percentage_for_testrun {
     return 100 * ($ds / $all);
 }
 
+sub adsp_percentage_for_testrun {
+    my $self = shift;
+    my $tr   = shift;
+
+    my $all  = $tr->tests->count;
+    my $adsp = $self->dbx('Mailserver')->search(
+        {
+            run_id => $tr->id,
+            adsp   => { '!=', undef }
+        },
+        { group_by => ['domain_id'] }
+    )->count;
+
+    return 100 * ($adsp / $all);
+}
+
+sub starttls_percentage_for_testrun {
+    my $self = shift;
+    my $tr   = shift;
+
+    my $all      = $tr->tests->count;
+    my $starttls = $self->dbx('Mailserver')->search(
+        { run_id   => $tr->id, starttls => 1 },
+        { group_by => ['domain_id'] }
+    )->count;
+
+    return 100 * ($starttls / $all);
+}
+
 1;
 __END__
 

@@ -38,6 +38,18 @@
         <td class="numeric"><% sprintf "%0.2f", $zs->present->recursing_percentage_for_testrun($t) %>%</td>
 % }
     </tr>
+    <tr class="even">
+        <th>Domains using ADSP</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% sprintf "%0.2f", $zs->present->adsp_percentage_for_testrun($t) %>%</td>
+% }
+</tr>
+    <tr class="odd">
+        <th>Domains using STARTTLS</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% sprintf "%0.2f", $zs->present->starttls_percentage_for_testrun($t) %>%</td>
+% }
+    </tr>
 </table>
 
 <h2>Common problems</h2>
