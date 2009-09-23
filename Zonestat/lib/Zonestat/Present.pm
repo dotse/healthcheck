@@ -319,7 +319,7 @@ sub ipv6_percentage_for_testrun {
       $tr->search_related('servers', { ipv6 => 1 })
       ->search_related('domain', {}, { group_by => ['domain'] })->count;
 
-    return 100 * ($v6 / $all);
+    return (100 * ($v6 / $all), $v6);
 }
 
 sub multihome_percentage_for_testrun {
@@ -338,7 +338,7 @@ sub multihome_percentage_for_testrun {
       $tr->search_related('tests', {})
       ->search_related('results', { message => $message })->count;
 
-    return 100 * ($ok / $all);
+    return (100 * ($ok / $all), $ok);
 }
 
 sub dnssec_percentage_for_testrun {
@@ -350,7 +350,7 @@ sub dnssec_percentage_for_testrun {
       $tr->search_related('tests', {})
       ->search_related('results', { message => 'DNSSEC:DS_FOUND' })->count;
 
-    return 100 * ($ds / $all);
+    return (100 * ($ds / $all), $ds);
 }
 
 sub recursing_percentage_for_testrun {
@@ -364,7 +364,7 @@ sub recursing_percentage_for_testrun {
         { group_by => ['test_id'] }
     )->count;
 
-    return 100 * ($ds / $all);
+    return (100 * ($ds / $all), $ds);
 }
 
 sub adsp_percentage_for_testrun {
@@ -380,7 +380,7 @@ sub adsp_percentage_for_testrun {
         { group_by => ['domain_id'] }
     )->count;
 
-    return 100 * ($adsp / $all);
+    return (100 * ($adsp / $all), $adsp);
 }
 
 sub starttls_percentage_for_testrun {
@@ -393,7 +393,7 @@ sub starttls_percentage_for_testrun {
         { group_by => ['domain_id'] }
     )->count;
 
-    return 100 * ($starttls / $all);
+    return (100 * ($starttls / $all), $starttls);
 }
 
 1;
