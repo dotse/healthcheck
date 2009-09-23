@@ -10,10 +10,7 @@ __PACKAGE__->belongs_to(
     domainset => 'Zonestat::DBI::Result::Domainset',
     'set_id'
 );
-__PACKAGE__->has_many(
-    tests => 'Zonestat::DBI::Result::Tests',
-    'run_id', { where => { end => { '!=', undef } } }
-);
+__PACKAGE__->has_many(tests => 'Zonestat::DBI::Result::Tests', 'run_id');
 __PACKAGE__->has_many(
     webservers => 'Zonestat::DBI::Result::Webserver',
     'testrun_id'
