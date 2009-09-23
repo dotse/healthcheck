@@ -288,7 +288,7 @@ sub lookup_asn_from_results {
 
 sub collect_smtp_information {
     my $self = shift;
-    my ($tr, $domain, $addr) = @_;
+    my ($tr, $domain, $addr, $name) = @_;
     my $ms = $self->dbx('Mailserver');
 
     my $adsp;
@@ -322,7 +322,8 @@ sub collect_smtp_information {
             ip        => $ip->ip,
             banner    => $banner,
             run_id    => $tr->id,
-            domain_id => $domain->id
+            domain_id => $domain->id,
+            name      => $name,
         }
     );
 }
@@ -355,7 +356,7 @@ sub collect_geoip_information_for_server {
     foreach my $name (@mxnames) {
         foreach my $addr ($dns->find_addresses($name, 'IN')) {
             print "Found address $addr\n" if $debug;
-            $self->collect_smtp_information($tr, $domain, $addr);
+            $self->collect_smtp_information($tr, $domain, $addr, $name);
             $self->collect_server_information($tr->id, $domain->id, $addr,
                 'SMTP', lookup_asn_from_results($addr, $tr, $domain->domain));
         }
