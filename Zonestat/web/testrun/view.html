@@ -117,8 +117,9 @@ my @tr;
 my $name;
 
 if (@tid) {
-    @tr = map {$zs->present->dbx('Testrun')->find($_)} @tid;
+    @tr = grep {defined($_)} map {$zs->present->dbx('Testrun')->find($_)} @tid;
     $name = $tr[0]->domainset->name;
+    @tid = map {$_->id} @tr;
 } else {
     $m->redirect('/')
 }
