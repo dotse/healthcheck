@@ -75,15 +75,6 @@ sub enqueue_domainset {
     );
 }
 
-sub get_zone_list {
-    my $self = shift;
-
-    map { $_->[0] } @{
-        $self->dbh->selectall_arrayref(
-            q[SELECT domain FROM domains ORDER BY domain ASC])
-      };
-}
-
 sub content_type_from_header {
     my @data = @_;
     my ($type, $encoding);
@@ -353,6 +344,12 @@ sub collect_geoip_information_for_server {
     # Mailservers
     print "About to look up MX servers for " . $domain->domain . "\n" if $debug;
     my @mxnames = $dns->find_mx($domain->domain);
+
+    # The standard says to use the domain name if there are no MX records.
+    if (@mxnames == 0) {
+        @mxnames = ($domain->domain);
+    }
+
     foreach my $name (@mxnames) {
         foreach my $addr ($dns->find_addresses($name, 'IN')) {
             print "Found address $addr\n" if $debug;
@@ -424,10 +421,34 @@ Zonestat::Gather - gather statistics
 
 =head1 SYNOPSIS
 
-  use Zonestat::Gather;
+  use Zonestat;
+  
+  my $gather = Zonestat->new->gather;
 
 =head1 DESCRIPTION
 
+=head2 Methods
+
+=over 4
+
+=item ->enqueue_domainset($domainset, [$name])
+
+Put all domains in the given domainset object on the gathering queue and
+create a new testrun object for it. If a second argument is given, it will be
+used as the name of the testrun. If no name is given, a name based on the
+current time will be generated.
+
+=item ->get_server_data($trid, $domainname)
+
+Given the ID number of a testrun object and the name of a domain, gather all
+data for that domain and store in the database associated with the given
+testrun.
+
+=item ->rescan_unknown_servers()
+
+Walk through the list of all Webserver objects with type 'Unknown' and reapply
+the list of server type regexps. To be used when the list of regexps has been
+extended.
 
 =head1 SEE ALSO
 

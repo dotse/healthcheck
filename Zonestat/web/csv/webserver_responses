@@ -15,7 +15,7 @@ $name =~ s/\s+/_/g;
 $r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
 
 my %data = $zs->present->webservers_by_responsecode($https, @ds);
-$csv->combine('Type',map {$_->name} @ds);
+$csv->combine('Code',map {$_->name} @ds);
 </%init>
 <%args>
 $https => 0

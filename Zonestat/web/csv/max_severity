@@ -1,27 +1,29 @@
-% for my $i (@data) {$csv->combine(@{$i});
-<% $csv->string %>
-% }
+<% $res %>
 <%init>
 $r->content_type('text/csv');
 
-my $ds;
-my $ws;
+my @ds;
+my $res = '';
 my $csv = Text::CSV_XS->new;
 
-if (defined($sid)) {
-    $ds = $zs->present->dbx('Testrun')->find($sid);
-    $m->abort(404) unless defined($ds);
-    my $name = $ds->domainset->name."_".$ds->name;
-    $name =~ s/\s+/_/g;
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
-} else {
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=max_severity.csv");
+@ds = grep {defined($_)} map {$zs->present->dbx('Testrun')->find($_)} @sid;
+my $name = $ds[0]->domainset->name."_".$ds[0]->name;
+$name =~ s/\s+/_/g;
+$r->headers_out->add('Content-disposition' => "attachment;  filename=max_severity_".$name.".csv");
+
+my %data  = $zs->present->tests_with_max_severity(@ds);
+
+$csv->combine('severity', map {$_->name} @ds);
+$res .= $csv->string . "\n";
+foreach my $sev (qw[critical error warning notice info clear]) {
+    $csv->combine(uc($sev), map { 0 + $data{$sev}{$_->id}} @ds);
+    $res .= $csv->string;
+    $res .= "\n";
 }
 
-my @data  = map {[$_->[0], 0+$_->[1]]} $zs->present->tests_with_max_severity($ds);
 </%init>
 <%args>
-$sid => undef
+@sid
 </%args>
 <%flags>
 inherit => undef

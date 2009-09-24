@@ -21,7 +21,7 @@
                 </tr>
 % }
             <tr>
-                <th colspan="<% 1+@ds %>"><a href="/csv/webserver_contenttype?https=<% $https %><% $sidstring %>">CSV file</a></th>
+                <th colspan="<% 1+@ds %>"><a href="/csv/webserver_content?https=<% $https %><% $sidstring %>">CSV file</a></th>
             </tr>
         </table>
         

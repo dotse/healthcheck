@@ -1,0 +1,53 @@
+<% $res %>   
+<%init>
+my $ws;
+my $asn = $zs->present->dbx('Asdata');
+my @ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;
+$m->abort(404) unless @ds;
+my $res = '';
+my $csv = Text::CSV_XS->new;
+
+my %data = $zs->present->nameservers_per_asn($ipv6, @ds);
+my %names;
+
+foreach my $a (keys %data) {
+    my $r = $asn->search({asn => $a});
+    if (defined($r) and defined($r->first)) {
+        $names{$a} = $r->first->asname;
+    } else {
+        $names{$a} = 'No name'
+    }
+}
+
+my @ordered = sort {$data{$b}{$ds[0]->id} <=> $data{$a}{$ds[0]->id}} keys %data;
+
+$csv->combine('ASN', 'ASNAME', map {$_->name} @ds);
+$res .= $csv->string . "\n";
+
+foreach my $k (@ordered) {
+    my @row;
+    
+    if (defined($k) and $k) {
+        push @row, 'AS' . $k;
+        push @row, $names{$k};
+    } else {
+        push @row, 'No information';
+        push @row, 'No name';
+    }
+    
+    foreach my $n (@ds) {
+        push @row, $data{$k}{$n->id}
+    }
+    
+    $csv->combine(@row);
+    $res .= $csv->string . "\n";
+}
+
+</%init>
+<%args>
+@sid
+$ipv6 => 0
+</%args>
+<%flags>
+inherit => undef
+</%flags>

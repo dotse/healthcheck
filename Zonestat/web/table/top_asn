@@ -21,12 +21,11 @@
                 </tr>
 % }
             <tr>
-                <th colspan="<% 1+@ds %>"><a href="/csv/webserver_contenttype?ipv6=<% $ipv6 %>&<% $sidstring %>">CSV file</a></th>
+                <th colspan="<% 1+@ds %>"><a href="/csv/top_asn?ipv6=<% $ipv6 %>&<% $sidstring %>">CSV file</a></th>
             </tr>
         </table>
         
 <%init>
-use Data::Dumper;
 my $ws;
 my $asn = $zs->present->dbx('Asdata');
 my @ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;

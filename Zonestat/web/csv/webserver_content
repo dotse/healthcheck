@@ -1,5 +1,5 @@
 <% $csv->string %>
-% for my $i (keys %data) {$csv->combine($i, map {$data{$i}{$_->id}} @ds);
+% for my $i (keys %data) {$csv->combine($i?$i:"None given", map {$data{$i}{$_->id}} @ds);
 <% $csv->string %>
 % }
 <%init>
