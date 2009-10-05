@@ -412,6 +412,28 @@ sub collect_server_information {
     }
 }
 
+sub kaminsky_check {
+    my $self = shift;
+    my $addr = shift;
+
+    # https://www.dns-oarc.net/oarc/services/porttest
+    my $res = Net::DNS::Resolver->new(
+        nameservers => [$addr],
+        recurse     => 1,
+    );
+    my $p = $res->query('porttest.dns-oarc.net', 'IN', 'TXT', $addr);
+
+    if (defined($p) and $p->header->ancount > 0) {
+        my $r = (grep { $_->type eq 'TXT' } $p->answer)[0];
+        if ($r) {
+            my ($verdict) = $r->txtdata =~ m/ is ([A-Z]+):/;
+            return $verdict;
+        }
+    }
+
+    return "UNKNOWN";
+}
+
 1;
 __END__
 
