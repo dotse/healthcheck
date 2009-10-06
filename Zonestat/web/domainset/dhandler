@@ -12,6 +12,13 @@
     <input type="submit" value="Add">
 </form>
 
+<h2>Reload domainset from file</h2>
+<form action="/com/reload_domainset" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="sid" value="<% $ds->id %>">
+    <label for="userfile">Data file:</label><input name="userfile" type="file" class="button">
+    <input type="submit" value="Reload">
+</form>
+
 <h1>List of domains in set</h1>
 <table>
     <tr>
