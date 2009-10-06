@@ -427,6 +427,7 @@ sub kaminsky_check {
         my $r = (grep { $_->type eq 'TXT' } $p->answer)[0];
         if ($r) {
             my ($verdict) = $r->txtdata =~ m/ is ([A-Z]+):/;
+            $verdict ||= 'UNKNOWN';
             return $verdict;
         }
     }

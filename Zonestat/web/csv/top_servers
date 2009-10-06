@@ -1,0 +1,33 @@
+<% $res %>
+<%init>
+$r->content_type('text/csv');
+
+my $tr = $zs->present->dbx('Testrun')->find($trid);
+my $csv = Text::CSV_XS->new;
+my $res = '';
+
+my $name = $tr->domainset->name . '_' . $tr->name;
+$name =~ s/\W/_/g;
+
+$r->headers_out->add('Content-disposition' => "attachment;  filename=top_".$kind."_servers_".$name.".csv");
+
+my @s = $zs->present->top_foo_servers($kind, $tr, $count);
+
+$csv->combine(qw[Count Server City Country]);
+$res .= $csv->string . "\n"; 
+
+foreach my $s (@s) {
+    $csv->combine($s->get_column('count'), $s->reverse, $s->city, $s->country);
+    my $tmp = $csv->string;
+    $res .= $tmp . "\n" if $tmp;
+}
+
+</%init>
+<%args>
+$trid
+$kind
+$count => 250
+</%args>
+<%flags>
+inherit => undef
+</%flags>

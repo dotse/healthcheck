@@ -20,6 +20,11 @@
         </td>
     </tr>
 % }
+    <tr>
+        <th colspan="3">
+            <a href="/csv/top_servers?kind=<% $kind %>&trid=<% $trid %>">CSV file</a>
+        </th>
+    </tr>
 </table>
 
 <%init>

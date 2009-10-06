@@ -1,5 +1,6 @@
 <% $res %>   
 <%init>
+$r->content_type('text/csv');
 my $ws;
 my $asn = $zs->present->dbx('Asdata');
 my @ds = map {$zs->present->dbx('Testrun')->find($_)} @sid;
