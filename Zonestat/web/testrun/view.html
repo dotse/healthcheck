@@ -2,63 +2,128 @@
 
 <h2>Data points</h2>
 <table>
+
     <tr>
         <td>&nbsp;</td>
 %foreach my $t (@tr) {
         <th><% $t->domainset->name %> <% $t->name %></th>
 % }
+        <th>Information</th>
     </tr>
+
     <tr class="odd">
         <th>Domains using IPv6</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f%% (%d)", $zs->present->ipv6_percentage_for_testrun($t) %></td>
 % }
+        <td class="information">
+            A domain is counted as using IPv6 if it has at least one server
+            for DNS, SMTP or HTTP that has an IPv6 address announced.
+        </td>
     </tr>
+
     <tr class="even">
         <th>Domains announced in more than one AS (IPv4)</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f%% (%d)", $zs->present->multihome_percentage_for_testrun($t,0) %></td>
 % }
+        <td class="information">
+            A domain is counted here if its DNSCheck report includes the message <tt>CONNECTIVITY:ASN_COUNT_OK</tt>.
+            Unless DNSCheck's default settings have been changed, this means that the domain has DNS servers 
+            reachable in more than one AS.
+        </td>
     </tr>
+
     <tr class="odd">
         <th>Domains announced in more than one AS (IPv6)</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f%% (%d)", $zs->present->multihome_percentage_for_testrun($t,1) %></td>
 % }
+<td class="information">
+    A domain is counted here if its DNSCheck report includes the message <tt>CONNECTIVITY:V6_ASN_COUNT_OK</tt>.
+</td>
     </tr>
+
     <tr class="even">
         <th>Domains using DNSSEC</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f%% (%d)", $zs->present->dnssec_percentage_for_testrun($t) %></td>
 % }
+        <td class="information">
+    A domain is counted here if its DNSCheck report includes the message <tt>DNSSEC:DS_FOUND</tt>. This only
+    means that the domain has DNSSEC keys in its parent zone, not necessarily that it has DNSSEC correctly
+    set up.
+        </td>
     </tr>
+
     <tr class="odd">
         <th>Domains with open recursive nameserver(s)</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f%% (%d)", $zs->present->recursing_percentage_for_testrun($t) %></td>
 % }
+        <td class="information">
+            A domain is counted here if DNSCheck found that at least one of the nameservers for the domain
+            allows recursive queries.
+        </td>
     </tr>
+
     <tr class="even">
         <th>Domains using ADSP</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f%% (%d)", $zs->present->adsp_percentage_for_testrun($t) %></td>
 % }
-</tr>
+        <td class="information">
+            A domain is counted here if it has an <tt>_adsp._domainkeys.</tt> record.
+        </td>
+    </tr>
+
     <tr class="odd">
         <th>Domains using STARTTLS</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f%% (%d)", $zs->present->starttls_percentage_for_testrun($t) %></td>
 % }
+        <td class="information">
+            A domain is counted here if at least one of the servers pointed out by its <tt>MX</tt> records
+            announces the <tt>STARTTLS</tt> capability in response to the <tt>SMTP</tt> <tt>EHLO</tt> command.
+        </td>
     </tr>
+
 </table>
 
 <h2>Common problems</h2>
+<p>
+    This table reports the percentage of tested domains for which DNSCheck
+    reported a particular error, from the most common error on down.
+</p>
 <& /table/common_problems, sid => \@tid &>
 
 <h2>Number of tests by highest severity problem</h2>
+<p>
+
+    This table reports the number of domains by the most severe problem
+    reported for it by DNSCheck. So first is the number of domains with a
+    CRITICAL problem, then the number with ERROR but not CRITICAL, then those
+    with WARNING but not CRITICAL or ERROR and so on.
+
+</p>
 <& /table/max_severity, sid => \@tid &>
 
 <h2>Webserver software</h2>
+<p>
+
+    This table (and the next one) simply lists the fractions of the tested
+    domains that have a web server on their <tt>www.</tt> address that are
+    running a certain webserver software. What software a server is running is
+    determined by looking at the <tt>Server:</tt> header in its HTTP response.
+    Only those giving a response that match a known pattern are counted; the
+    rest are included under the "Unknown" entry.
+</p>
+<p>
+
+    The next few tables also aggregate information taken from the the headers
+    in the HTTP communication with the web servers.
+
+</p>
 <& /table/webserver_types, sid => \@tid &>
 
 <h2>Webserver software (https)</h2>
@@ -83,30 +148,61 @@
 <& /table/webserver_charset, sid => \@tid, https => 1 &>
 
 <h2>DNS servers hosting most domains</h2>
+<p>
+
+    These tables list the individual nameservers that are mentioned in the NS
+    records for the largest number of unique domains.
+
+</p>
 % foreach my $t (@tid) {
     <img src="<% $zs->present->google_mapchart_url($t, 'DNS') %>">
 <& /table/top_servers, kind => 'DNS', trid => $t &>
 % }
 
 <h2>Web servers hosting most domains</h2>
+<p>
+
+    These tables list the individual servers that host web servers for the
+    largest number of domains. The aggregation is done based on IP address,
+    and the names shown here the results of reverse lookups on those IPs.
+
+</p>
 % foreach my $t (@tid) {
     <img src="<% $zs->present->google_mapchart_url($t, 'HTTP') %>">
 <& /table/top_servers, kind => 'HTTP', trid => $t &>
 % }
 
 <h2>Mail servers hosting most domains</h2>
+<p>
+
+    As for nameservers, this counts the individual servers mentioned most
+    often in MX records for domains.
+
+</p>
 % foreach my $t (@tid) {
     <img src="<% $zs->present->google_mapchart_url($t, 'SMTP') %>">
 <& /table/top_servers, kind => 'SMTP', trid => $t &>
 % }
 
 <h2>ASNs hosting most domains (ipv4)</h2>
+<p>
+
+    This table (and the next) presents the number of domains that have at
+    least one nameserver announced in the given AS. Given big ISPs with
+    servers providing information for many domains, the actual number of
+    nameservers in a particular AS is likely to be lower than the number of
+    domains with nameservers there.
+
+</p>
 <& /table/top_asn, sid => \@tid &>
 
 <h2>ASNs hosting most domains (ipv6)</h2>
 <& /table/top_asn, sid => \@tid, ipv6 => 1 &>
 
 <h2>Unknown webserver identifications</h2>
+<p>
+    Simply a list of all webserver identification strings that we did not recognize.
+</p>
 <& /table/unknown_server_types, sid => \@tid &>
 
 <%args>

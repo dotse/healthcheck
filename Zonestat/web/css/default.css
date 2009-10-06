@@ -27,6 +27,11 @@ td.numeric {
     text-align: right;
 }
 
+td.information {
+    font-size: 80%;
+    padding-left: 1em;
+}
+
 h1, h2 {
     text-align: left;
     padding-left: 1em;
