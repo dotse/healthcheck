@@ -12,7 +12,7 @@ my $csv = Text::CSV_XS->new;
 $m->abort(404) unless @ds;
 my $name = $ds[0]->domainset->name;
 $name =~ s/\s+/_/g;
-$r->headers_out->add('Content-disposition' => "attachment;  filename=webserver_responsecode_".$name.".csv");
+$r->headers_out->add('Content-disposition' => "attachment;  filename=webserver_responsecode_".$name.($https?'_https_':'').".csv");
 
 my %data = $zs->present->webservers_by_responsecode($https, @ds);
 $csv->combine('Code',map {$_->name} @ds);

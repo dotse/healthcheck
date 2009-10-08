@@ -10,7 +10,7 @@ my $csv = Text::CSV_XS->new;
 
 my $name = $ds[0]->domainset->name."_".$ds[0]->name;
 $name =~ s/\s+/_/g;
-$r->headers_out->add('Content-disposition' => "attachment;  filename=top_asn_".$name.".csv");
+$r->headers_out->add('Content-disposition' => "attachment;  filename=top_asn_".$name.($ipv6?'_ipv6_':'_ipv4_').".csv");
 
 my %data = $zs->present->nameservers_per_asn($ipv6, @ds);
 my %names;
