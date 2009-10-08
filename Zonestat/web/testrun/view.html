@@ -87,6 +87,14 @@
             announces the <tt>STARTTLS</tt> capability in response to the <tt>SMTP</tt> <tt>EHLO</tt> command.
         </td>
     </tr>
+    
+    <tr class="even">
+        <th>Number of tested domains</th>
+% foreach my $tr (@tr) {
+        <td class="numeric"><% $tr->tests->count %></td>
+% }
+        <td>&nbsp;</td>
+    </tr>
 
 </table>
 
@@ -213,7 +221,8 @@ my @tr;
 my $name;
 
 if (@tid) {
-    @tr = grep {defined($_)} map {$zs->present->dbx('Testrun')->find($_)} @tid;
+    @tr = sort {$b->tests->count <=> $a->tests->count} 
+        grep {defined($_)} map {$zs->present->dbx('Testrun')->find($_)} @tid;
     $name = $tr[0]->domainset->name;
     @tid = map {$_->id} @tr;
 } else {
