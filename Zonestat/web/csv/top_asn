@@ -8,6 +8,10 @@ $m->abort(404) unless @ds;
 my $res = '';
 my $csv = Text::CSV_XS->new;
 
+my $name = $ds[0]->domainset->name."_".$ds[0]->name;
+$name =~ s/\s+/_/g;
+$r->headers_out->add('Content-disposition' => "attachment;  filename=top_asn_".$name.".csv");
+
 my %data = $zs->present->nameservers_per_asn($ipv6, @ds);
 my %names;
 

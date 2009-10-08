@@ -24,7 +24,7 @@ if (defined($sid)) {
     $rs = $tmp->tests;
     my $name = $tmp->domainset->name."_".$tmp->name;
     $name =~ s/\s+/_/g;
-    $r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
+    $r->headers_out->add('Content-disposition' => "attachment;  filename=all_".$name.".csv");
 } else {
     $rs = $pres->all_dnscheck_tests;
     $r->headers_out->add('Content-disposition' => "attachment;  filename=all_tests.csv");

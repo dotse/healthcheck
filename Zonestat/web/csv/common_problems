@@ -10,7 +10,7 @@ foreach my $sid (@sid) {
 }
 my $name = 'Common Problems '. $ds[0]->domainset->name;
 $name =~ s/\s+/_/g;
-$r->headers_out->add('Content-disposition' => "attachment;  filename=".$name.".csv");
+$r->headers_out->add('Content-disposition' => "attachment;  filename=common_".$name.".csv");
 
 my %res = $zs->present->number_of_domains_with_message('ERROR', @ds);
 my @keys = sort { $res{$b}{ $ds[0]->id } <=> $res{$a}{ $ds[0]->id } } keys %res;
