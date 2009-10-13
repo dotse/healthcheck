@@ -145,8 +145,34 @@
 % }
         <td>&nbsp;</td>
     </tr>
+    
+    <tr class="odd">
+        <th>Number of webservers</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% $t->search_related('webservers',{https => 0})->count %></td>
+% }
+        <td class="information">
+            This is the number of domains for which an <tt>HTTP GET</tt>
+            command on the domain name prepended with <tt>www.</tt> returned
+            something reasonable.
+        </td>
+    </tr>
+
+    <tr class="even">
+        <th>Number of webservers (https)</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% $t->search_related('webservers',{https => 1})->count %></td>
+% }
+        <td class="information">
+            This is the number of domains for which an <tt>HTTP GET</tt>
+            command over https on the domain name prepended with <tt>www.</tt> returned
+            something reasonable.
+        </td>
+    </tr>
 
 </table>
+
+
 
 <h2>Common errors</h2>
 <p>
