@@ -162,6 +162,11 @@
 </p>
 <& /table/common_problems, sid => \@tid, level => 'WARNING' &>
 
+<h2>Distribution of problems</h2>
+<p><& /table/message_bands, tid => \@tid, level => 'CRITICAL' &></p>
+<p><& /table/message_bands, tid => \@tid, level => 'ERROR' &></p>
+<p><& /table/message_bands, tid => \@tid, level => 'WARNING' &></p>
+
 <h2>Number of tests by highest severity problem</h2>
 <p>
 
