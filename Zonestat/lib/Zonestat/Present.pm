@@ -89,7 +89,7 @@ sub webservers_by_field {
             }
         )->all;
         foreach my $row (@data) {
-            $res{ $row->get_column($field) }{ $s->id } =
+            $res{ lc($row->get_column($field)) }{ $s->id } =
               $row->get_column('count');
         }
     }
