@@ -6,7 +6,12 @@ use warnings;
 
 use base 'Zonestat::Common';
 
+use YAML 'LoadFile';
+use Config;
+
 our $VERSION = '0.01';
+
+my $locale = LoadFile $Config{siteprefix} . '/share/dnscheck/locale/en.yaml';
 
 sub total_tested_domains {
     my $self = shift;
@@ -448,6 +453,13 @@ sub message_bands {
     my $rn = $tr->search_related('tests', { $key => { '>=', 3 } })->count;
 
     return ($r0, $r1, $r2, $rn);
+}
+
+sub lookup_desc {
+    my $self = shift;
+    my ($message) = @_;
+
+    return $locale->{messages}{$message}{descr};
 }
 
 1;

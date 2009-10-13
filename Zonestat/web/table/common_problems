@@ -7,7 +7,12 @@
             </tr>
 % for my $k (@keys) {
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
-                    <td><% $k %></td>
+                    <td>
+                        <% $k %>
+                        <p class="information">
+                            <% $zs->present->lookup_desc($k) %>
+                        </p>
+                    </td>
 % foreach my $i (@ds) {
                     <td class="numeric"><% sprintf '%0.2f', 100*($data{$k}{$i->id}/$i->tests->count) %>%</td>
 % }

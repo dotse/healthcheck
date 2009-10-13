@@ -27,7 +27,7 @@ td.numeric {
     text-align: right;
 }
 
-td.information {
+td.information, p.information {
     font-size: 80%;
     padding-left: 1em;
 }
