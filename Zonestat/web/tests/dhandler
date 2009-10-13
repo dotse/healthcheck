@@ -29,8 +29,6 @@
 </table>
 
 <%init>
-$r->content_type('text/html');
-
 my $tid = $m->dhandler_arg;
 $m->clear_buffer, $m->abort(404) unless defined($tid);
 my $test = $zs->present->dbx('Tests')->find($tid);

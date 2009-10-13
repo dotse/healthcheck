@@ -41,6 +41,7 @@ my @keys = sort {$data{$b}{$ds[0]->id} <=> $data{$a}{$ds[0]->id}} keys %data;
 
 my $sidstring = '?';
 $sidstring .= join('&', map {"sid=$_"} @sid);
+$sidstring .= '&level=' . $level;
 
 my $c;
 </%init>

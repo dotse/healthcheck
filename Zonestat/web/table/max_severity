@@ -9,7 +9,11 @@
                 <tr class="<% ++$c%2==0?'even':'odd' %>">
                     <td><% uc $i %></td>
 % for my $k (@ds) {
-                    <td class="numeric"><% 0+$data{$i}{$k->id} %></td>
+                    <td class="numeric">
+                        <a href="/testrun/level.html?tid=<% $k->id %>&level=<% uc($i) %>">
+                            <% 0+$data{$i}{$k->id} %>
+                        </a>
+                    </td>
 % }
                 </tr>
 % }

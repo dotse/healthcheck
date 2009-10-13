@@ -1,0 +1,40 @@
+<table>
+    <tr>
+        <th colspan="5"><% $level %></th>
+    </tr>
+    <tr>
+        <th>Name</th>
+        <th>0</th>
+        <th>1</th>
+        <th>2</th>
+        <th>3 or more</th>
+    </tr>
+% foreach my $t (@tr) {
+    <tr class="<% ++$c%2==0?'even':'odd' %>">
+        <th><% $t->domainset->name %><br/><% $t->name %></th>
+% foreach my $n (@{$data{$t->id}}) {
+        <td class="numeric"><% $n %></td>
+% }
+    </tr>
+% }
+</table>
+
+<%init>
+unless ($level eq 'CRITICAL' or $level eq 'ERROR' or $level eq 'WARNING' or $level eq 'NOTICE' or $level eq 'INFO') {
+    $m->clear_buffers;
+    $m->abort(403);
+}
+
+my @tr = grep {defined($_)} map {$zs->present->dbx('Testrun')->find($_)} @tid;
+my %data;
+
+foreach my $t (@tr) {
+    $data{$t->id} = [$zs->present->message_bands($t,$level)]
+}
+
+my $c;
+</%init>
+<%args>
+$level
+@tid
+</%args>
