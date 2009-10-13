@@ -396,6 +396,29 @@ sub starttls_percentage_for_testrun {
     return (100 * ($starttls / $all), $starttls);
 }
 
+sub nameserver_count {
+    my $self = shift;
+    my ($tr, $ipv6) = @_;
+
+    my $divider = $ipv6 ? '%:%' : '%.%';
+
+    return $tr->search_related('tests', {})->search_related(
+        'results',
+        {
+            message => 'DNS:NAMESERVER_FOUND',
+            arg0    => {
+                '!=' => '',
+                '='  => \'domain',
+            },
+            arg3 => { -like => [$divider] },
+        },
+        {
+            columns  => [qw(arg3)],
+            distinct => 1
+        }
+    )->count;
+}
+
 1;
 __END__
 

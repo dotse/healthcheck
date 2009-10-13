@@ -96,6 +96,33 @@
         <td>&nbsp;</td>
     </tr>
 
+    <tr class="odd">
+        <th>Number of distinct nameservers (IPv4)</th>
+% foreach my $tr (@tr) {
+        <td class="numeric"><% $zs->present->nameserver_count($tr,0) %></td>
+% }
+
+        <td class="information">
+        
+        By "distinct nameserver" here and on the following row is meant
+        different IP addresses. This may be strictly incorrect both by one
+        server answering on more than one address (giving an artificially high
+        count) and by one address being served by a cluster of servers (giving
+        an artificially low count). Hopefully these two error sources mostly
+        cancel each other out.
+
+        </td>
+
+    </tr>
+
+    <tr class="even">
+        <th>Number of distinct nameservers (IPv6)</th>
+% foreach my $tr (@tr) {
+        <td class="numeric"><% $zs->present->nameserver_count($tr, 1) %></td>
+% }
+        <td>&nbsp;</td>
+    </tr>
+
 </table>
 
 <h2>Common problems</h2>
