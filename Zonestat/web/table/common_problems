@@ -22,11 +22,16 @@
 my @ds;
 my $total;
 
+unless ($level eq 'CRITICAL' or $level eq 'ERROR' or $level eq 'WARNING' or $level eq 'NOTICE' or $level eq 'INFO') {
+    $m->clear_buffers;
+    $m->abort(403);
+}
+
 foreach my $s (@sid) {
     push @ds, $zs->present->dbx('Testrun')->find($s) or $m->abort(404);
 }
 
-my %data  = $zs->present->number_of_domains_with_message('ERROR',@ds);
+my %data  = $zs->present->number_of_domains_with_message($level, @ds);
 my @keys = sort {$data{$b}{$ds[0]->id} <=> $data{$a}{$ds[0]->id}} keys %data;
 
 my $sidstring = '?';
@@ -36,4 +41,5 @@ my $c;
 </%init>
 <%args>
 @sid
+$level => 'ERROR'
 </%args>

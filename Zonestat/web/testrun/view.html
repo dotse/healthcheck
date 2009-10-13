@@ -125,12 +125,19 @@
 
 </table>
 
-<h2>Common problems</h2>
+<h2>Common errors</h2>
 <p>
     This table reports the percentage of tested domains for which DNSCheck
     reported a particular error, from the most common error on down.
 </p>
 <& /table/common_problems, sid => \@tid &>
+
+<h2>Common warnings</h2>
+<p>
+    This table reports the percentage of tested domains for which DNSCheck
+    reported a particular warning, from the most common warning on down.
+</p>
+<& /table/common_problems, sid => \@tid, level => 'WARNING' &>
 
 <h2>Number of tests by highest severity problem</h2>
 <p>
