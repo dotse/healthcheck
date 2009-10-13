@@ -89,6 +89,29 @@
     </tr>
     
     <tr class="even">
+        <th>Percentage of mail servers located in Sweden (IPv4)</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% sprintf "%0.2f%%",$zs->present->mailservers_in_sweden($t,0) %></td>
+% }
+        <td class="information">
+            The fraction of IPv4 SMTP servers found that are located in Sweden (according to GeoIP).
+        </td>
+    </tr>
+    <tr class="odd">
+        <th>Percentage of mail servers located in Sweden (IPv6)</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% sprintf "%0.2f%%",$zs->present->mailservers_in_sweden($t,1) %></td>
+% }
+        <td class="information">
+
+            The fraction of IPv6 SMTP servers found that are located in Sweden. At
+            the moment, this number i almost certainly wildly wrong, since the
+            GeoIP IPv6 data is much less reliable than their IPv4 data.
+
+        </td>
+    </tr>
+    
+    <tr class="even">
         <th>Number of tested domains</th>
 % foreach my $tr (@tr) {
         <td class="numeric"><% $tr->tests->count %></td>

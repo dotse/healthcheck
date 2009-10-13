@@ -419,6 +419,21 @@ sub nameserver_count {
     )->count;
 }
 
+sub mailservers_in_sweden {
+    my $self = shift;
+    my ($tr, $ipv6) = @_;
+
+    my $ms = $tr->search_related('servers', { kind => 'SMTP', ipv6 => $ipv6 })->count;
+    my $se =
+      $tr->search_related('servers', { kind => 'SMTP', ipv6 => $ipv6, code => 'SE' })->count;
+
+    if ($ms > 0) {
+        return 100 * ($se / $ms);
+    } else {
+        return 'N/A';
+    }
+}
+
 1;
 __END__
 
