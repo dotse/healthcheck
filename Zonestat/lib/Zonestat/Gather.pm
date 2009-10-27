@@ -121,6 +121,7 @@ sub get_http_server_data {
     $ua->timeout(10);
     $ua->agent('.SE Zonestat');
 
+DOMAIN:
     foreach
       my $u ('http://www.' . $domain . '/', 'https://www.' . $domain . '/')
     {
@@ -183,7 +184,7 @@ sub get_http_server_data {
                         }
                     );
                     $obj->update({ ip => $ip }) if defined($ip);
-                    next;
+                    next DOMAIN;
                 }
             }
             my ($type, $encoding) =
