@@ -388,6 +388,25 @@ sub adsp_percentage_for_testrun {
     return (100 * ($adsp / $all), $adsp);
 }
 
+sub spf_percentage_for_testrun {
+    my $self = shift;
+    my $tr   = shift;
+
+    my $all  = $tr->tests->count;
+    my $adsp = $self->dbx('Mailserver')->search(
+        {
+            run_id => $tr->id,
+            '-or'  => {
+                spf_spf => { '!=', undef },
+                spf_txt => { '!=', undef }
+            }
+        },
+        { group_by => ['domain_id'] }
+    )->count;
+
+    return (100 * ($adsp / $all), $adsp);
+}
+
 sub starttls_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;

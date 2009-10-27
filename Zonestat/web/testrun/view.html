@@ -76,8 +76,18 @@
             A domain is counted here if it has an <tt>_adsp._domainkeys.</tt> record.
         </td>
     </tr>
-
+    
     <tr class="odd">
+        <th>Domains using SPF</th>
+% foreach my $t (@tr) {
+        <td class="numeric"><% sprintf "%0.2f%% (%d)", $zs->present->spf_percentage_for_testrun($t) %></td>
+% }
+        <td class="information">
+            A domain is counted here if it has either an <tt>SPF</tt> record or a TXT record for the domain name.
+        </td>
+    </tr>
+
+    <tr class="even">
         <th>Domains using STARTTLS</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f%% (%d)", $zs->present->starttls_percentage_for_testrun($t) %></td>
@@ -88,7 +98,7 @@
         </td>
     </tr>
     
-    <tr class="even">
+    <tr class="odd">
         <th>Percentage of mail servers located in Sweden (IPv4)</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f%%",$zs->present->mailservers_in_sweden($t,0) %></td>
@@ -97,7 +107,7 @@
             The fraction of IPv4 SMTP servers found that are located in Sweden (according to GeoIP).
         </td>
     </tr>
-    <tr class="odd">
+    <tr class="even">
         <th>Percentage of mail servers located in Sweden (IPv6)</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% sprintf "%0.2f%%",$zs->present->mailservers_in_sweden($t,1) %></td>
@@ -111,7 +121,7 @@
         </td>
     </tr>
     
-    <tr class="even">
+    <tr class="odd">
         <th>Number of tested domains</th>
 % foreach my $tr (@tr) {
         <td class="numeric"><% $tr->tests->count %></td>
@@ -119,7 +129,7 @@
         <td>&nbsp;</td>
     </tr>
 
-    <tr class="odd">
+    <tr class="even">
         <th>Number of distinct nameservers (IPv4)</th>
 % foreach my $tr (@tr) {
         <td class="numeric"><% $zs->present->nameserver_count($tr,0) %></td>
@@ -138,7 +148,7 @@
 
     </tr>
 
-    <tr class="even">
+    <tr class="odd">
         <th>Number of distinct nameservers (IPv6)</th>
 % foreach my $tr (@tr) {
         <td class="numeric"><% $zs->present->nameserver_count($tr, 1) %></td>
@@ -146,7 +156,7 @@
         <td>&nbsp;</td>
     </tr>
     
-    <tr class="odd">
+    <tr class="even">
         <th>Number of webservers</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% $t->search_related('webservers',{https => 0})->count %></td>
@@ -158,7 +168,7 @@
         </td>
     </tr>
 
-    <tr class="even">
+    <tr class="odd">
         <th>Number of webservers (https)</th>
 % foreach my $t (@tr) {
         <td class="numeric"><% $t->search_related('webservers',{https => 1})->count %></td>
