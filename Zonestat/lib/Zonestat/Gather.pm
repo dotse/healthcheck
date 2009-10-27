@@ -8,7 +8,7 @@ use DNSCheck;
 
 use base 'Zonestat::Common';
 
-use LWP::Parallel::UserAgent;
+use LWP::UserAgent;
 use HTTP::Request;
 use IO::Socket::SSL;
 use Carp;
@@ -110,119 +110,98 @@ sub get_server_data {
 }
 
 sub get_http_server_data {
-    my $self    = shift;
-    my $tr_id   = shift;
-    my @domains = @_;
-    my $db      = $self->dbx('Domains');
-    my %urls    = map { ($_, 'http://www.' . $_) } @domains;
+    my $self     = shift;
+    my $tr_id    = shift;
+    my ($domain) = @_;
+    my $db       = $self->dbx('Domains');
+    my $tr       = $self->dbx('Testrun')->find($tr_id);
 
-    my $tr = $self->dbx('Testrun')->find($tr_id);
+    my $ua = LWP::UserAgent->new(max_size => 1024 * 1024)
+      ;    # Don't get more content than one megabyte
+    $ua->timeout(10);
+    $ua->agent('.SE Zonestat');
 
-    while (@domains) {
-        my $ua = LWP::Parallel::UserAgent->new(max_size => 1024 * 1024)
-          ;    # Don't get more content than one megabyte
-        $ua->redirect(0);
-        $ua->max_hosts(50);
-        $ua->timeout(10);
-        $ua->agent('.SE Zonestat');
+    foreach
+      my $u ('http://www.' . $domain . '/', 'https://www.' . $domain . '/')
+    {
+        my $res = $ua->get($u);
+        my $https;
+        my $ip;
 
-        foreach my $u (splice(@domains, 0, 25)) {
-            $ua->register(HTTP::Request->new(GET => 'http://www.' . $u));
-            $ua->register(HTTP::Request->new(GET => 'https://www.' . $u));
+        if ($u =~ m|^http://www\.([^/]+)|) {
+            $https = 0;
+        } elsif ($u =~ m|^https://www\.([^/]+)|) {
+            $https = 1;
+        } else {
+            print STDERR "Failed to parse: $u\n";
+            next;
         }
 
-        my $rr = $ua->wait;
+        my $ddb = $db->search({ domain => $domain })->first;
+        unless (defined($ddb)) {
+            carp "Failed to find domain: $domain";
+            return;
+        }
 
-      DOMAIN:
-        foreach my $k (keys %$rr) {
-            my $res = $rr->{$k}->response;
-            my $url = $res->request->url;
-            my $dom;
-            my $https;
-            my $ip;
+        if ($res->header('Client-Peer')) {
+            $ip = ((split(/:/, $res->header('Client-Peer')))[0]);
+        }
 
-            if ($url =~ m|^http://www\.([^/]+)|) {
-                $dom   = $1;
-                $https = 0;
-            } elsif ($url =~ m|^https://www\.([^/]+)|) {
-                $dom   = $1;
-                $https = 1;
-            } else {
-                print STDERR "Failed to parse: $url\n";
-                next;
+        my $issuer;
+
+        if (my $s = $res->header('Server')) {
+            if (
+                $https
+                and my $s = IO::Socket::SSL->new(
+                    PeerAddr => 'www.' . $domain,
+                    PeerPort => 443
+                )
+              )
+            {
+                $issuer = $s->peer_certificate('issuer');
             }
 
-            unless ($urls{$dom}) {
-                die "Response for domain not queried: $dom\n";
+            foreach my $r (keys %server_regexps) {
+                if ($s =~ $r) {
+                    my ($type, $encoding) =
+                      content_type_from_header($res->header('Content-Type'));
+                    my $obj = $ddb->add_to_webservers(
+                        {
+                            type          => $server_regexps{$r},
+                            version       => $1,
+                            raw_type      => $s,
+                            https         => $https,
+                            issuer        => $issuer,
+                            raw_response  => $res,
+                            testrun_id    => $tr->id,
+                            url           => $u,
+                            response_code => $res->code,
+                            content_type  => $type,
+                            charset       => $encoding,
+                            content_length =>
+                              scalar($res->header('Content-Length')),
+                        }
+                    );
+                    $obj->update({ ip => $ip }) if defined($ip);
+                    next;
+                }
             }
-
-            my $ddb = $db->search({ domain => $dom })->first;
-            unless (defined($ddb)) {
-                carp "Failed to find domain: $dom";
-                next DOMAIN;
-            }
-
-            if ($res->header('Client-Peer')) {
-                $ip = ((split(/:/, $res->header('Client-Peer')))[0]);
-            }
-
-            my $issuer;
-
-            if (my $s = $res->header('Server')) {
-                if (
-                    $https
-                    and my $s = IO::Socket::SSL->new(
-                        PeerAddr => 'www.' . $dom,
-                        PeerPort => 443
-                    )
-                  )
+            my ($type, $encoding) =
+              content_type_from_header($res->header('Content-Type'));
+            my $obj = $ddb->add_to_webservers(
                 {
-                    $issuer = $s->peer_certificate('issuer');
+                    type           => 'Unknown',
+                    raw_type       => $s,
+                    raw_response   => $res,
+                    testrun_id     => $tr->id,
+                    url            => $u,
+                    response_code  => $res->code,
+                    content_type   => $type,
+                    charset        => $encoding,
+                    content_length => scalar($res->header('Content-Length')),
                 }
-
-                foreach my $r (keys %server_regexps) {
-                    if ($s =~ $r) {
-                        my ($type, $encoding) = content_type_from_header(
-                            $res->header('Content-Type'));
-                        my $obj = $ddb->add_to_webservers(
-                            {
-                                type          => $server_regexps{$r},
-                                version       => $1,
-                                raw_type      => $s,
-                                https         => $https,
-                                issuer        => $issuer,
-                                raw_response  => $res,
-                                testrun_id    => $tr->id,
-                                url           => $url,
-                                response_code => $res->code,
-                                content_type  => $type,
-                                charset       => $encoding,
-                                content_length =>
-                                  scalar($res->header('Content-Length')),
-                            }
-                        );
-                        $obj->update({ ip => $ip }) if defined($ip);
-                        next DOMAIN;
-                    }
-                }
-                my ($type, $encoding) =
-                  content_type_from_header($res->header('Content-Type'));
-                my $obj = $ddb->add_to_webservers(
-                    {
-                        type          => 'Unknown',
-                        raw_type      => $s,
-                        raw_response  => $res,
-                        testrun_id    => $tr->id,
-                        url           => $url,
-                        response_code => $res->code,
-                        content_type  => $type,
-                        charset       => $encoding,
-                        content_length =>
-                          scalar($res->header('Content-Length')),
-                    }
-                );
-                $obj->update({ ip => $ip }) if defined($ip);
-            }
+            );
+            $obj->update({ ip => $ip }) if defined($ip);
         }
     }
 }
