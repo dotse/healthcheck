@@ -121,7 +121,7 @@ sub get_http_server_data {
     $ua->timeout(10);
     $ua->agent('.SE Zonestat');
 
-DOMAIN:
+  DOMAIN:
     foreach
       my $u ('http://www.' . $domain . '/', 'https://www.' . $domain . '/')
     {
@@ -263,6 +263,8 @@ sub collect_smtp_information {
     my $ms = $self->dbx('Mailserver');
 
     my $adsp;
+    my $spf_spf;
+    my $spf_txt;
     my $starttls = 0;
     my $banner;
 
@@ -270,6 +272,8 @@ sub collect_smtp_information {
     croak "Malformed IP address: $addr" unless defined($ip);
 
     my $dns = DNSCheck->new->dns;
+
+    # DKIM/ADSP
     my $packet =
       $dns->query_resolver('_adsp._domainkey.' . $domain->domain, 'IN', 'TXT');
 
@@ -277,6 +281,24 @@ sub collect_smtp_information {
         my $rr = ($packet->answer)[0];
         if ($rr->type eq 'TXT') {
             $adsp = $rr->txtdata;
+        }
+    }
+
+    # SPF, "real" kind
+    $packet = $dns->query_resolver($domain->domain, 'IN', 'SPF');
+    if (defined($packet) and $packet->header->ancount > 0) {
+        my $rr = (grep { $_->type eq 'SPF' } $packet->answer)[0];
+        if ($rr) {
+            $spf_spf = $rr->txtdata;
+        }
+    }
+
+    # SPF, transitionary kind
+    $packet = $dns->query_resolver($domain->domain, 'IN', 'TXT');
+    if (defined($packet) and $packet->header->ancount > 0) {
+        my $rr = (grep { $_->type eq 'TXT' } $packet->answer)[0];
+        if ($rr) {
+            $spf_txt = $rr->txtdata;
         }
     }
 
@@ -295,6 +317,8 @@ sub collect_smtp_information {
             run_id    => $tr->id,
             domain_id => $domain->id,
             name      => $name,
+            spf_spf   => $spf_spf,
+            spf_txt   => $spf_txt,
         }
     );
 }

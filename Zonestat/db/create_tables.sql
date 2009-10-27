@@ -150,6 +150,8 @@ CREATE TABLE IF NOT EXISTS `mailserver` (
     `run_id` bigint(20) unsigned not null,
     `domain_id` int(10) unsigned not null,
     `banner` varchar(255),
+    `spf_spf` varchar(255),
+    `spf_txt` varchar(255),
     CONSTRAINT `mailserver_runid` FOREIGN KEY (`run_id`) REFERENCES `testruns` (`id`) ON DELETE CASCADE,
     CONSTRAINT `mailserver_domainid` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
     INDEX (`name`),
