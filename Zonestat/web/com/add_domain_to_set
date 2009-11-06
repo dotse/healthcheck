@@ -8,6 +8,8 @@
 
 <%init>
 my $ds = $zs->present->dbx('Domainset')->find($sid);
+$name =~ s/^\s*//;
+$name =~ s/\s*$//;
 my $dom = $zs->present->dbx('Domains')->find_or_create({domain => $name},{key => 'domain'});
 
 if ($ds and $dom) {
