@@ -116,9 +116,8 @@ sub get_http_server_data {
     my $db       = $self->dbx('Domains');
     my $tr       = $self->dbx('Testrun')->find($tr_id);
 
-    my $ua = LWP::UserAgent->new(max_size => 1024 * 1024)
+    my $ua = LWP::UserAgent->new(max_size => 1024 * 1024, timeout => 30)
       ;    # Don't get more content than one megabyte
-    $ua->timeout(10);
     $ua->agent('.SE Zonestat');
 
   DOMAIN:
@@ -137,6 +136,11 @@ sub get_http_server_data {
             print STDERR "Failed to parse: $u\n";
             next;
         }
+
+        my $rcount = scalar($res->redirects);
+        my $rurls = join ' ', map { $_->base } $res->redirects;
+        $rurls .= ' ' . $res->base;
+        my ($tld) = $res->base->host =~ m|\.([-_0-9a-z]+)(:\d+)?$|i;
 
         my $ddb = $db->search({ domain => $domain })->first;
         unless (defined($ddb)) {
@@ -181,6 +185,9 @@ sub get_http_server_data {
                             charset       => $encoding,
                             content_length =>
                               scalar($res->header('Content-Length')),
+                            redirect_count => $rcount,
+                            redirect_urls  => $rurls,
+                            ending_tld     => $tld,
                         }
                     );
                     $obj->update({ ip => $ip }) if defined($ip);
@@ -200,6 +207,9 @@ sub get_http_server_data {
                     content_type   => $type,
                     charset        => $encoding,
                     content_length => scalar($res->header('Content-Length')),
+                    redirect_count => $rcount,
+                    redirect_urls  => $rurls,
+                    ending_tld     => $tld,
                 }
             );
             $obj->update({ ip => $ip }) if defined($ip);
@@ -297,7 +307,7 @@ sub collect_smtp_information {
     $packet = $dns->query_resolver($domain->domain, 'IN', 'TXT');
     if (defined($packet) and $packet->header->ancount > 0) {
         my $rr = (grep { $_->type eq 'TXT' } $packet->answer)[0];
-        if ($rr) {
+        if ($rr and $rr->txtdata =~ /^v=spf/) {
             $spf_txt = $rr->txtdata;
         }
     }

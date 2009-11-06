@@ -7,7 +7,8 @@ __PACKAGE__->load_components(qw[Core]);
 __PACKAGE__->table('webserver');
 __PACKAGE__->add_columns(
     qw[id raw_type type version created_at domain_id https issuer testrun_id ip url
-      raw_response response_code content_type content_length charset]
+      raw_response response_code content_type content_length charset redirect_count
+      redirect_urls ending_tld]
 );
 __PACKAGE__->inflate_column(
     raw_response => {

@@ -17,6 +17,7 @@ WriteMakefile(
         IO::Socket::SSL => 0,
         Text::CSV_XS => 0,
         Geo::IP => 0,
+        HTTP::Response => 5.824,
     }, 
     ($] >= 5.005 ?     
       (ABSTRACT_FROM  => 'lib/Zonestat.pm', # retrieve abstract from module
