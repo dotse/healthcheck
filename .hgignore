@@ -3,4 +3,6 @@ Zonestat/blib
 Zonestat/Makefile
 Zonestat/pm_to_blib
 Zonestat/MANIFEST.bak
-
+Zonestat/Issuers.numbers
+Zonestat/examples/csv_split.pl
+Zonestat/examples/foo.pl

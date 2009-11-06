@@ -19,10 +19,10 @@ use HTML::Mason::ApacheHandler;
 }
 
 my $ah = HTML::Mason::ApacheHandler->new(
-    comp_root     => '/Users/cdybedahl/Clients/IIS/zonestat/Zonestat/web',
-    data_dir      => '/var/tmp/mason',
-    args_method   => 'mod_perl',
-    request_class => 'MasonX::Request::WithApacheSession',
+    comp_root              => '/Users/called/Clients/IIS/zonestat/Zonestat/web',
+    data_dir               => '/var/tmp/mason',
+    args_method            => 'mod_perl',
+    request_class          => 'MasonX::Request::WithApacheSession',
     session_cookie_domain  => '.cyberpomo.com',
     session_class          => 'Apache::Session::File',
     session_directory      => '/tmp/sessions/data',
