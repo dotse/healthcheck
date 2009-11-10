@@ -12,7 +12,12 @@ while (my $ws = $db->next) {
     my $rcount = scalar($res->redirects);
     my $rurls  = join ' ', map { $_->base } $res->redirects;
     $rurls .= ' ' . $res->base;
-    my ($tld) = $res->base->host =~ m|\.([-_0-9a-z]+)(:\d+)?$|i;
+    my $tmp = (split /\./, $res->base->host)[-1];
+    if ($tmp =~ m|^\d+$|) {
+        $tmp = 'arpa';
+    }
+    
+    my ($tld) = $tmp;
 
     $ws->update(
         {
