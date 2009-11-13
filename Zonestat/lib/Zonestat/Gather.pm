@@ -75,6 +75,15 @@ sub enqueue_domainset {
     );
 }
 
+sub gather_from_plugins {
+    my $self = shift;
+    my ($domain, $testrun) = @_;
+    
+    foreach my $plugin ($self->parent->plugins) {
+        $plugin->gather($domain, $testrun);
+    }
+}
+
 sub content_type_from_header {
     my @data = @_;
     my ($type, $encoding);
