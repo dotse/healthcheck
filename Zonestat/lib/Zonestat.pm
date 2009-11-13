@@ -83,7 +83,7 @@ sub register_plugins {
             }
         }
 
-        $mod->register_dbix($self->schema);
+        $mod->register_dbix($self);
     }
 
 }

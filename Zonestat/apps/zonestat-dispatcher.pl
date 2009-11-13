@@ -385,6 +385,7 @@ q[INSERT INTO tests (domain,begin, source_id, source_data, run_id) VALUES (?,NOW
     }
 
     $zs->gather->get_server_data($source_data, $domain);
+    $zs->gather->from_plugins($source_data, $domain);
 
     # End of useful work
 

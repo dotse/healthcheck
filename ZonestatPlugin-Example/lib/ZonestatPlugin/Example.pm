@@ -14,20 +14,28 @@ use warnings;
 
 our $VERSION = '0.01';
 
+our $parent;
+
 sub table_info {
     return { plugin_example => { namelength => 'int(10)', something  => 'text'} };
 }
 
 sub register_dbix {
     my $self = shift;
-    my $schema = shift;
+    $parent = shift;
     
-    $schema->register_class('ExamplePlugin', 'ZonestatPlugin::Example::DBIx');
+    $parent->schema->register_class('ExamplePlugin', 'ZonestatPlugin::Example::DBIx');
 }
 
 sub gather {
-    my ($self, $domain, $tr) = @_;
+    my ($self, $domain, $testrun) = @_;
 
+   my $db = $parent->dbx('ExamplePlugin');
+    $db->create({
+        namelength => length($domain->domain),
+        run_id => $testrun->id,
+        domain_id => $domain->id
+    });
 }
 
 sub as_html {
