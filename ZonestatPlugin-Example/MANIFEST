@@ -1,0 +1,5 @@
+Makefile.PL
+MANIFEST
+README
+t/ZonestatPlugin-Example.t
+lib/ZonestatPlugin/Example.pm

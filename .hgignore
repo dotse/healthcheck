@@ -1,8 +1,11 @@
-Zonestat.tmproj
-Zonestat/blib
-Zonestat/Makefile
-Zonestat/pm_to_blib
-Zonestat/MANIFEST.bak
+syntax: glob
+
+*.tmproj
+*/blib
+*/Makefile
+*/pm_to_blib
+*/MANIFEST.bak
+*/*.old
 Zonestat/Issuers.numbers
 Zonestat/examples/csv_split.pl
 Zonestat/examples/foo.pl

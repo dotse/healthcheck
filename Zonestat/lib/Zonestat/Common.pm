@@ -30,29 +30,20 @@ sub cget {
 sub dbh {
     my $self = shift;
 
-    return $self->{dbh} if (defined($self->{dbh}) and $self->{dbh}->ping);
+    return $self->parent->dbh;
+}
 
-    my $dbh =
-      DBI->connect($self->parent->dbconfig,
-        { RaiseError => 1, AutoCommit => 1 });
-    die "Failed to connect to database: " . $DBI::errstr . "\n"
-      unless defined($dbh);
-    $self->{dbh} = $dbh;
-    return $dbh;
+sub schema {
+    my $self = shift;
+
+    return $self->parent->schema;
 }
 
 sub dbx {
     my $self = shift;
     my ($table) = @_;
 
-    $self->{schema} = Zonestat::DBI->connect($self->parent->dbconfig)
-      unless defined($self->{schema});
-
-    if (defined($table)) {
-        return $self->{schema}->resultset($table);
-    } else {
-        return $self->{schema};
-    }
+    return $self->parent->dbx($table);
 }
 
 sub source_id {

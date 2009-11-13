@@ -14,6 +14,8 @@ use Zonestat::Gather;
 use Zonestat::Present;
 use Zonestat::User;
 
+use Module::Find;
+
 our $VERSION = '0.01';
 
 sub new {
@@ -28,8 +30,62 @@ sub new {
     $self->{prepare} = Zonestat::Prepare->new($self);
     $self->{gather}  = Zonestat::Gather->new($self);
     $self->{present} = Zonestat::Present->new($self);
+    
+    $self->register_plugins;
 
     return $self;
+}
+
+sub plugins {
+    my $self = shift;
+    
+    return @{$self->{plugins}};
+}
+
+sub register_plugins {
+    my $self = shift;
+
+    my @plugins = useall ZonestatPlugin;
+    $self->{plugins} = [@plugins];
+
+    foreach my $mod (@plugins) {
+        my $dbinfo = $mod->table_info;
+
+        my $dbh = $self->dbh;
+        foreach my $name (keys %$dbinfo) {
+            eval {
+                my $sql = sprintf q[SELECT count(%s) FROM %s],
+                  (keys %{ $dbinfo->{$name} })[0], $name;
+                $dbh->do($sql);
+            };
+            my $error = $@;
+            if ($error =~ m|Table '[^']+' doesn't exist|) {
+                my $sql = sprintf 'CREATE TABLE `%s` (', $name;
+                $sql .= join ', ',
+                  map { '`' . $_ . '` ' . $dbinfo->{$name}{$_} }
+                  keys %{ $dbinfo->{$name} };
+                $sql .=
+', id serial primary key, run_id bigint(20) unsigned not null, domain_id int(10) unsigned not null';
+                $sql .=
+", CONSTRAINT `${name}_domain` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE";
+                $sql .=
+", CONSTRAINT `${name}_testrun` FOREIGN KEY (`run_id`) REFERENCES `testruns` (`id`) ON DELETE CASCADE";
+                $sql .= ') ENGINE=InnoDB DEFAULT CHARSET=utf8';
+                eval { $dbh->do($sql); };
+                if ($@) {
+                    die "Failed to create table: $error\n";
+                    exit(1);
+                } else {
+                    print "Created $name.\n";
+                }
+            } elsif ($error) {
+                die "Database error: $error\n";
+            }
+        }
+
+        $mod->register_dbix($self->schema);
+    }
+
 }
 
 sub cget {
@@ -69,6 +125,40 @@ sub dbconfig {
     my $self = shift;
 
     return $self->{conf}->db;
+}
+
+sub dbh {
+    my $self = shift;
+
+    return $self->{dbh} if (defined($self->{dbh}) and $self->{dbh}->ping);
+
+    my $dbh =
+      DBI->connect($self->dbconfig,
+        { RaiseError => 1, AutoCommit => 1, PrintError => 0 });
+    die "Failed to connect to database: " . $DBI::errstr . "\n"
+      unless defined($dbh);
+    $self->{dbh} = $dbh;
+    return $dbh;
+}
+
+sub schema {
+    my $self = shift;
+
+    $self->{schema} = Zonestat::DBI->connect($self->dbconfig)
+      unless defined($self->{schema});
+
+    return $self->{schema};
+}
+
+sub dbx {
+    my $self = shift;
+    my ($table) = @_;
+
+    if (defined($table)) {
+        return $self->schema->resultset($table);
+    } else {
+        return $self->schema;
+    }
 }
 
 1;
