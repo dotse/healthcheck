@@ -3,7 +3,7 @@ use base 'DBIx::Class';
 
 __PACKAGE__->load_components(qw[Core]);
 __PACKAGE__->table('plugin_example');
-__PACKAGE__->add_columns(qw[id namelength]);
+__PACKAGE__->add_columns(qw[id namelength domain_id run_id]);
 __PACKAGE__->set_primary_key('id');
 
 package ZonestatPlugin::Example;
@@ -41,6 +41,7 @@ sub gather {
 sub as_html {
     my ($self, @tr) = @_;
 
+    
 }
 
 1;

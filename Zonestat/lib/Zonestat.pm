@@ -84,6 +84,7 @@ sub register_plugins {
         }
 
         $mod->register_dbix($self);
+        print STDERR "$mod registered.\n"
     }
 
 }
