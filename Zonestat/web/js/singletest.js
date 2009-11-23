@@ -1,16 +1,20 @@
 $(document).ready(function(){
    $("tr.info").hide();
-   $("h1").after('<b>Toggle visibility:</b> <a href="#" class="error_toggle">Error</a> <a href="#" class="warning_toggle">Warning</a> <a href="#" class="notice_toggle">Notice</a> <a href="#" class="info_toggle">Info</a>');
-   $("a.error_toggle").click(function(){
+   $("h1").after('<p><b>Toggle visibility:</b> <a href="#" class="error_toggle">Error</a> <a href="#" class="warning_toggle">Warning</a> <a href="#" class="notice_toggle">Notice</a> <a href="#" class="info_toggle">Info</a></p>');
+   $("a.error_toggle").click(function(e){
       $("tr.error").toggle();
+      e.preventDefault();
    });
-   $("a.warning_toggle").click(function(){
+   $("a.warning_toggle").click(function(e){
       $("tr.warning").toggle();
+      e.preventDefault();
    });
-   $("a.notice_toggle").click(function(){
+   $("a.notice_toggle").click(function(e){
       $("tr.notice").toggle();
+      e.preventDefault();
    });
-   $("a.info_toggle").click(function(){
+   $("a.info_toggle").click(function(e){
       $("tr.info").toggle();
+      e.preventDefault();
    });
 });
