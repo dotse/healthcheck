@@ -2,9 +2,9 @@
 
 * Export av domänset i CSV-format.
 
-* Geografisk placering av webservrar (AS och GeoIP).
+(* Geografisk placering av webservrar (AS och GeoIP).)
 
-* Geografisk placering av namnservrar.
+(* Geografisk placering av namnservrar.)
 
 * Tabell över namnservrar, mappning till domäner.
 
@@ -38,15 +38,27 @@
 
  - Domänset baserade på sparade sökningar à la Spotlight?
 
-* Plugin-system?
+(* Plugin-system?)
 
 (* Lägg till i huvud-domäntabellen när en okänd domän adderas till ett domänset.)
 
-* Metadata om foo-servrar (IPv4, IPv6, …)
+(* Metadata om foo-servrar (IPv4, IPv6, …))
 
-* dns2db-data
+* dns2db-data?
 
 * Finns robots.txt?
 
 * Prioriterat inför 2009-10-01: Mail, HTTPS-cert och BGP/AS-data
+
+
+2009-11-23
+==========
+
+* Organisationsnummer och registrar för domäner (per körning)
+
+* Totaljustering av GUI.
+
+* Flytta till OpenSource.
+
+* Finns robots.txt?
 

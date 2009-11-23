@@ -34,3 +34,6 @@ $m->clear_buffer, $m->abort(404) unless defined($tid);
 my $test = $zs->present->dbx('Tests')->find($tid);
 $m->clear_buffer, $m->abort(404) unless defined($test);
 </%init>
+<%method js>
+% return qw[singletest];
+</%method>
