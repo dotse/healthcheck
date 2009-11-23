@@ -11,7 +11,7 @@
                 <ul>
 % foreach my $tr ($set->testruns) {
                     <li>
-                        <input type="checkbox" name="tid" value="<% $tr->id %>" />
+                        <input type="checkbox" name="tid" value="<% $tr->id %>" <% ($app->session->{testruns}{$tr->id} ? 'checked="yes"' : '') %> />
                         <% $tr->name %> (<% $tr->tests->count %> tests)
                     </li>
 % }                    
@@ -29,3 +29,11 @@
             <label for="userfile">Data file (optional):</label><input name="userfile" type="file" class="button">
             <input type="submit" value="Create">
         </form>
+        
+        <pre>
+            <% Dumper $app->session %>
+        </pre>
+        
+<%init>
+use Data::Dumper;
+</%init>

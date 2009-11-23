@@ -78,10 +78,11 @@ sub enqueue_domainset {
 sub from_plugins {
     my $self = shift;
     my ($trid, $domainname) = @_;
-    
+
     my $testrun = $self->dbx('Testrun')->find($trid);
-    my $domain = $self->dbx('Domains')->search({domain => $domainname})->first;
-    
+    my $domain =
+      $self->dbx('Domains')->search({ domain => $domainname })->first;
+
     foreach my $plugin ($self->parent->plugins) {
         $plugin->gather($domain, $testrun);
     }

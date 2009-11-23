@@ -1,3 +1,5 @@
+<a href="/">(Back to top)</a>
+
 <h1>Testruns for <% $name %></h1>
 
 <h2>Data points</h2>
@@ -317,6 +319,8 @@
 <%init>
 my @tr;
 my $name;
+
+$app->session->{testruns} = { map {$_ , 1} @tid };
 
 if (@tid) {
     @tr = sort {$b->tests->count <=> $a->tests->count} 

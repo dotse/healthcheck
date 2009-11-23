@@ -30,7 +30,7 @@ sub new {
     $self->{prepare} = Zonestat::Prepare->new($self);
     $self->{gather}  = Zonestat::Gather->new($self);
     $self->{present} = Zonestat::Present->new($self);
-    
+
     $self->register_plugins;
 
     return $self;
@@ -38,8 +38,8 @@ sub new {
 
 sub plugins {
     my $self = shift;
-    
-    return @{$self->{plugins}};
+
+    return @{ $self->{plugins} };
 }
 
 sub register_plugins {
@@ -84,7 +84,7 @@ sub register_plugins {
         }
 
         $mod->register_dbix($self);
-        print STDERR "$mod registered.\n"
+        print STDERR "$mod registered.\n";
     }
 
 }

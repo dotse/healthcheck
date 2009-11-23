@@ -5,7 +5,7 @@
         <link rel="stylesheet" href="/css/default.css" media="all" type="text/css">
     </head>
     <body>
-% if ($m->session->{user}) {
+% if ($app->session->{user}) {
     <p>Welcome, <% $user->name %>.</p>
     <p><a href="/">Go to top page.</a></p>
 % } else {
@@ -34,10 +34,10 @@ inherit => undef
 my $mess = '';
 my $user;
 if ($username and $password and $user = $zs->user($username, $password)) {
-    $m->session->{user} = $user->id;
+    $app->session->{user} = $user->id;
     $mess = "Username/password combination not valid.";
 } else {
-    $m->session->{user} = undef;
+    $app->session->{user} = undef;
 }
 
 </%init>
