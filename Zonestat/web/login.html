@@ -8,7 +8,9 @@
 % if ($app->session->{user}) {
     <p><a href="/">Go to top page.</a></p>
 % } else {
+% foreach my $mess ($app->errors) {
     <h1><% $mess %></h1>
+% }
     <form action="/action/login" method="post">
       <p>
         <label for="username">Username: </label>
@@ -26,13 +28,7 @@
     </body>
 </html>
 
-<%flags>
-inherit => undef
-</%flags>
 <%init>
-my $mess = $app->session->{mess} || '';
 my $username = $app->session->{username} || '';
-
-delete $app->session->{mess};
 delete $app->session->{username};
 </%init>

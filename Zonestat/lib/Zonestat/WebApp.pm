@@ -53,7 +53,7 @@ sub login {
         $self->redirect(path => '/');
     } else {
         $self->session->{user}     = undef;
-        $self->session->{mess}     = 'Username and password does not match.';
+        $self->_add_error_message('Username and password does not match.');
         $self->session->{username} = $args->{username};
         $self->redirect(path => '/login.html');
     }
