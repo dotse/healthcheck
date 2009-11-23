@@ -1,30 +1,10 @@
-package Zonestat::WebApp;
-
-use base 'MasonX::WebApp';
-
-__PACKAGE__->SessionWrapperParams(
-    {
-        cookie_domain  => '.cyberpomo.com',
-        class          => 'Apache::Session::File',
-        directory      => '/tmp/sessions/data',
-        lock_directory => '/tmp/sessions/locks',
-        use_cookie     => 1,
-    }
-);
-__PACKAGE__->MasonGlobalName('$app');
-
-sub _init {
-    my $self = shift;
-
-    warn "UseSession: " . $self->UseSession;
-}
-
 package Zonestat::Mason;
 
 use warnings;
 use strict;
 
 use HTML::Mason::ApacheHandler;
+use Zonestat::WebApp;
 
 {
 

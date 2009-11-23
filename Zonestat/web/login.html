@@ -6,11 +6,10 @@
     </head>
     <body>
 % if ($app->session->{user}) {
-    <p>Welcome, <% $user->name %>.</p>
     <p><a href="/">Go to top page.</a></p>
 % } else {
     <h1><% $mess %></h1>
-    <form action="login.html" method="post">
+    <form action="/action/login" method="post">
       <p>
         <label for="username">Username: </label>
         <input type="text" name="username" value="<% $username %>"/>
@@ -31,17 +30,9 @@
 inherit => undef
 </%flags>
 <%init>
-my $mess = '';
-my $user;
-if ($username and $password and $user = $zs->user($username, $password)) {
-    $app->session->{user} = $user->id;
-    $mess = "Username/password combination not valid.";
-} else {
-    $app->session->{user} = undef;
-}
+my $mess = $app->session->{mess} || '';
+my $username = $app->session->{username} || '';
 
+$app->session->{mess} = undef;
+$app->session->{username} = undef;
 </%init>
-<%args>
-$username => ''
-$password => ''
-</%args>
