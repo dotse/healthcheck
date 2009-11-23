@@ -33,6 +33,6 @@ inherit => undef
 my $mess = $app->session->{mess} || '';
 my $username = $app->session->{username} || '';
 
-$app->session->{mess} = undef;
-$app->session->{username} = undef;
+delete $app->session->{mess};
+delete $app->session->{username};
 </%init>
