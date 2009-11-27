@@ -1,0 +1,51 @@
+<a href="/">(Back to top)</a>
+
+<h1>DNSCheck data for <% $name %></h1>
+
+<h2>Common errors</h2>
+<p>
+    This table reports the percentage of tested domains for which DNSCheck
+    reported a particular error, from the most common error on down.
+</p>
+<& /table/common_problems, sid => \@tid &>
+
+<h2>Common warnings</h2>
+<p>
+    This table reports the percentage of tested domains for which DNSCheck
+    reported a particular warning, from the most common warning on down.
+</p>
+<& /table/common_problems, sid => \@tid, level => 'WARNING' &>
+
+<h2>Distribution of problems</h2>
+<p><& /table/message_bands, tid => \@tid, level => 'CRITICAL' &></p>
+<p><& /table/message_bands, tid => \@tid, level => 'ERROR' &></p>
+<p><& /table/message_bands, tid => \@tid, level => 'WARNING' &></p>
+
+<h2>Number of tests by highest severity problem</h2>
+<p>
+
+    This table reports the number of domains by the most severe problem
+    reported for it by DNSCheck. So first is the number of domains with a
+    CRITICAL problem, then the number with ERROR but not CRITICAL, then those
+    with WARNING but not CRITICAL or ERROR and so on.
+
+</p>
+<& /table/max_severity, sid => \@tid &>
+
+<%init>
+my @tr;
+my $name;
+
+my @tid = keys %{$app->session->{testruns}};
+
+if (@tid) {
+    @tr = sort {$b->tests->count <=> $a->tests->count} 
+        grep {defined($_)} map {$zs->present->dbx('Testrun')->find($_)} @tid;
+    $name = $tr[0]->domainset->name;
+    @tid = map {$_->id} @tr;
+} else {
+    $m->redirect('/')
+}
+my $c;
+</%init>
+<%method title>ZoneStat: Testruns</%method>

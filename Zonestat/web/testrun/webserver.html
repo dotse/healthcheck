@@ -1,0 +1,66 @@
+<a href="/">(Back to top)</a>
+
+<h1>Web page data for <% $name %></h1>
+
+<h2>Webserver software</h2>
+<p>
+
+    This table (and the next one) simply lists the fractions of the tested
+    domains that have a web server on their <tt>www.</tt> address that are
+    running a certain webserver software. What software a server is running is
+    determined by looking at the <tt>Server:</tt> header in its HTTP response.
+    Only those giving a response that match a known pattern are counted; the
+    rest are included under the "Unknown" entry.
+</p>
+<p>
+
+    The next few tables also aggregate information taken from the the headers
+    in the HTTP communication with the web servers.
+
+</p>
+<& /table/webserver_types, sid => \@tid &>
+
+<h2>Webserver software (https)</h2>
+<& /table/webserver_types, sid => \@tid, https => 1 &>
+
+<h2>Webserver response codes</h2>
+<& /table/webserver_responses, sid => \@tid &>
+
+<h2>Webserver response codes (https)</h2>
+<& /table/webserver_responses, sid => \@tid, https => 1 &>
+
+<h2>Webserver content types</h2>
+<& /table/webserver_content, sid => \@tid &>
+
+<h2>Webserver content types (https)</h2>
+<& /table/webserver_content, sid => \@tid, https => 1 &>
+
+<h2>Webserver character encodings</h2>
+<& /table/webserver_charset, sid => \@tid &>
+
+<h2>Webserver character encodings (https)</h2>
+<& /table/webserver_charset, sid => \@tid, https => 1 &>
+
+<h2>Unknown webserver identifications</h2>
+<p>
+    Simply a list of all webserver identification strings that we did not recognize.
+</p>
+<& /table/unknown_server_types, sid => \@tid &>
+
+<%init>
+my @tr;
+my $name;
+
+my @tid = keys %{$app->session->{testruns}};
+
+if (@tid) {
+    @tr = sort {$b->tests->count <=> $a->tests->count} 
+        grep {defined($_)} map {$zs->present->dbx('Testrun')->find($_)} @tid;
+    $name = $tr[0]->domainset->name;
+    @tid = map {$_->id} @tr;
+} else {
+    $m->redirect('/')
+}
+my $c;
+</%init>
+<%method title>ZoneStat: Testruns</%method>
