@@ -133,3 +133,64 @@ form {
 	margin-right: 40px;
 	padding: 4px;
 }
+
+.selected, .unselected {
+    text-decoration: none;
+    color: #808;
+}
+
+.selected {
+    font-weight: bold;
+	list-style-type: disc;
+}
+
+#trpresent {
+	border-style: none;
+	margin-left: 1em;
+}
+
+ul.testrunlist li.selected a,ul.testrunlist li.selected a:visited {
+	color: #00b229;
+}
+
+.unselected
+
+a.unselected {
+    
+}
+
+ul.testrunlist {
+    list-style-type: none;
+	padding-left: 3ex;
+	margin-top: 1ex;
+}
+
+#trpresent table {
+    width: 100%;
+    vertical-align: top;
+	margin: 0 0 10px;
+	padding-right: 5px;
+	border: thin solid silver;
+}
+
+ul.testrunlist li a, ul.testrunlist li a:visited {
+	text-decoration: none;
+	color: blue;
+}
+
+#trpresent tbody tr td {
+	vertical-align: top;
+}
+
+#trpresent table th {
+	background-color: silver;
+}
+
+#trpresent table th.commands {
+	background-color: white;
+	font-style: italic;
+	font-size: 75%;
+	font-variant: normal;
+	text-align: right;
+	text-transform: capitalize;
+}

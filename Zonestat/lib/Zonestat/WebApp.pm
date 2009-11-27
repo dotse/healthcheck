@@ -52,11 +52,26 @@ sub login {
         $self->session->{user} = $user->id;
         $self->redirect(path => '/');
     } else {
-        $self->session->{user}     = undef;
+        $self->session->{user} = undef;
         $self->_add_error_message('Username and password does not match.');
         $self->session->{username} = $args->{username};
         $self->redirect(path => '/login.html');
     }
+}
+
+sub toggletestrun {
+    my $self = shift;
+    my $tid  = $self->args->{tid};
+
+    my $trs = $self->session->{testruns};
+
+    if ($trs->{$tid}) {
+        delete $trs->{$tid};
+    } else {
+        $trs->{$tid} = 1;
+    }
+
+    $self->redirect(path => '/');
 }
 
 1;

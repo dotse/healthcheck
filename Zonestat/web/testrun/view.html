@@ -313,14 +313,11 @@
 </p>
 <& /table/unknown_server_types, sid => \@tid &>
 
-<%args>
-@tid => ()
-</%args>
 <%init>
 my @tr;
 my $name;
 
-$app->session->{testruns} = { map {$_ , 1} @tid };
+my @tid = keys %{$app->session->{testruns}};
 
 if (@tid) {
     @tr = sort {$b->tests->count <=> $a->tests->count} 

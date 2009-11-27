@@ -1,27 +1,46 @@
-        <h1 class="top">Defined domainsets</h1>
-        <form action="/testrun/view.html" method="get">
-        <dl>
-% foreach my $set ($zs->present->all_domainsets) {
-            <dt>
-                <a href="/domainset/<% $set->id %>"><% $set->name %></a>
-                <a href="/domainset/enqueue_domainset.html?sid=<% $set->id %>">(start gathering)</a>
-            </dt>
-            <dd>
+        <h1 class="top">Available domainsets</h1>
+
+
+<table id="trpresent">
+    <tr>
+% foreach my $set (@sets) {
+        <td>
+        <table>
+            <tr>
+                <th>
+                    <a href="/domainset/<% $set->id %>"><% $set->name %></a>
+                </th>
+            </tr>
+            <tr>
+                <th class="commands">
+                    <a href="/domainset/enqueue_domainset.html?sid=<% $set->id %>">(start gathering)</a>
+                </th>
+            </tr>
+            <tr>
+            <td>
 % if ($set->testruns->count > 0) {
-                <ul>
-% foreach my $tr ($set->testruns) {
-                    <li>
-                        <input type="checkbox" name="tid" value="<% $tr->id %>" <% ($app->session->{testruns}{$tr->id} ? 'checked="yes"' : '') %> />
-                        <% $tr->name %> (<% $tr->tests->count %> tests)
+                <ul class="testrunlist">
+% foreach my $tr ($set->testruns({},{order_by => {-desc => 'start'}})) {
+                    <li class="<% ($trs->{$tr->id} ? 'selected' : 'unselected') %>">
+                        <a href="/action/toggletestrun?tid=<% $tr->id %>">
+                            <% $tr->name %> (<% $tr->tests->count %> tests)
+                        </a>
                     </li>
 % }                    
                 </ul>
 % }
-            </dd>
+            </td>
+        </tr>
+        </table>
+        </td>
+        <% ($c++%2==1)?'</tr><tr>':'' %>
 % }
-        </dl>
-        <input type="submit" value="Compare testruns">
-        </form>
+    </tr>
+</table>
+
+<p>
+    <a href="/testrun/view.html">View comparison data for selected gathering runs.</a>
+</p>
 
         <h2>Create a new domainset</h2>
         <form action="/com/create_domainset" method="post" enctype="multipart/form-data">
@@ -30,10 +49,8 @@
             <input type="submit" value="Create">
         </form>
         
-        <pre>
-            <% Dumper $app->session %>
-        </pre>
-        
 <%init>
-use Data::Dumper;
+my @sets = $zs->present->all_domainsets;
+my $trs = $app->session->{testruns};
+my $c;
 </%init>

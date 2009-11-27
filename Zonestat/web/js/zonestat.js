@@ -1,16 +1,17 @@
 $(document).ready(function(){
-    $("dd").hide();
-    $("dt").append("<a href='#' class='toggle'>[show]</a>");
+/*    $("li.unselected").hide();
+
+    $("th.commands").append("<a href='#' class='toggle'>Show</a>");
     $("a.toggle").click(function(e){
-        $(this).parents("dt").next("dd").toggle();
+        $(this).parents("tr").next("tr").find("li.unselected").toggle();
         switch ($(this).text()) {
-            case '[show]':
-                $(this).text("[hide]");
+            case 'Show':
+                $(this).text("Hide");
                 break;
-            case '[hide]':
-                $(this).text("[show]");
+            case 'Hide':
+                $(this).text("Show");
                 break;
         }
         e.preventDefault();
-    })
+    }); */
  });
