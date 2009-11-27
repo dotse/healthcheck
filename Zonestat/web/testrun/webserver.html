@@ -56,7 +56,11 @@ my @tid = keys %{$app->session->{testruns}};
 if (@tid) {
     @tr = sort {$b->tests->count <=> $a->tests->count} 
         grep {defined($_)} map {$zs->present->dbx('Testrun')->find($_)} @tid;
-    $name = $tr[0]->domainset->name;
+    if(@tr == 1) {
+        $name = $tr[0]->domainset->name;
+    } else {
+        $name = scalar(@tr) . " sets"
+    }
     @tid = map {$_->id} @tr;
 } else {
     $m->redirect('/')
