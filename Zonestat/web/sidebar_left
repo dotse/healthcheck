@@ -1,0 +1,17 @@
+<dl id="status">
+    <dt>Selected runs:</dt>
+    <dd><% scalar(keys %{$app->session->{testruns}}) %>, in <% $set_count %> sets.</dd>
+    
+    <dt>Queue:</dt>
+    <dd><& /com/queue_length &></dd>
+    
+    <dt>Links</dt>
+    <dd id="links"><ul id="leftmenu">
+        <li><a href="/">Top</a></li>
+        <li><a href="/testrun/">Statistics</a></li>
+    </ul></dd>
+</dl>
+<%init>
+my %sets = map {$_->set_id => 1} $app->testruns;
+my $set_count = keys %sets;
+</%init>

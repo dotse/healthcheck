@@ -6,6 +6,16 @@ img {
 	padding-left: 10px;
 }
 
+html {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	padding: 1px 0 0;
+	margin: 0;
+}
+
 table {
 	margin-left: 40px;
 	border: thin solid silver;
@@ -193,4 +203,76 @@ ul.testrunlist li a, ul.testrunlist li a:visited {
 	font-variant: normal;
 	text-align: right;
 	text-transform: capitalize;
+}
+
+#left_side {
+	width: 15%;
+	overflow: hidden;
+	border: thin none silver;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+#status {
+	background-color: #e5e5e5;
+	width: 100%;
+	margin: 0 0 20px;
+	border: thin none silver;
+	padding: 0;
+}
+
+#status dt {
+	text-align: left;
+	background-color: gray;
+	color: white;
+	padding-left: 5px;
+	margin-top: 0;
+	border-left-style: none;
+}
+
+#status dd {
+	margin-bottom: 5px;
+	margin-left: 5px;
+	color: gray;
+	margin-top: 2px;
+	text-align: right;
+	padding-right: 5px;
+	border-left-style: none;
+}
+
+dd#links {
+	padding: 0;
+	margin: 0;
+}
+
+#main_bar {
+	margin-left: 16%;
+	width: 84%;
+}
+
+#leftmenu {
+	margin: 0;
+	padding: 0;
+	position: relative;
+}
+
+#leftmenu li {
+	list-style-type: none;
+	padding: 0 5px 2px 0;
+	margin-top: 0;
+	margin-left: 0;
+}
+
+#leftmenu li:hover {
+	list-style-type: none;
+	background-color: white;
+}
+
+#leftmenu li a {
+	text-decoration: none;
+}
+
+#leftmenu li a:hover {
+	text-decoration: underline;
 }

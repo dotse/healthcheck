@@ -3,6 +3,7 @@ package Zonestat::WebApp;
 use base 'MasonX::WebApp';
 
 use Data::Dumper;
+use Zonestat;
 
 ###
 ### Settings
@@ -36,6 +37,17 @@ sub _init {
 }
 
 ###
+### Utility methods
+###
+our $zs = Zonestat->new;
+
+sub testruns {
+    my $self = shift;
+    
+    return map {$zs->dbx('Testrun')->find($_)} sort keys %{$self->session->{testruns}};
+}
+
+###
 ### Commands that get called via urls that start with /action/
 ###
 
@@ -63,13 +75,14 @@ sub toggletestrun {
     my $self = shift;
     my $tid  = $self->args->{tid};
 
-    my $trs = $self->session->{testruns};
+    my %trs = %{$self->session->{testruns}};
 
-    if ($trs->{$tid}) {
-        delete $trs->{$tid};
+    if ($trs{$tid}) {
+        delete $trs{$tid};
     } else {
-        $trs->{$tid} = 1;
+        $trs{$tid} = 1;
     }
+    $self->session->{testruns} = \%trs;
 
     $self->redirect(path => '/');
 }

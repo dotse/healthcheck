@@ -9,8 +9,8 @@
 % }
     </head>
     <body>
-        <& /com/status &>
-        <% $m->call_next %>
+        <div id="left_side"><& /sidebar_left &></div>
+        <div id="main_bar"><% $m->call_next %></div>
     </body>
 </html>
 
