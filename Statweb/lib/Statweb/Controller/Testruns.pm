@@ -107,20 +107,71 @@ sub index :Path :Args(0) {
 
 sub webpages :Local :Args(0) {
     my ( $self, $c ) = @_;
-
-    $c->response->body('Matched Statweb::Controller::Testruns in webpages.');
+    my $db = $c->model('DB::Testrun');
+    my @trs = grep {$_} map {$db->find($_)} keys %{$c->session->{testruns}};
+    my $name;
+    my %data;
+    my $p = $c->{zs}->present;
+    
+    if (@trs == 1) {
+        $name = $trs[0]->name;
+    } else {
+        $name = scalar(@trs) . ' testruns';
+    }
+    
+    $data{names} = [ map {$_->domainset->name . ' ' . $_->name} @trs];
+    
+    $c->stash({
+       template => 'testruns/webpages.tt', 
+       pagetitle => $name,
+       data => \%data,
+    });
 }
 
 sub dnscheck :Local :Args(0) {
     my ( $self, $c ) = @_;
-
-    $c->response->body('Matched Statweb::Controller::Testruns in dnscheck.');
+    my $db = $c->model('DB::Testrun');
+    my @trs = grep {$_} map {$db->find($_)} keys %{$c->session->{testruns}};
+    my $name;
+    my %data;
+    my $p = $c->{zs}->present;
+    
+    if (@trs == 1) {
+        $name = $trs[0]->name;
+    } else {
+        $name = scalar(@trs) . ' testruns';
+    }
+    
+    $data{names} = [ map {$_->domainset->name . ' ' . $_->name} @trs];
+    
+    $c->stash({
+       template => 'testruns/dnscheck.tt', 
+       pagetitle => $name,
+       data => \%data,
+    });
 }
 
 sub servers :Local :Args(0) {
     my ( $self, $c ) = @_;
-
-    $c->response->body('Matched Statweb::Controller::Testruns in servers.');
+    my $db = $c->model('DB::Testrun');
+    my @trs = grep {$_} map {$db->find($_)} keys %{$c->session->{testruns}};
+    my $name;
+    my %data;
+    my $p = $c->{zs}->present;
+    
+    if (@trs == 1) {
+        $name = $trs[0]->name;
+    } else {
+        $name = scalar(@trs) . ' testruns';
+    }
+    
+    $data{names} = [ map {$_->domainset->name . ' ' . $_->name} @trs];
+    
+    $c->stash({
+       template => 'testruns/servers.tt', 
+       pagetitle => $name,
+       data => \%data,
+    });
 }
 
 

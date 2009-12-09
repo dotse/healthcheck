@@ -1,0 +1,5 @@
+[% META title = 'DNSCheck Statistics' %]
+
+<a href="[% c.uri_for('/') %]">(Back to top)</a>
+
+<h1>DNSCheck statistics for [% pagetitle %]</h1>

@@ -187,7 +187,7 @@
 
 <h2>Further information</h2>
 <ul>
-    <li><a href="dnscheck.html">DNSCheck data</a></li>
-    <li><a href="webserver.html">Webpage data</a></li>
-    <li><a href="servers.html">Server data</a></li>
+    <li><a href="[% c.uri_for('dnscheck') %]">DNSCheck data</a></li>
+    <li><a href="[% c.uri_for('webpages') %]">Webpage data</a></li>
+    <li><a href="[% c.uri_for('servers') %]">Server data</a></li>
 </ul>

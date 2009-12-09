@@ -1,0 +1,5 @@
+[% META title = 'Mail- and DNS-server Statistics' %]
+
+<a href="[% c.uri_for('/') %]">(Back to top)</a>
+
+<h1>Server statistics for [% pagetitle %]</h1>
