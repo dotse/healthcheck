@@ -1,0 +1,19 @@
+<dl id="status">
+    <dt>Selected runs:</dt>
+    <dd>[% selected_run_count %], in [% selected_set_count %] sets.</dd>
+    
+    <dt>Queue Length</dt>
+    <dd>[% 0 + c.queue_length %]</dd>
+    
+    <dt>Menu</dt>
+    <dd id="links">
+        <ul id="leftmenu">
+            <li><a href="[% c.uri_for('/') %]">Run selection</a></li>
+            <li><a href="[% c.uri_for('/testruns/') %]">Statistics: Summary</a></li>
+            <li><a href="[% c.uri_for('/testruns/dnscheck') %]">Statistics: DNSCheck</a></li>
+            <li><a href="[% c.uri_for('/testruns/webpages') %]">Statistics: Webpages</a></li>
+            <li><a href="[% c.uri_for('/testruns/servers') %]">Statistics: Servers</a></li>
+        </ul>
+    </dd>
+    
+</dl>

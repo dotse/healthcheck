@@ -7,7 +7,7 @@ WriteMakefile(
     VERSION_FROM      => 'lib/Zonestat.pm', # finds $VERSION
     PREREQ_PM         => {
         YAML => 0,
-        DNSCheck => 0.92,
+        DNSCheck => 1.00,
         DBI => 0,
         DBD::mysql => 0,
         HTTP::Request => 0,

@@ -1,0 +1,7 @@
+<h1>[% dset.name %]</h1>
+
+<ul>
+    [% FOREACH domain IN dset.domains -%]
+    <li>[% domain.domain %]</li>
+    [% END -%]
+</ul>

@@ -1,0 +1,278 @@
+/* @override http://dev.cyberpomo.com/css/default.css */
+
+img {
+    float: right;
+	padding-bottom: 20px;
+	padding-left: 10px;
+}
+
+html {
+	margin: 0;
+	padding: 0;
+}
+
+body {
+	padding: 1px 0 0;
+	margin: 0;
+}
+
+table {
+	margin-left: 40px;
+	border: thin solid silver;
+}
+
+th {
+    font-variant: small-caps;
+    color: white;
+    background: #55a155;
+    padding-left: 1em;
+    padding-right: 1em;
+}
+
+tr.even {
+    background-color: #e0ffe0;
+}
+
+td.numeric {
+    text-align: right;
+}
+
+td.information, p.information {
+    font-size: 80%;
+    padding-left: 1em;
+}
+
+h1, h2 {
+    text-align: left;
+    padding-left: 1em;
+    color: gray;
+	border-top-style: solid;
+	border-left-style: solid;
+	width: 66%;
+	border-left-color: black;
+	border-top-color: black;
+}
+
+h1.top {
+    clear: none;
+}
+
+h2 {
+	margin-left: 25px;
+	border-top-color: gray;
+	border-left-color: gray;
+	clear: both;
+}
+
+dl {
+    border: solid thin #bbb;
+    background-color: #eee;
+    margin: 6px;
+    padding: 6px;
+}
+
+dt {
+    font-weight: bold;
+}
+
+dd {
+    color: blue;
+}
+
+.problem {
+    color: red;
+}
+
+.fine {
+    color: green;
+}
+
+#status {
+    border: thin black solid;
+    float: right;
+    background-color: #ddd;
+    margin-left: 10px;
+    margin-bottom: 10px;
+}
+
+#status th {
+    background-color: gray;
+    padding: 0;
+    margin: 0;
+}
+
+#status td:first-child {
+    text-align: right;
+    font-weight: bold;
+}
+
+#testinfo {
+    border-collapse: collapse;
+}
+
+#testinfo td {
+    padding-right: 1em;
+    border-bottom: thin solid #ccc;
+}
+
+#testinfo tr.info {
+    background-color: #dfd;
+}
+
+#testinfo tr.notice {
+    background-color: #afa;
+}
+
+#testinfo tr.error {
+    background-color: #faa;
+}
+
+#testinfo tr.warning {
+    background-color: #ffa;
+}
+
+#testinfo tr.critical {
+    background-color: red;
+    color: yellow;
+}
+
+form {
+	border: thin dotted gray;
+	background-color: silver;
+	margin-left: 40px;
+	margin-right: 40px;
+	padding: 4px;
+}
+
+.selected, .unselected {
+    text-decoration: none;
+    color: #808;
+}
+
+.selected {
+    font-weight: bold;
+	list-style-type: disc;
+}
+
+#trpresent {
+	border-style: none;
+	margin-left: 1em;
+}
+
+ul.testrunlist li.selected a,ul.testrunlist li.selected a:visited {
+	color: #00b229;
+}
+
+.unselected
+
+a.unselected {
+    
+}
+
+ul.testrunlist {
+    list-style-type: none;
+	padding-left: 3ex;
+	margin-top: 1ex;
+}
+
+#trpresent table {
+    width: 100%;
+    vertical-align: top;
+	margin: 0 0 10px;
+	padding-right: 5px;
+	border: thin solid silver;
+}
+
+ul.testrunlist li a, ul.testrunlist li a:visited {
+	text-decoration: none;
+	color: blue;
+}
+
+#trpresent tbody tr td {
+	vertical-align: top;
+}
+
+#trpresent table th {
+	background-color: silver;
+}
+
+#trpresent table th.commands {
+	background-color: white;
+	font-style: italic;
+	font-size: 75%;
+	font-variant: normal;
+	text-align: right;
+	text-transform: capitalize;
+}
+
+#left_side {
+	width: 15%;
+	overflow: hidden;
+	border: thin none silver;
+	position: fixed;
+	top: 0;
+	left: 0;
+}
+
+#status {
+	background-color: #e5e5e5;
+	width: 100%;
+	margin: 0 0 20px;
+	border: thin none silver;
+	padding: 0;
+}
+
+#status dt {
+	text-align: left;
+	background-color: gray;
+	color: white;
+	padding-left: 5px;
+	margin-top: 0;
+	border-left-style: none;
+}
+
+#status dd {
+	margin-bottom: 5px;
+	margin-left: 5px;
+	color: gray;
+	margin-top: 2px;
+	text-align: right;
+	padding-right: 5px;
+	border-left-style: none;
+}
+
+dd#links {
+	padding: 0;
+	margin: 0;
+}
+
+#main_bar {
+	margin-left: 16%;
+	width: 84%;
+}
+
+#leftmenu {
+	margin: 0;
+	padding: 0;
+	position: relative;
+}
+
+#leftmenu li {
+	list-style-type: none;
+	padding: 0 5px 2px 0;
+	margin-top: 0;
+	margin-left: 0;
+}
+
+#leftmenu li:hover {
+	list-style-type: none;
+	background-color: white;
+}
+
+#leftmenu li a {
+	text-decoration: none;
+}
+
+#leftmenu li a:hover {
+	text-decoration: underline;
+}
