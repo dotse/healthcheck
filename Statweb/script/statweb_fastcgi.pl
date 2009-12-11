@@ -11,7 +11,7 @@ use lib "$FindBin::Bin/../lib";
 use Statweb;
 
 my $help = 0;
-my ( $listen, $nproc, $pidfile, $manager, $detach, $keep_stderr );
+my ($listen, $nproc, $pidfile, $manager, $detach, $keep_stderr);
 
 GetOptions(
     'help|?'      => \$help,
@@ -27,10 +27,11 @@ pod2usage(1) if $help;
 
 Statweb->run(
     $listen,
-    {   nproc   => $nproc,
-        pidfile => $pidfile,
-        manager => $manager,
-        detach  => $detach,
+    {
+        nproc       => $nproc,
+        pidfile     => $pidfile,
+        manager     => $manager,
+        detach      => $detach,
         keep_stderr => $keep_stderr,
     }
 );

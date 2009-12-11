@@ -26,64 +26,71 @@ Statweb::Controller::Root - Root Controller for Statweb
 
 =cut
 
-sub index :Path :Args(0) {
-    my ( $self, $c ) = @_;
+sub index : Path : Args(0) {
+    my ($self, $c) = @_;
 
     # Hello World
     # $c->response->body( $c->welcome_message );
-    
-    $c->stash({
-        now => scalar(localtime),
-        dset => [$c->model('DB::Domainset')->all]
-    });
+
+    $c->stash(
+        {
+            now  => scalar(localtime),
+            dset => [$c->model('DB::Domainset')->all]
+        }
+    );
 }
 
-sub default :Path {
-    my ( $self, $c ) = @_;
-    $c->response->body( 'Page not found' );
+sub default : Path {
+    my ($self, $c) = @_;
+    $c->response->body('Page not found');
     $c->response->status(404);
 }
 
-sub begin :Private {
+sub begin : Private {
     my ($self, $c) = @_;
-    
+
     unless ($c->res->content_type) {
         $c->res->content_type('text/html;charset=iso-8859-1');
     }
-    
+
 }
 
-sub auto :Private {
+sub auto : Private {
     my ($self, $c) = @_;
-    
+
     $c->forward('left_bar');
     $c->{zs} = Zonestat->new;
 }
 
-sub left_bar :Private {
+sub left_bar : Private {
     my ($self, $c) = @_;
-    
-    my @runs = grep {$_} map {$c->model('DB::Testrun')->find($_)} keys %{$c->session->{testruns}};
-    my %sets = map {$_->set_id => 1} @runs;
 
-    $c->stash({
-        selected_run_count => scalar(@runs),
-        selected_set_count => scalar(keys %sets),
-        queue_length => $c->model('DB::Queue')->count,
-    })
+    my @runs =
+      grep { $_ }
+      map  { $c->model('DB::Testrun')->find($_) }
+      keys %{ $c->session->{testruns} };
+    my %sets = map { $_->set_id => 1 } @runs;
+
+    $c->stash(
+        {
+            selected_run_count => scalar(@runs),
+            selected_set_count => scalar(keys %sets),
+            queue_length       => $c->model('DB::Queue')->count,
+        }
+    );
 }
 
-sub toggletestrun :Global :Arg(1) {
+sub toggletestrun : Global : Arg(1) {
     my ($self, $c, $trid) = @_;
 
-    my %tr = %{$c->session->{testruns}};
-    
+    my %tr = %{ $c->session->{testruns} };
+
     if ($tr{$trid}) {
         delete $tr{$trid};
     } else {
         $tr{$trid} = 1;
     }
-    
+
     $c->session->{testruns} = \%tr;
     $c->res->redirect('/');
 }
@@ -94,7 +101,8 @@ Attempt to render a view, if needed.
 
 =cut
 
-sub end : ActionClass('RenderView') {}
+sub end : ActionClass('RenderView') {
+}
 
 =head1 AUTHOR
 

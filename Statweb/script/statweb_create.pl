@@ -7,7 +7,7 @@ use Pod::Usage;
 eval "use Catalyst::Helper;";
 
 if ($@) {
-  die <<END;
+    die <<END;
 To use the Catalyst development tools including catalyst.pl and the
 generated script/myapp_create.pl you need Catalyst::Helper, which is
 part of the Catalyst-Devel distribution. Please install this via a
@@ -26,13 +26,13 @@ GetOptions(
     'nonew|force'    => \$force,
     'mech|mechanize' => \$mech,
     'help|?'         => \$help
- );
+);
 
-pod2usage(1) if ( $help || !$ARGV[0] );
+pod2usage(1) if ($help || !$ARGV[0]);
 
-my $helper = Catalyst::Helper->new( { '.newfiles' => !$force, mech => $mech } );
+my $helper = Catalyst::Helper->new({ '.newfiles' => !$force, mech => $mech });
 
-pod2usage(1) unless $helper->mk_component( 'Statweb', @ARGV );
+pod2usage(1) unless $helper->mk_component('Statweb', @ARGV);
 
 1;
 

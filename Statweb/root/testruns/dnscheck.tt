@@ -1,5 +1,75 @@
 [% META title = 'DNSCheck Statistics' %]
 
-<a href="[% c.uri_for('/') %]">(Back to top)</a>
-
 <h1>DNSCheck statistics for [% pagetitle %]</h1>
+
+<h2>Common errors</h2>
+<p>
+    This table reports the percentage of tested domains for which DNSCheck
+    reported a particular error, from the most common error on down.
+</p>
+
+<table>
+    <tr>
+        <th>Errors</th>
+        [% FOREACH n IN trs -%]
+           <th>[% n.domainset.name %] [% n.name %]</th>
+        [% END -%]
+    </tr>
+    [% FOREACH mess IN eorder -%]
+        <tr class="[% loop.parity %]">
+            <td>
+                [% mess %]
+                <p class="information">[% descriptions.$mess %]</p>
+            </td>
+            [% FOREACH n IN trs -%]
+            <td class="numeric">
+                [% 100 * (errors.${mess}.${n.id} / n.tests.size) FILTER format('%0.2f') %]%
+            </td>
+            [% END -%]
+        </tr>
+    [% END -%]
+</table>
+
+<h2>Common warnings</h2>
+<p>
+    This table reports the percentage of tested domains for which DNSCheck
+    reported a particular warning, from the most common warning on down.
+</p>
+
+<table>
+    <tr>
+        <th>Warnings</th>
+        [% FOREACH n IN trs -%]
+           <th>[% n.domainset.name %] [% n.name %]</th>
+        [% END -%]
+    </tr>
+    [% FOREACH mess IN worder -%]
+        <tr class="[% loop.parity %]">
+            <td>
+                [% mess %]
+                <p class="information">[% descriptions.$mess %]</p>
+            </td>
+            [% FOREACH n IN trs -%]
+            <td class="numeric">
+                [% 100 * (warnings.${mess}.${n.id} / n.tests.size) FILTER format('%0.2f') %]%
+            </td>
+            [% END -%]
+        </tr>
+    [% END -%]
+</table>
+
+<h2>Distribution of problems</h2>
+<p><& /table/message_bands, tid => \@tid, level => 'CRITICAL' &></p>
+<p><& /table/message_bands, tid => \@tid, level => 'ERROR' &></p>
+<p><& /table/message_bands, tid => \@tid, level => 'WARNING' &></p>
+
+<h2>Number of tests by highest severity problem</h2>
+<p>
+
+    This table reports the number of domains by the most severe problem
+    reported for it by DNSCheck. So first is the number of domains with a
+    CRITICAL problem, then the number with ERROR but not CRITICAL, then those
+    with WARNING but not CRITICAL or ERROR and so on.
+
+</p>
+<& /table/max_severity, sid => \@tid &>

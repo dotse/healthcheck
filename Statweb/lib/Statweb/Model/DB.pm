@@ -11,9 +11,11 @@ my ($connect, $user, $pwd) = Zonestat->new->dbconfig;
 
 __PACKAGE__->config(
     schema_class => 'Zonestat::DBI',
-    connect_info => [$connect, $user, $pwd, {AutoCommit => 1, RaiseError => 1, PrintError => 0}],
+    connect_info => [
+        $connect, $user,
+        $pwd, { AutoCommit => 1, RaiseError => 1, PrintError => 0 }
+    ],
 );
-
 
 =head1 NAME
 

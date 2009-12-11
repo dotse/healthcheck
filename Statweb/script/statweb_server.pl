@@ -13,15 +13,15 @@ use Pod::Usage;
 use FindBin;
 use lib "$FindBin::Bin/../lib";
 
-my $debug             = 0;
-my $fork              = 0;
-my $help              = 0;
-my $host              = undef;
-my $port              = $ENV{STATWEB_PORT} || $ENV{CATALYST_PORT} || 3000;
-my $keepalive         = 0;
-my $restart           = $ENV{STATWEB_RELOAD} || $ENV{CATALYST_RELOAD} || 0;
-my $background        = 0;
-my $pidfile           = undef;
+my $debug      = 0;
+my $fork       = 0;
+my $help       = 0;
+my $host       = undef;
+my $port       = $ENV{STATWEB_PORT} || $ENV{CATALYST_PORT} || 3000;
+my $keepalive  = 0;
+my $restart    = $ENV{STATWEB_RELOAD} || $ENV{CATALYST_RELOAD} || 0;
+my $background = 0;
+my $pidfile    = undef;
 
 my $check_interval;
 my $file_regex;
@@ -48,7 +48,7 @@ GetOptions(
 
 pod2usage(1) if $help;
 
-if ( $debug ) {
+if ($debug) {
     $ENV{CATALYST_DEBUG} = 1;
 }
 
@@ -61,6 +61,7 @@ require Catalyst;
 $| = 1 if $ENV{HARNESS_ACTIVE};
 
 my $runner = sub {
+
     # This is require instead of use so that the above environment
     # variables can be set at runtime.
     require Statweb;
@@ -77,9 +78,9 @@ my $runner = sub {
     );
 };
 
-if ( $restart ) {
+if ($restart) {
     die "Cannot run in the background and also watch for changed files.\n"
-        if $background;
+      if $background;
 
     require Catalyst::Restarter;
 
@@ -87,13 +88,13 @@ if ( $restart ) {
 
     my %args;
     $args{follow_symlinks} = 1
-        if $follow_symlinks;
+      if $follow_symlinks;
     $args{directories} = $watch_directory
-        if defined $watch_directory;
+      if defined $watch_directory;
     $args{sleep_interval} = $check_interval
-        if defined $check_interval;
+      if defined $check_interval;
     $args{filter} = qr/$file_regex/
-        if defined $file_regex;
+      if defined $file_regex;
 
     my $restarter = $subclass->new(
         %args,
@@ -102,8 +103,7 @@ if ( $restart ) {
     );
 
     $restarter->run_and_watch;
-}
-else {
+} else {
     $runner->();
 }
 

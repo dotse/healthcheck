@@ -7,8 +7,8 @@ use base 'Catalyst::View::TT';
 
 __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.tt',
-    WRAPPER => 'wrapper.tt',
-    TIMER => 1,
+    WRAPPER            => 'wrapper.tt',
+    TIMER              => 1,
 );
 
 =head1 NAME

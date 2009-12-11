@@ -5,10 +5,11 @@ use strict;
 use Module::Install::Base ();
 
 use vars qw{$VERSION @ISA $ISCORE};
+
 BEGIN {
-	$VERSION = '0.91';
-	@ISA     = 'Module::Install::Base';
-	$ISCORE  = 1;
+    $VERSION = '0.91';
+    @ISA     = 'Module::Install::Base';
+    $ISCORE  = 1;
 }
 
 sub AutoInstall { $_[0] }
@@ -29,7 +30,7 @@ sub auto_install {
 
     # Flatten array of arrays into a single array
     my @core = map @$_, map @$_, grep ref,
-               $self->build_requires, $self->requires;
+      $self->build_requires, $self->requires;
 
     my @config = @_;
 
@@ -43,13 +44,11 @@ sub auto_install {
         $self->features,
     );
 
-    $self->makemaker_args( Module::AutoInstall::_make_args() );
+    $self->makemaker_args(Module::AutoInstall::_make_args());
 
     my $class = ref($self);
     $self->postamble(
-        "# --- $class section:\n" .
-        Module::AutoInstall::postamble()
-    );
+        "# --- $class section:\n" . Module::AutoInstall::postamble());
 }
 
 sub auto_install_now {

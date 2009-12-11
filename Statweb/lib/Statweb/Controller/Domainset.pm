@@ -16,20 +16,20 @@ Catalyst Controller.
 
 =cut
 
-
 =head2 index
 
 =cut
 
-sub index :Path :Args(1) {
-    my ( $self, $c, $id ) = @_;
-    
-    $c->stash({
-        dset => $c->model('DB::Domainset')->find($id),
-        template => 'domainset/index.tt'
-    });
-}
+sub index : Path : Args(1) {
+    my ($self, $c, $id) = @_;
 
+    $c->stash(
+        {
+            dset     => $c->model('DB::Domainset')->find($id),
+            template => 'domainset/index.tt'
+        }
+    );
+}
 
 =head1 AUTHOR
 
