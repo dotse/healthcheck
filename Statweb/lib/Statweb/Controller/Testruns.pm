@@ -197,6 +197,7 @@ sub servers : Local : Args(0) {
     my ($self, $c) = @_;
     my $db = $c->model('DB::Testrun');
     my @trs =
+      sort { $b->tests->count <=> $a->tests->count }
       grep { $_ } map { $db->find($_) } keys %{ $c->session->{testruns} };
     my $name;
     my %data;
@@ -231,11 +232,38 @@ sub servers : Local : Args(0) {
         }
     }
 
+    my %ns_per_asn_v4 = $p->nameservers_per_asn(0, @trs);
+    my %ns_per_asn_v6 = $p->nameservers_per_asn(1, @trs);
+    my %asnames;
+    my $asn = $c->model('DB::Asdata');
+
+    foreach my $as (keys %ns_per_asn_v4, keys %ns_per_asn_v6) {
+        my $r = $asn->search({ asn => $as });
+        if (defined($r) and defined($r->first)) {
+            $asnames{$as} = $r->first->asname;
+        } else {
+            $asnames{$as} = 'No name';
+        }
+    }
+
+    my @asv4order = sort {
+        $ns_per_asn_v4{$b}{ $trs[0]->id } <=> $ns_per_asn_v4{$a}{ $trs[0]->id }
+    } keys %ns_per_asn_v4;
+    my @asv6order = sort {
+        $ns_per_asn_v6{$b}{ $trs[0]->id } <=> $ns_per_asn_v6{$a}{ $trs[0]->id }
+    } keys %ns_per_asn_v6;
+
     $c->stash(
         {
-            template  => 'testruns/servers.tt',
-            pagetitle => $name,
-            data      => \%data,
+            template      => 'testruns/servers.tt',
+            pagetitle     => $name,
+            trs           => \@trs,
+            data          => \%data,
+            ns_per_asn_v4 => \%ns_per_asn_v4,
+            ns_per_asn_v6 => \%ns_per_asn_v6,
+            asv4order     => \@asv4order,
+            asv6order     => \@asv6order,
+            asnames       => \%asnames,
         }
     );
 }

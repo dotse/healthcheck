@@ -1,5 +1,3 @@
 [% META title = 'Webserver Statistics' %]
 
-<a href="[% c.uri_for('/') %]">(Back to top)</a>
-
 <h1>Web statistics for [% pagetitle %]</h1>

@@ -24,3 +24,57 @@
         </table>
     [% END -%]
 [% END %]
+
+<h2>ASNs hosting most domains (ipv4)</h2>
+
+<table>
+    <tr>
+        <th>ASN</th>
+        [% FOREACH tr IN trs -%]
+        <th>
+            [% tr.domainset.name %] [% tr.name %]
+        </th>
+        [% END -%]
+    </tr>
+    [% FOREACH o IN asv4order -%]
+        <tr class="[% loop.parity %]">
+        <td>
+        [% IF o -%]
+            AS[% o %] ([% asnames.$o %])
+        [% ELSE -%]
+           No information.
+        [% END %]
+        </td>
+        [% FOREACH tr IN trs -%]
+           <td class="numeric">[% ns_per_asn_v4.$o.${tr.id} %]</td>
+        [% END -%]
+        </tr>
+    [% END -%]
+</table>
+
+<h2>ASNs hosting most domains (ipv6)</h2>
+
+<table>
+    <tr>
+        <th>ASN</th>
+        [% FOREACH tr IN trs -%]
+        <th>
+            [% tr.domainset.name %] [% tr.name %]
+        </th>
+        [% END -%]
+    </tr>
+    [% FOREACH o IN asv6order -%]
+        <tr class="[% loop.parity %]">
+        <td>
+        [% IF o -%]
+            AS[% o %] ([% asnames.$o %])
+        [% ELSE -%]
+           No information.
+        [% END %]
+        </td>
+        [% FOREACH tr IN trs -%]
+           <td class="numeric">[% ns_per_asn_v6.$o.${tr.id} %]</td>
+        [% END -%]
+        </tr>
+    [% END -%]
+</table>
