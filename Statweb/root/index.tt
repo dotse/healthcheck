@@ -20,8 +20,7 @@
                     [% IF d.testruns.size > 0 -%]
                     <ul class="testrunlist">
                         [% FOREACH tr IN d.testruns -%]
-                        [% id = tr.id %]
-                        [% IF c.session.testruns.$id == 1 -%]
+                        [% IF c.session.testruns.${tr.id} == 1 -%]
                         <li class="selected">
                         [% ELSE -%]
                         <li class="unselected">

@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use parent 'Catalyst::Controller';
 
+use Data::Dumper;
+
 =head1 NAME
 
 Statweb::Controller::Testruns - Catalyst Controller
@@ -165,7 +167,22 @@ sub servers :Local :Args(0) {
         $name = scalar(@trs) . ' testruns';
     }
     
-    $data{names} = [ map {$_->domainset->name . ' ' . $_->name} @trs];
+    $data{names} = { map {$_->id, $_->domainset->name . ' ' . $_->name} @trs};
+    $data{trs} = \@trs;
+    
+    foreach my $kind (qw[dns smtp http]) {
+        foreach my $tr (@trs) {
+            my @s = $p->top_foo_servers($kind, $tr, 25);
+            $data{$kind}{$tr->id} = [map {
+                {
+                    reverse => $_->reverse,
+                    count => $_->get_column('count'),
+                    location => join(', ', grep {$_} ($_->city, $_->country)),
+                    geourl => sprintf('http://maps.google.com/maps?q=%02.2f+%02.2f', $_->latitude, $_->longitude)
+                }
+            } @s];
+        }
+    }
     
     $c->stash({
        template => 'testruns/servers.tt', 

@@ -1,5 +1,26 @@
-[% META title = 'Mail- and DNS-server Statistics' %]
-
-<a href="[% c.uri_for('/') %]">(Back to top)</a>
+[% META title = 'Mail-, HTTP- and DNS-server Statistics' %]
 
 <h1>Server statistics for [% pagetitle %]</h1>
+
+[% FOREACH kind IN [ 'dns' 'http' 'smtp' ] -%]
+    <h2>Top 25 servers serving [% kind FILTER upper %] for each run</h2>
+    [% FOREACH tr IN data.trs -%]
+        <table>
+            <tr>
+                <th colspan="3">[% data.names.${tr.id} %]</th>
+            </tr>
+            <tr>
+                <th>Count</th>
+                <th>Reverse lookup</th>
+                <th>Location</th>
+            </tr>
+            [% FOREACH s IN data.$kind.${tr.id} -%]
+            <tr>
+                <td>[% s.count %]</td>
+                <td>[% s.reverse %]</td>
+                <td><a href="[% s.geourl %]" target="_blank">[% s.location %]</a></td>
+            </tr>
+            [% END -%]
+        </table>
+    [% END -%]
+[% END %]
