@@ -164,6 +164,9 @@ sub dnscheck : Local : Args(0) {
             $band{$level}{$tr->id} = [$p->message_bands($tr, $level)];
         }
     }
+    
+    # "Max severity" table
+    my %severity = $p->tests_with_max_severity(@trs);
 
     if (@trs == 1) {
         $name = $trs[0]->name;
@@ -185,6 +188,7 @@ sub dnscheck : Local : Args(0) {
             trs          => \@trs,
             descriptions => \%descriptions,
             band => \%band,
+            severity => \%severity,
         }
     );
 }
@@ -234,6 +238,12 @@ sub servers : Local : Args(0) {
             data      => \%data,
         }
     );
+}
+
+sub by_level :Local :Args(2) {
+    my ($self, $c, $level, $trid) = @_;
+    
+    $c->res->body("$level $trid")
 }
 
 =head1 AUTHOR
