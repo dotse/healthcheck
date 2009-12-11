@@ -1,0 +1,28 @@
+<h1>Tests in [% tr.domainset.name %] [% tr.name %] with results at level [% level | upper %]</h1>
+
+<table>
+    <tr>
+        <th>Domain</th>
+        <th>Critical</th>
+        <th>Error</th>
+        <th>Warning</th>
+        <th>Notice</th>
+        <th>Info</th>
+    </tr>
+    [% FOREACH t IN tests -%]
+        <tr class="[% loop.parity %]">
+            <td>
+            [% IF t.results.size > 0 -%]
+                <a href="[% c.uri_for('/test', t.id) %]">[% t.domain %]</a>
+            [% ELSE -%]
+                [% t.domain %]
+            [% END -%]
+            </td>
+            <td class="numeric">[% t.count_critical %]</td>
+            <td class="numeric">[% t.count_error %]</td>
+            <td class="numeric">[% t.count_warning %]</td>
+            <td class="numeric">[% t.count_notice %]</td>
+            <td class="numeric">[% t.count_info %]</td>
+        </tr>
+    [% END -%]
+</table>

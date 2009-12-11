@@ -161,10 +161,10 @@ sub dnscheck : Local : Args(0) {
     my %band;
     foreach my $level (qw[CRITICAL ERROR WARNING]) {
         foreach my $tr (@trs) {
-            $band{$level}{$tr->id} = [$p->message_bands($tr, $level)];
+            $band{$level}{ $tr->id } = [$p->message_bands($tr, $level)];
         }
     }
-    
+
     # "Max severity" table
     my %severity = $p->tests_with_max_severity(@trs);
 
@@ -187,8 +187,8 @@ sub dnscheck : Local : Args(0) {
             worder       => \@worder,
             trs          => \@trs,
             descriptions => \%descriptions,
-            band => \%band,
-            severity => \%severity,
+            band         => \%band,
+            severity     => \%severity,
         }
     );
 }
@@ -240,10 +240,21 @@ sub servers : Local : Args(0) {
     );
 }
 
-sub by_level :Local :Args(2) {
+sub view_by_level : Local : Args(2) {
     my ($self, $c, $level, $trid) = @_;
-    
-    $c->res->body("$level $trid")
+    my $tr = $c->model('DB::Testrun')->find($trid);
+    my @tests =
+      $tr->search_related('tests', { 'count_' . lc($level) => { '>', 0 } })
+      ->all;
+
+    $c->stash(
+        {
+            template => 'testruns/view_by_level.tt',
+            tr       => $tr,
+            level    => $level,
+            tests    => \@tests,
+        }
+    );
 }
 
 =head1 AUTHOR
