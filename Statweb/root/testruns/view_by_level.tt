@@ -13,7 +13,7 @@
         <tr class="[% loop.parity %]">
             <td>
             [% IF t.results.size > 0 -%]
-                <a href="[% c.uri_for('/test', t.id) %]">[% t.domain %]</a>
+                <a href="[% c.uri_for('/tests', t.id) %]">[% t.domain %]</a>
             [% ELSE -%]
                 [% t.domain %]
             [% END -%]
