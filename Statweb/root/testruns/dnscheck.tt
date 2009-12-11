@@ -59,9 +59,33 @@
 </table>
 
 <h2>Distribution of problems</h2>
-<p><& /table/message_bands, tid => \@tid, level => 'CRITICAL' &></p>
-<p><& /table/message_bands, tid => \@tid, level => 'ERROR' &></p>
-<p><& /table/message_bands, tid => \@tid, level => 'WARNING' &></p>
+
+[% FOREACH level IN ['CRITICAL' 'ERROR' 'WARNING'] -%]
+    <p>
+        <table>
+            <tr>
+                <th colspan="5">[% level %]</th>
+            </tr>
+            <tr>
+                <th>Name</th>
+                <th>0</th>
+                <th>1</th>
+                <th>2</th>
+                <th>3 or more</th>
+            </tr>
+            [% FOREACH tr IN trs -%]
+                <tr class="[% loop.parity %]">
+                    <th>[% tr.domainset.name %]<br>[% tr.name %]</th>
+                [% FOREACH n IN band.$level.${tr.id} -%]
+                    <td class="numeric">
+                        [% n -%]
+                    </td>
+                [% END -%]
+                </tr>
+            [% END -%]
+        </table>
+    </p>
+[% END -%]
 
 <h2>Number of tests by highest severity problem</h2>
 <p>

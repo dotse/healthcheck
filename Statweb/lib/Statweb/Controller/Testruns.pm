@@ -157,6 +157,14 @@ sub dnscheck : Local : Args(0) {
         $descriptions{$m} = $p->lookup_desc($m);
     }
 
+    # "Message band" tables.
+    my %band;
+    foreach my $level (qw[CRITICAL ERROR WARNING]) {
+        foreach my $tr (@trs) {
+            $band{$level}{$tr->id} = [$p->message_bands($tr, $level)];
+        }
+    }
+
     if (@trs == 1) {
         $name = $trs[0]->name;
     } else {
@@ -176,6 +184,7 @@ sub dnscheck : Local : Args(0) {
             worder       => \@worder,
             trs          => \@trs,
             descriptions => \%descriptions,
+            band => \%band,
         }
     );
 }
