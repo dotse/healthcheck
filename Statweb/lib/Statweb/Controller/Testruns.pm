@@ -5,6 +5,7 @@ use warnings;
 use parent 'Catalyst::Controller';
 
 use Data::Dumper;
+use Time::HiRes qw[time];
 
 =head1 NAME
 
@@ -140,6 +141,7 @@ sub dnscheck : Local : Args(0) {
     my @trs =
       sort { $b->tests->count <=> $a->tests->count }
       grep { $_ } map { $db->find($_) } keys %{ $c->session->{testruns} };
+    my %sizes = map {$_->id, $_->tests->count} @trs;
     my $name;
     my %data;
     my $p        = $c->{zs}->present;
@@ -189,6 +191,7 @@ sub dnscheck : Local : Args(0) {
             descriptions => \%descriptions,
             band         => \%band,
             severity     => \%severity,
+            sizes => \%sizes,
         }
     );
 }

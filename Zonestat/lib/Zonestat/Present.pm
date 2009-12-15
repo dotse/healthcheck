@@ -53,24 +53,31 @@ sub number_of_domains_with_message {
     my $level = shift;
     my @trs   = @_;
     my %res;
+    my $key =
+        'number_of_domains_with_message ' 
+      . $level . ' '
+      . join(' ', sort map { $_->id } @trs);
 
-    foreach my $tr (@trs) {
-        my $mr = $tr->search_related('tests', {})->search_related(
-            'results',
-            { level    => $level },
-            { group_by => ['message'] }
-        );
-        while (my $m = $mr->next) {
-            $res{ $m->message }{ $tr->id } =
-              $tr->search_related('tests', {})->search_related(
+    unless ($self->chi->is_valid($key)) {
+        foreach my $tr (@trs) {
+            my $mr = $tr->search_related('tests', {})->search_related(
                 'results',
-                { message  => $m->message },
-                { group_by => ['test_id'] }
-              )->count;
+                { level    => $level },
+                { group_by => ['message'] }
+            );
+            while (my $m = $mr->next) {
+                $res{ $m->message }{ $tr->id } =
+                  $tr->search_related('tests', {})->search_related(
+                    'results',
+                    { message  => $m->message },
+                    { group_by => ['test_id'] }
+                  )->count;
+            }
         }
+        $self->chi->set($key, \%res);
     }
 
-    return %res;
+    return %{ $self->chi->get($key) };
 }
 
 sub number_of_servers_with_software {
@@ -84,17 +91,26 @@ sub webservers_by_field {
     my %res;
 
     foreach my $s (@tr) {
-        my @data = $s->search_related(
-            'webservers',
-            { https => ($https ? 1 : 0) },
-            {
-                select   => [$field, { count => '*' }],
-                as       => [$field, 'count'],
-                group_by => [$field],
-                order_by => ['count(*) DESC'],
-            }
-        )->all;
-        foreach my $row (@data) {
+        my $key =
+          'webservers_per_field ' . $field . ' ' . $s->id . ' ' . $https;
+        unless ($self->chi->is_valid($key)) {
+            $self->chi->set(
+                $key,
+                [
+                    $s->search_related(
+                        'webservers',
+                        { https => ($https ? 1 : 0) },
+                        {
+                            select   => [$field, { count => '*' }],
+                            as       => [$field, 'count'],
+                            group_by => [$field],
+                            order_by => ['count(*) DESC'],
+                        }
+                      )->all
+                ]
+            );
+        }
+        foreach my $row (@{ $self->chi->get($key) }) {
             $res{ lc($row->get_column($field)) }{ $s->id } =
               $row->get_column('count');
         }
@@ -167,43 +183,48 @@ sub tests_with_max_severity {
     my @ds   = @_;
 
     my %res;
+    my $key = 'tests_with_max_severity ' . join(' ', sort map { $_->id } @ds);
 
-    foreach my $ds (@ds) {
-        $res{critical}{ $ds->id } =
-          $ds->search_related('tests', { count_critical => { '>', 0 } })->count;
-        $res{error}{ $ds->id } =
-          $ds->search_related('tests',
-            { count_critical => 0, count_error => { '>', 0 } })->count;
-        $res{warning}{ $ds->id } = $ds->search_related(
-            'tests',
-            {
-                count_critical => 0,
-                count_error    => 0,
-                count_warning  => { '>', 0 }
-            }
-        )->count;
-        $res{notice}{ $ds->id } = $ds->search_related(
-            'tests',
-            {
-                count_critical => 0,
-                count_error    => 0,
-                count_warning  => 0,
-                count_notice   => { '>', 0 }
-            }
-        )->count;
-        $res{info}{ $ds->id } = $ds->search_related(
-            'tests',
-            {
-                count_critical => 0,
-                count_error    => 0,
-                count_warning  => 0,
-                count_notice   => 0,
-                count_info     => { '>', 0 }
-            }
-        )->count;
+    unless ($self->chi->is_valid($key)) {
+        foreach my $ds (@ds) {
+            $res{critical}{ $ds->id } =
+              $ds->search_related('tests', { count_critical => { '>', 0 } })
+              ->count;
+            $res{error}{ $ds->id } =
+              $ds->search_related('tests',
+                { count_critical => 0, count_error => { '>', 0 } })->count;
+            $res{warning}{ $ds->id } = $ds->search_related(
+                'tests',
+                {
+                    count_critical => 0,
+                    count_error    => 0,
+                    count_warning  => { '>', 0 }
+                }
+            )->count;
+            $res{notice}{ $ds->id } = $ds->search_related(
+                'tests',
+                {
+                    count_critical => 0,
+                    count_error    => 0,
+                    count_warning  => 0,
+                    count_notice   => { '>', 0 }
+                }
+            )->count;
+            $res{info}{ $ds->id } = $ds->search_related(
+                'tests',
+                {
+                    count_critical => 0,
+                    count_error    => 0,
+                    count_warning  => 0,
+                    count_notice   => 0,
+                    count_info     => { '>', 0 }
+                }
+            )->count;
+        }
+        $self->chi->set($key, \%res);
     }
 
-    return %res;
+    return %{ $self->chi->get($key) };
 }
 
 sub domainset_being_tested {
@@ -220,32 +241,35 @@ sub top_foo_servers {
     my $tr     = shift;
     my $number = shift || 25;
 
-    my $key = 'top_foo_servers '. $kind . ' ' . $tr->id . ' ' . $number;
+    my $key = 'top_foo_servers ' . $kind . ' ' . $tr->id . ' ' . $number;
 
     unless ($self->chi->is_valid($key)) {
         $self->chi->set(
             $key,
-            [$self->dbx('Server')->search(
-                { kind => $kind, run_id => $tr->id },
-                {
-                    select => [
-                        qw[ip latitude longitude country code city asn],
-                        { count => '*' }
-                    ],
-                    as => [
-                        qw[ip latitude longitude country code city asn], 'count'
-                    ],
-                    group_by =>
-                      [qw[ip latitude longitude country code city asn]],
-                    order_by => ['count(*) DESC'],
-                    rows     => $number
-                }
-              )->all]
+            [
+                $self->dbx('Server')->search(
+                    { kind => $kind, run_id => $tr->id },
+                    {
+                        select => [
+                            qw[ip latitude longitude country code city asn],
+                            { count => '*' }
+                        ],
+                        as => [
+                            qw[ip latitude longitude country code city asn],
+                            'count'
+                        ],
+                        group_by =>
+                          [qw[ip latitude longitude country code city asn]],
+                        order_by => ['count(*) DESC'],
+                        rows     => $number
+                    }
+                  )->all
+            ]
         );
         warn "Regenerated data for '$key'.\n";
     }
 
-    return @{$self->chi->get($key)};
+    return @{ $self->chi->get($key) };
 }
 
 sub google_mapchart_url {
@@ -477,15 +501,20 @@ sub mailservers_in_sweden {
 sub message_bands {
     my $self = shift;
     my ($tr, $level) = @_;
+    my $cache_key = 'message_bands ' . $tr->id . ' ' . $level;
 
-    my $key = lc('count_' . $level);
+    unless ($self->chi->is_valid($cache_key)) {
+        my $key = lc('count_' . $level);
 
-    my $r0 = $tr->search_related('tests', { $key => 0 })->count;
-    my $r1 = $tr->search_related('tests', { $key => 1 })->count;
-    my $r2 = $tr->search_related('tests', { $key => 2 })->count;
-    my $rn = $tr->search_related('tests', { $key => { '>=', 3 } })->count;
+        my $r0 = $tr->search_related('tests', { $key => 0 })->count;
+        my $r1 = $tr->search_related('tests', { $key => 1 })->count;
+        my $r2 = $tr->search_related('tests', { $key => 2 })->count;
+        my $rn = $tr->search_related('tests', { $key => { '>=', 3 } })->count;
 
-    return ($r0, $r1, $r2, $rn);
+        $self->chi->set($cache_key, [$r0, $r1, $r2, $rn]);
+    }
+
+    return @{ $self->chi->get($cache_key) };
 }
 
 sub lookup_desc {

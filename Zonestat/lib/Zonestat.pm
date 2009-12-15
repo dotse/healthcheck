@@ -156,7 +156,7 @@ sub chi {
     ) unless defined($self->{chi});
 
     $DBIx::Class::ResultSourceHandle::thaw_schema = $self->schema;
-    
+
     return $self->{chi};
 }
 

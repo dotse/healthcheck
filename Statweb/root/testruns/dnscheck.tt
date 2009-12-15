@@ -23,7 +23,7 @@
             </td>
             [% FOREACH n IN trs -%]
             <td class="numeric">
-                [% 100 * (errors.${mess}.${n.id} / n.tests.size) FILTER format('%0.2f') %]%
+                [% 100 * (errors.${mess}.${n.id} / sizes.${n.id}) FILTER format('%0.2f') %]%
             </td>
             [% END -%]
         </tr>
@@ -51,7 +51,7 @@
             </td>
             [% FOREACH n IN trs -%]
             <td class="numeric">
-                [% 100 * (warnings.${mess}.${n.id} / n.tests.size) FILTER format('%0.2f') %]%
+                [% 100 * (warnings.${mess}.${n.id} / sizes.${n.id}) FILTER format('%0.2f') %]%
             </td>
             [% END -%]
         </tr>
