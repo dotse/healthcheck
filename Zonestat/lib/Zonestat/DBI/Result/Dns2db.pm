@@ -1,7 +1,7 @@
 package Zonestat::DBI::Result::Dns2db;
 use base 'DBIx::Class';
 
-__PACKAGE__->load_components(qw[Core]);
+__PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('dns2db');
 __PACKAGE__->add_columns(qw[id imported_at server]);
 __PACKAGE__->set_primary_key('id');

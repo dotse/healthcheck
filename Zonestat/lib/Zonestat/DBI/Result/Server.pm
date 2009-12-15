@@ -3,7 +3,7 @@ use base 'DBIx::Class';
 
 use Socket;
 
-__PACKAGE__->load_components(qw[Core]);
+__PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('server');
 __PACKAGE__->add_columns(
     qw[id kind country ip ipv6 asn city latitude longitude run_id domain_id created_at code]

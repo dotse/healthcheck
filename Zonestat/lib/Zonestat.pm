@@ -15,8 +15,9 @@ use Zonestat::Present;
 use Zonestat::User;
 
 use Module::Find;
+use CHI;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 sub new {
     my $class = shift;
@@ -140,6 +141,23 @@ sub dbh {
       unless defined($dbh);
     $self->{dbh} = $dbh;
     return $dbh;
+}
+
+sub chi {
+    my $self = shift;
+
+    $self->{chi} = CHI->new(
+        driver       => 'DBI',
+        dbh          => $self->dbh,
+        namespace    => __PACKAGE__,
+        on_set_error => 'die',
+        on_get_error => 'die',
+        create_table => 1,
+    ) unless defined($self->{chi});
+
+    $DBIx::Class::ResultSourceHandle::thaw_schema = $self->schema;
+    
+    return $self->{chi};
 }
 
 sub schema {

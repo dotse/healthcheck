@@ -43,8 +43,9 @@ our $zs = Zonestat->new;
 
 sub testruns {
     my $self = shift;
-    
-    return map {$zs->dbx('Testrun')->find($_)} sort keys %{$self->session->{testruns}};
+
+    return map { $zs->dbx('Testrun')->find($_) }
+      sort keys %{ $self->session->{testruns} };
 }
 
 ###
@@ -75,7 +76,7 @@ sub toggletestrun {
     my $self = shift;
     my $tid  = $self->args->{tid};
 
-    my %trs = %{$self->session->{testruns}};
+    my %trs = %{ $self->session->{testruns} };
 
     if ($trs{$tid}) {
         delete $trs{$tid};

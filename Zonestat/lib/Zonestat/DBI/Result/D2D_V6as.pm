@@ -1,7 +1,7 @@
 package Zonestat::DBI::Result::D2D_V6as;
 use base 'DBIx::Class';
 
-__PACKAGE__->load_components(qw[Core]);
+__PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('d2d_v6as');
 __PACKAGE__->add_columns(
     qw[id foreign_id date count asname country description dns2db_id]);

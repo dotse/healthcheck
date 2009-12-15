@@ -1,7 +1,7 @@
 package Zonestat::DBI::Result::Domains;
 use base 'DBIx::Class';
 
-__PACKAGE__->load_components(qw[Core]);
+__PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('domains');
 __PACKAGE__->add_columns(qw[id domain last_test last_import]);
 __PACKAGE__->set_primary_key('id');

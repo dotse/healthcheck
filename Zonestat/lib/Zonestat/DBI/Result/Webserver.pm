@@ -3,7 +3,7 @@ use base 'DBIx::Class';
 use Storable qw[nfreeze thaw];
 use MIME::Base64;
 
-__PACKAGE__->load_components(qw[Core]);
+__PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('webserver');
 __PACKAGE__->add_columns(
     qw[id raw_type type version created_at domain_id https issuer testrun_id ip url

@@ -3,7 +3,7 @@ use base 'DBIx::Class';
 use Date::Parse;
 use POSIX qw[strftime];
 
-__PACKAGE__->load_components(qw[Core]);
+__PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('tests');
 __PACKAGE__->add_columns(
     qw[id domain source_id source_data count_critical count_error

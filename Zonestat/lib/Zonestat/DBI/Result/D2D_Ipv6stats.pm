@@ -1,7 +1,7 @@
 package Zonestat::DBI::Result::D2D_Ipv6stats;
 use base 'DBIx::Class';
 
-__PACKAGE__->load_components(qw[Core]);
+__PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('d2d_ipv6stats');
 __PACKAGE__->add_columns(
     qw[id datum tid iptot ipv6total ipv6aaaa ipv6ns

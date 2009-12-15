@@ -1,7 +1,7 @@
 package Zonestat::DBI::Result::Results;
 use base 'DBIx::Class';
 
-__PACKAGE__->load_components(qw[Core]);
+__PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('results');
 __PACKAGE__->add_columns(
     qw[id test_id line module_id parent_module_id timestamp level message

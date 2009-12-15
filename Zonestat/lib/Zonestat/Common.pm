@@ -46,6 +46,12 @@ sub dbx {
     return $self->parent->dbx($table);
 }
 
+sub chi {
+    my $self = shift;
+
+    return $self->parent->chi;
+}
+
 sub source_id {
     my $self = shift;
 

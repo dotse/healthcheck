@@ -8,6 +8,7 @@ use base 'Zonestat::Common';
 
 use YAML 'LoadFile';
 use Config;
+use Storable qw[freeze thaw];
 
 our $VERSION = '0.01';
 
@@ -219,19 +220,32 @@ sub top_foo_servers {
     my $tr     = shift;
     my $number = shift || 25;
 
-    return $self->dbx('Server')->search(
-        { kind => $kind, run_id => $tr->id },
-        {
-            select => [
-                qw[ip latitude longitude country code city asn],
-                { count => '*' }
-            ],
-            as => [qw[ip latitude longitude country code city asn], 'count'],
-            group_by => [qw[ip latitude longitude country code city asn]],
-            order_by => ['count(*) DESC'],
-            rows     => $number
-        }
-    )->all;
+    my $key = 'top_foo_servers '. $kind . ' ' . $tr->id . ' ' . $number;
+
+    unless ($self->chi->is_valid($key)) {
+        $self->chi->set(
+            $key,
+            [$self->dbx('Server')->search(
+                { kind => $kind, run_id => $tr->id },
+                {
+                    select => [
+                        qw[ip latitude longitude country code city asn],
+                        { count => '*' }
+                    ],
+                    as => [
+                        qw[ip latitude longitude country code city asn], 'count'
+                    ],
+                    group_by =>
+                      [qw[ip latitude longitude country code city asn]],
+                    order_by => ['count(*) DESC'],
+                    rows     => $number
+                }
+              )->all]
+        );
+        warn "Regenerated data for '$key'.\n";
+    }
+
+    return @{$self->chi->get($key)};
 }
 
 sub google_mapchart_url {

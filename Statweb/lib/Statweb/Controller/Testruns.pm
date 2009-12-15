@@ -224,8 +224,8 @@ sub servers : Local : Args(0) {
                           location =>
                           join(', ', grep { $_ } ($_->city, $_->country)),
                           geourl =>
-                          sprintf('http://maps.google.com/maps?q=%02.2f+%02.2f',
-                            $_->latitude, $_->longitude)
+                          ($_->latitude and $_->longitude)?sprintf('http://maps.google.com/maps?q=%02.2f+%02.2f',
+                            $_->latitude, $_->longitude):''
                     }
                   } @s
             ];
@@ -249,9 +249,11 @@ sub servers : Local : Args(0) {
     my @asv4order = sort {
         $ns_per_asn_v4{$b}{ $trs[0]->id } <=> $ns_per_asn_v4{$a}{ $trs[0]->id }
     } keys %ns_per_asn_v4;
+    splice @asv4order, 20 if @asv4order > 20;
     my @asv6order = sort {
         $ns_per_asn_v6{$b}{ $trs[0]->id } <=> $ns_per_asn_v6{$a}{ $trs[0]->id }
     } keys %ns_per_asn_v6;
+    splice @asv6order, 20 if @asv6order > 20;
 
     $c->stash(
         {

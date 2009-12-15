@@ -1,7 +1,7 @@
 package Zonestat::DBI::Result::Mailserver;
 use base 'DBIx::Class';
 
-__PACKAGE__->load_components(qw[Core]);
+__PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('mailserver');
 __PACKAGE__->add_columns(
     qw[id name starttls adsp run_id domain_id ip banner spf_spf spf_txt]);
