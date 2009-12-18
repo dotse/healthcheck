@@ -18,6 +18,11 @@ requires (qw[
             Catalyst::Plugin::Session
             Catalyst::Plugin::Session::Store::FastMmap
             Catalyst::Plugin::Session::State::Cookie
+            
+            Time::HiRes
+            Data::Dumper
+            List::Util
+            Text::CSV_XS
             ]);
 
 catalyst;
