@@ -1,0 +1,19 @@
+[% IF message -%]
+    <h2 class="message">[% message %]</h2>
+[% END -%]
+
+<form method="post" action="[% c.uri_for('/user/login') %]">
+    <table>
+        <tr>
+            <td>Username:</td>
+            <td><input name="username" size="40" type="text"></td>
+        </tr>
+        <tr>
+            <td>Password:</td>
+            <td><input name="password" size="40" type="password"></td>
+        </tr>
+        <tr>
+            <td colspan="2"><input type="submit" value="Log in"></td>
+        </tr>
+    </table>
+</form>

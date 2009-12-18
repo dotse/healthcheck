@@ -1,9 +1,13 @@
+[% IF c.user -%]
 <dl id="status">
     <dt>Selected runs:</dt>
     <dd>[% selected_run_count %], in [% selected_set_count %] sets.</dd>
     
     <dt>Queue Length</dt>
-    <dd>[% 0 + c.queue_length %]</dd>
+    <dd>[% 0 + queue_length %]</dd>
+    
+    <dt>User</dt>
+    <dd>[% c.user.name %] (<a href="[% c.uri_for('/user/logout') %]">Logout</a>)</dd>
     
     <dt>Menu</dt>
     <dd id="links">
@@ -15,5 +19,5 @@
             <li><a href="[% c.uri_for('/testruns/servers') %]">Statistics: Servers</a></li>
         </ul>
     </dd>
-    
 </dl>
+[% END %]
