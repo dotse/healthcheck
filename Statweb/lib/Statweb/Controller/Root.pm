@@ -95,6 +95,14 @@ sub toggletestrun : Global : Arg(1) {
     $c->res->redirect('/');
 }
 
+sub clearselection :Global :Arg(0) {
+    my ($self, $c) = @_;
+    
+    $c->session->{testruns} = {};
+    
+    $c->res->redirect('/');
+}
+
 =head2 end
 
 Attempt to render a view, if needed.

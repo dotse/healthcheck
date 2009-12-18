@@ -1,6 +1,8 @@
 <h1>Available domainsets</h1>
 
-[% i = 0 -%]
+<form method="PUT" action="/clearselection">
+    <input type="submit" name="Clear" value="Unselect all selected">
+</form>
 
 <table id="trpresent">
     <tr>
@@ -36,8 +38,7 @@
                 </tr>
             </table>
         </td>
-        [% i = i + 1 -%]
-        [% IF i mod 2 == 0 -%]
+        [% IF loop.index % 2 == 1 -%]
         </tr>
         <tr>
         [% END -%]
