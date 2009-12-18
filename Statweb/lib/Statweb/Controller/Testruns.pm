@@ -6,6 +6,7 @@ use parent 'Catalyst::Controller';
 
 use Data::Dumper;
 use Time::HiRes qw[time];
+use List::Util qw[max];
 
 =head1 NAME
 
@@ -22,6 +23,60 @@ Catalyst Controller.
 =head2 index
 
 =cut
+
+my %http_response_code = (
+    100 => q{Continue},
+    101 => q{Switching Protocols},
+    102 => q{Processing},
+    200 => q{OK},
+    201 => q{Created},
+    202 => q{Accepted},
+    203 => q{Non-Authoritative Information},
+    204 => q{No Content},
+    205 => q{Reset Content},
+    206 => q{Partial Content},
+    207 => q{Multi-Status},
+    226 => q{IM Used},
+    300 => q{Multiple Choices},
+    301 => q{Moved Permanently},
+    302 => q{Found},
+    303 => q{See Other},
+    304 => q{Not Modified},
+    305 => q{Use Proxy},
+    306 => q{Reserved},
+    307 => q{Temporary Redirect},
+    400 => q{Bad Request},
+    401 => q{Unauthorized},
+    402 => q{Payment Required},
+    403 => q{Forbidden},
+    404 => q{Not Found},
+    405 => q{Method Not Allowed},
+    406 => q{Not Acceptable},
+    407 => q{Proxy Authentication Required},
+    408 => q{Request Timeout},
+    409 => q{Conflict},
+    410 => q{Gone},
+    411 => q{Length Required},
+    412 => q{Precondition Failed},
+    413 => q{Request Entity Too Large},
+    414 => q{Request-URI Too Long},
+    415 => q{Unsupported Media Type},
+    416 => q{Requested Range Not Satisfiable},
+    417 => q{Expectation Failed},
+    422 => q{Unprocessable Entity},
+    423 => q{Locked},
+    424 => q{Failed Dependency},
+    426 => q{Upgrade Required},
+    500 => q{Internal Server Error},
+    501 => q{Not Implemented},
+    502 => q{Bad Gateway},
+    503 => q{Service Unavailable},
+    504 => q{Gateway Timeout},
+    505 => q{HTTP Version Not Supported},
+    506 => q{Variant Also Negotiates (Experimental)},
+    507 => q{Insufficient Storage},
+    510 => q{Not Extended},
+);
 
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
@@ -110,9 +165,11 @@ sub webpages : Local : Args(0) {
     my ($self, $c) = @_;
     my $db = $c->model('DB::Testrun');
     my @trs =
-      grep { $_ } map { $db->find($_) } keys %{ $c->session->{testruns} };
+      sort { $b->tests->count <=> $a->tests->count }
+      grep { $_ }
+      map  { $db->find($_) }
+      keys %{ $c->session->{testruns} };
     my $name;
-    my %data;
     my $p = $c->{zs}->present;
 
     if (@trs == 1) {
@@ -121,15 +178,72 @@ sub webpages : Local : Args(0) {
         $name = scalar(@trs) . ' testruns';
     }
 
-    $data{names} = [map { $_->domainset->name . ' ' . $_->name } @trs];
-
     $c->stash(
         {
             template  => 'testruns/webpages.tt',
             pagetitle => $name,
-            data      => \%data,
+            http_code => \%http_response_code,
+            names     => {
+                map { $_->id => $_->domainset->name . '<br>' . $_->name } @trs
+            },
+            sizes => {
+                http  => [map { $_->webservers({ https => 0 })->count } @trs],
+                https => [map { $_->webservers({ https => 1 })->count } @trs],
+            },
+            trs    => \@trs,
+            titles => {
+                software => 'Type',
+                response => 'Response Code',
+                content  => 'Content-Type',
+                charset  => 'Character Encoding',
+            },
+            data => {
+                software => {
+                    http => _reshuffle(
+                        \@trs, $p->number_of_servers_with_software(0, @trs)
+                    ),
+                    https => _reshuffle(
+                        \@trs, $p->number_of_servers_with_software(1, @trs)
+                    ),
+                },
+                response => {
+                    http => _reshuffle(
+                        \@trs, $p->webservers_by_responsecode(0, @trs)
+                    ),
+                    https => _reshuffle(
+                        \@trs, $p->webservers_by_responsecode(1, @trs)
+                    ),
+                },
+                content => {
+                    http =>
+                      _reshuffle(\@trs, $p->webservers_by_contenttype(0, @trs)),
+                    https =>
+                      _reshuffle(\@trs, $p->webservers_by_contenttype(1, @trs)),
+                },
+                charset => {
+                    http =>
+                      _reshuffle(\@trs, $p->webservers_by_charset(0, @trs)),
+                    https =>
+                      _reshuffle(\@trs, $p->webservers_by_charset(1, @trs)),
+                },
+            },
         }
     );
+}
+
+sub _reshuffle {
+    my ($trs, %res) = @_;
+    my @out;
+
+    my @ids        = map { $_->id } @{$trs};
+    my $kid        = $ids[0];
+    my @categories = sort { $res{$b}{$kid} <=> $res{$a}{$kid} } keys %res;
+
+    foreach my $c (@categories) {
+        push @out, [$c, map { $_ ? $_ : 0 } map { $res{$c}{$_} } @ids];
+    }
+
+    return \@out;
 }
 
 sub dnscheck : Local : Args(0) {
@@ -141,7 +255,7 @@ sub dnscheck : Local : Args(0) {
     my @trs =
       sort { $b->tests->count <=> $a->tests->count }
       grep { $_ } map { $db->find($_) } keys %{ $c->session->{testruns} };
-    my %sizes = map {$_->id, $_->tests->count} @trs;
+    my %sizes = map { $_->id, $_->tests->count } @trs;
     my $name;
     my %data;
     my $p        = $c->{zs}->present;
@@ -191,7 +305,7 @@ sub dnscheck : Local : Args(0) {
             descriptions => \%descriptions,
             band         => \%band,
             severity     => \%severity,
-            sizes => \%sizes,
+            sizes        => \%sizes,
         }
     );
 }
@@ -226,9 +340,11 @@ sub servers : Local : Args(0) {
                           count => $_->get_column('count'),
                           location =>
                           join(', ', grep { $_ } ($_->city, $_->country)),
-                          geourl =>
-                          ($_->latitude and $_->longitude)?sprintf('http://maps.google.com/maps?q=%02.2f+%02.2f',
-                            $_->latitude, $_->longitude):''
+                          geourl => ($_->latitude and $_->longitude)
+                          ? sprintf(
+                            'http://maps.google.com/maps?q=%02.2f+%02.2f',
+                            $_->latitude, $_->longitude)
+                          : ''
                     }
                   } @s
             ];

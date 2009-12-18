@@ -629,7 +629,8 @@ sub _can_write {
 
         return
           unless
-          system('sudo', $^X, $0, "--config=$config", "--installdeps=$missing");
+            system('sudo', $^X, $0, "--config=$config",
+                  "--installdeps=$missing");
 
         print << ".";
 *** The 'sudo' command exited with error!  Resuming...

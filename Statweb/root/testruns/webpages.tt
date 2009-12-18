@@ -1,3 +1,73 @@
 [% META title = 'Webserver Statistics' %]
 
+[% BLOCK table -%]
+<table>
+    <tr>
+        <th>[% title %]</th>
+        [% FOREACH tr IN trs -%]
+        <th>[% names.${tr.id} %]</th>
+        [% END -%]
+    </tr>
+    [% FOREACH t IN root.${h} -%]
+    <tr class="[% loop.parity %]">
+        [% label = t.shift -%]
+        [% IF http_code.$label -%]
+        <td>[% label %] [% http_code.$label %]</td>
+        [% ELSIF label -%]
+        <td>[% label FILTER ucfirst %]</td>
+        [% ELSE -%]
+        <td>Unknown</td>
+        [% END -%]
+        [% FOREACH i IN t -%]
+        <td class="numeric">
+            [% 100 * i / sizes.${h}.${loop.index} FILTER format("%0.1f") %]%
+        </td>
+        [% END %]
+    </tr>
+    [% END -%]
+</table>
+[% END -%]
+
+<pre>[% dumped %]</pre>
+
 <h1>Web statistics for [% pagetitle %]</h1>
+
+<h2>Webserver software</h2>
+<p>
+
+    This table (and the next one) simply lists the fractions of the tested
+    domains that have a web server on their <tt>www.</tt> address that are
+    running a certain webserver software. What software a server is running is
+    determined by looking at the <tt>Server:</tt> header in its HTTP response.
+    Only those giving a response that match a known pattern are counted; the
+    rest are included under the "Unknown" entry.
+</p>
+<p>
+
+    The next few tables also aggregate information taken from the the headers
+    in the HTTP communication with the web servers.
+
+</p>
+
+[% PROCESS table title=titles.software root=data.software h='http' -%]
+
+<h2>Webserver software (https)</h2>
+[% PROCESS table title=titles.software root=data.software h='https' -%]
+
+<h2>Webserver response codes</h2>
+[% PROCESS table title=titles.response root=data.response h='http' -%]
+
+<h2>Webserver response codes (https)</h2>
+[% PROCESS table title=titles.response root=data.response h='https' -%]
+
+<h2>Webserver content types</h2>
+[% PROCESS table title=titles.content root=data.content h='http' -%]
+
+<h2>Webserver content types (https)</h2>
+[% PROCESS table title=titles.content root=data.content h='https' -%]
+
+<h2>Webserver character encodings</h2>
+[% PROCESS table title=titles.charset root=data.charset h='http' -%]
+
+<h2>Webserver character encodings (https)</h2>
+[% PROCESS table title=titles.charset root=data.charset h='https' -%]
