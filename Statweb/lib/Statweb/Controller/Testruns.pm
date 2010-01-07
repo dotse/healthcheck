@@ -81,9 +81,8 @@ my %http_response_code = (
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
 
-    my $db = $c->model('DB::Testrun');
-    my @trs =
-      grep { $_ } map { $db->find($_) } keys %{ $c->session->{testruns} };
+    my $db  = $c->model('DB::Testrun');
+    my @trs = @{ $c->stash->{trs} };
     my $name;
     my %data;
     my $p = $c->{zs}->present;
@@ -161,14 +160,55 @@ sub index : Path : Args(0) {
     );
 }
 
+sub webpages_software : Private {
+    my ($self, $c) = @_;
+    my @trs = @{ $c->stash->{trs} };
+    my $p   = $c->{zs}->present;
+
+    $c->stash->{data}{software} = {
+        http => _reshuffle(\@trs, $p->number_of_servers_with_software(0, @trs)),
+        https =>
+          _reshuffle(\@trs, $p->number_of_servers_with_software(1, @trs)),
+    };
+}
+
+sub webpages_response : Private {
+    my ($self, $c) = @_;
+    my @trs = @{ $c->stash->{trs} };
+    my $p   = $c->{zs}->present;
+
+    $c->stash->{data}{response} = {
+        http  => _reshuffle(\@trs, $p->webservers_by_responsecode(0, @trs)),
+        https => _reshuffle(\@trs, $p->webservers_by_responsecode(1, @trs)),
+    };
+}
+
+sub webpages_content : Private {
+    my ($self, $c) = @_;
+    my @trs = @{ $c->stash->{trs} };
+    my $p   = $c->{zs}->present;
+
+    $c->stash->{data}{content} = {
+        http  => _reshuffle(\@trs, $p->webservers_by_contenttype(0, @trs)),
+        https => _reshuffle(\@trs, $p->webservers_by_contenttype(1, @trs)),
+    };
+}
+
+sub webpages_charset : Private {
+    my ($self, $c) = @_;
+    my @trs = @{ $c->stash->{trs} };
+    my $p   = $c->{zs}->present;
+
+    $c->stash->{data}{charset} = {
+        http  => _reshuffle(\@trs, $p->webservers_by_charset(0, @trs)),
+        https => _reshuffle(\@trs, $p->webservers_by_charset(1, @trs)),
+    };
+}
+
 sub webpages : Local : Args(0) {
     my ($self, $c) = @_;
-    my $db = $c->model('DB::Testrun');
-    my @trs =
-      sort { $b->tests->count <=> $a->tests->count }
-      grep { $_ }
-      map  { $db->find($_) }
-      keys %{ $c->session->{testruns} };
+    my $db  = $c->model('DB::Testrun');
+    my @trs = @{ $c->stash->{trs} };
     my $name;
     my $p = $c->{zs}->present;
 
@@ -197,38 +237,13 @@ sub webpages : Local : Args(0) {
                 content  => 'Content-Type',
                 charset  => 'Character Encoding',
             },
-            data => {
-                software => {
-                    http => _reshuffle(
-                        \@trs, $p->number_of_servers_with_software(0, @trs)
-                    ),
-                    https => _reshuffle(
-                        \@trs, $p->number_of_servers_with_software(1, @trs)
-                    ),
-                },
-                response => {
-                    http => _reshuffle(
-                        \@trs, $p->webservers_by_responsecode(0, @trs)
-                    ),
-                    https => _reshuffle(
-                        \@trs, $p->webservers_by_responsecode(1, @trs)
-                    ),
-                },
-                content => {
-                    http =>
-                      _reshuffle(\@trs, $p->webservers_by_contenttype(0, @trs)),
-                    https =>
-                      _reshuffle(\@trs, $p->webservers_by_contenttype(1, @trs)),
-                },
-                charset => {
-                    http =>
-                      _reshuffle(\@trs, $p->webservers_by_charset(0, @trs)),
-                    https =>
-                      _reshuffle(\@trs, $p->webservers_by_charset(1, @trs)),
-                },
-            },
         }
     );
+
+    $c->forward('webpages_software');
+    $c->forward('webpages_response');
+    $c->forward('webpages_content');
+    $c->forward('webpages_charset');
 }
 
 sub _reshuffle {
@@ -250,11 +265,8 @@ sub dnscheck : Local : Args(0) {
     my ($self, $c) = @_;
     my $db = $c->model('DB::Testrun');
 
-  # Sort in falling order of number of domains in the set (there is one test per
-  # domain).
-    my @trs =
-      sort { $b->tests->count <=> $a->tests->count }
-      grep { $_ } map { $db->find($_) } keys %{ $c->session->{testruns} };
+    my @trs = @{ $c->stash->{trs} };
+
     my %sizes = map { $_->id, $_->tests->count } @trs;
     my $name;
     my %data;
@@ -312,10 +324,9 @@ sub dnscheck : Local : Args(0) {
 
 sub servers : Local : Args(0) {
     my ($self, $c) = @_;
-    my $db = $c->model('DB::Testrun');
-    my @trs =
-      sort { $b->tests->count <=> $a->tests->count }
-      grep { $_ } map { $db->find($_) } keys %{ $c->session->{testruns} };
+    my $db  = $c->model('DB::Testrun');
+    my @trs = @{ $c->stash->{trs} };
+
     my $name;
     my %data;
     my $p = $c->{zs}->present;
@@ -404,6 +415,24 @@ sub view_by_level : Local : Args(2) {
             tests    => \@tests,
         }
     );
+}
+
+sub auto : Private {
+    my ($self, $c) = @_;
+    my $db = $c->model('DB::Testrun');
+
+    $c->stash(
+        {
+            trs => [
+                sort   { $b->tests->count <=> $a->tests->count }
+                  grep { $_ }
+                  map  { $db->find($_) }
+                  keys %{ $c->session->{testruns} }
+            ]
+        }
+    );
+
+    return 1;
 }
 
 =head1 AUTHOR

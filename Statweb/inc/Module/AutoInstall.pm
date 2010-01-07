@@ -6,8 +6,9 @@ use Cwd                 ();
 use ExtUtils::MakeMaker ();
 
 use vars qw{$VERSION};
+
 BEGIN {
-	$VERSION = '1.03';
+    $VERSION = '1.03';
 }
 
 # special map on pre-defined feature sets
@@ -17,14 +18,12 @@ my %FeatureMap = (
 );
 
 # various lexical flags
-my ( @Missing, @Existing,  %DisabledTests, $UnderCPAN,     $HasCPANPLUS );
-my (
-    $Config, $CheckOnly, $SkipInstall, $AcceptDefault, $TestOnly, $AllDeps
-);
-my ( $PostambleActions, $PostambleUsed );
+my (@Missing, @Existing, %DisabledTests, $UnderCPAN, $HasCPANPLUS);
+my ($Config, $CheckOnly, $SkipInstall, $AcceptDefault, $TestOnly, $AllDeps);
+my ($PostambleActions, $PostambleUsed);
 
 # See if it's a testing or non-interactive session
-_accept_default( $ENV{AUTOMATED_TESTING} or ! -t STDIN ); 
+_accept_default($ENV{AUTOMATED_TESTING} or !-t STDIN);
 _init();
 
 sub _accept_default {
@@ -39,7 +38,7 @@ sub do_install {
     __PACKAGE__->install(
         [
             $Config
-            ? ( UNIVERSAL::isa( $Config, 'HASH' ) ? %{$Config} : @{$Config} )
+            ? (UNIVERSAL::isa($Config, 'HASH') ? %{$Config} : @{$Config})
             : ()
         ],
         @Missing,
@@ -56,26 +55,20 @@ sub _init {
         )
       )
     {
-        if ( $arg =~ /^--config=(.*)$/ ) {
-            $Config = [ split( ',', $1 ) ];
-        }
-        elsif ( $arg =~ /^--installdeps=(.*)$/ ) {
-            __PACKAGE__->install( $Config, @Missing = split( /,/, $1 ) );
+        if ($arg =~ /^--config=(.*)$/) {
+            $Config = [split(',', $1)];
+        } elsif ($arg =~ /^--installdeps=(.*)$/) {
+            __PACKAGE__->install($Config, @Missing = split(/,/, $1));
             exit 0;
-        }
-        elsif ( $arg =~ /^--default(?:deps)?$/ ) {
+        } elsif ($arg =~ /^--default(?:deps)?$/) {
             $AcceptDefault = 1;
-        }
-        elsif ( $arg =~ /^--check(?:deps)?$/ ) {
+        } elsif ($arg =~ /^--check(?:deps)?$/) {
             $CheckOnly = 1;
-        }
-        elsif ( $arg =~ /^--skip(?:deps)?$/ ) {
+        } elsif ($arg =~ /^--skip(?:deps)?$/) {
             $SkipInstall = 1;
-        }
-        elsif ( $arg =~ /^--test(?:only)?$/ ) {
+        } elsif ($arg =~ /^--test(?:only)?$/) {
             $TestOnly = 1;
-        }
-        elsif ( $arg =~ /^--all(?:deps)?$/ ) {
+        } elsif ($arg =~ /^--all(?:deps)?$/) {
             $AllDeps = 1;
         }
     }
@@ -85,10 +78,10 @@ sub _init {
 sub _prompt {
     goto &ExtUtils::MakeMaker::prompt unless $AcceptDefault;
 
-    my ( $prompt, $default ) = @_;
-    my $y = ( $default =~ /^[Yy]/ );
+    my ($prompt, $default) = @_;
+    my $y = ($default =~ /^[Yy]/);
 
-    print $prompt, ' [', ( $y ? 'Y' : 'y' ), '/', ( $y ? 'n' : 'N' ), '] ';
+    print $prompt, ' [', ($y ? 'Y' : 'y'), '/', ($y ? 'n' : 'N'), '] ';
     print "$default\n";
     return $default;
 }
@@ -96,7 +89,7 @@ sub _prompt {
 # the workhorse
 sub import {
     my $class = shift;
-    my @args  = @_ or return;
+    my @args = @_ or return;
     my $core_all;
 
     print "*** $class version " . $class->VERSION . "\n";
@@ -108,15 +101,11 @@ sub import {
 
     my $maxlen = length(
         (
-            sort   { length($b) <=> length($a) }
-              grep { /^[^\-]/ }
-              map  {
-                ref($_)
-                  ? ( ( ref($_) eq 'HASH' ) ? keys(%$_) : @{$_} )
-                  : ''
-              }
-              map { +{@args}->{$_} }
-              grep { /^[^\-]/ or /^-core$/i } keys %{ +{@args} }
+            sort { length($b) <=> length($a) }
+            grep { /^[^\-]/ }
+            map { ref($_) ? ((ref($_) eq 'HASH') ? keys(%$_) : @{$_}) : '' }
+            map { +{@args}->{$_} }
+            grep { /^[^\-]/ or /^-core$/i } keys %{ +{@args} }
         )[0]
     );
 
@@ -127,69 +116,67 @@ sub import {
 
     $UnderCPAN = _check_lock(1) unless $SkipInstall;
 
-    while ( my ( $feature, $modules ) = splice( @args, 0, 2 ) ) {
-        my ( @required, @tests, @skiptests );
+    while (my ($feature, $modules) = splice(@args, 0, 2)) {
+        my (@required, @tests, @skiptests);
         my $default  = 1;
         my $conflict = 0;
 
-        if ( $feature =~ m/^-(\w+)$/ ) {
+        if ($feature =~ m/^-(\w+)$/) {
             my $option = lc($1);
 
             # check for a newer version of myself
-            _update_to( $modules, @_ ) and return if $option eq 'version';
+            _update_to($modules, @_) and return if $option eq 'version';
 
             # sets CPAN configuration options
             $Config = $modules if $option eq 'config';
 
             # promote every features to core status
-            $core_all = ( $modules =~ /^all$/i ) and next
+            $core_all = ($modules =~ /^all$/i) and next
               if $option eq 'core';
 
             next unless $option eq 'core';
         }
 
-        print "[" . ( $FeatureMap{ lc($feature) } || $feature ) . "]\n";
+        print "[" . ($FeatureMap{ lc($feature) } || $feature) . "]\n";
 
-        $modules = [ %{$modules} ] if UNIVERSAL::isa( $modules, 'HASH' );
+        $modules = [%{$modules}] if UNIVERSAL::isa($modules, 'HASH');
 
         unshift @$modules, -default => &{ shift(@$modules) }
-          if ( ref( $modules->[0] ) eq 'CODE' );    # XXX: bugward combatability
+          if (ref($modules->[0]) eq 'CODE');    # XXX: bugward combatability
 
-        while ( my ( $mod, $arg ) = splice( @$modules, 0, 2 ) ) {
-            if ( $mod =~ m/^-(\w+)$/ ) {
+        while (my ($mod, $arg) = splice(@$modules, 0, 2)) {
+            if ($mod =~ m/^-(\w+)$/) {
                 my $option = lc($1);
 
-                $default   = $arg    if ( $option eq 'default' );
-                $conflict  = $arg    if ( $option eq 'conflict' );
-                @tests     = @{$arg} if ( $option eq 'tests' );
-                @skiptests = @{$arg} if ( $option eq 'skiptests' );
+                $default   = $arg    if ($option eq 'default');
+                $conflict  = $arg    if ($option eq 'conflict');
+                @tests     = @{$arg} if ($option eq 'tests');
+                @skiptests = @{$arg} if ($option eq 'skiptests');
 
                 next;
             }
 
-            printf( "- %-${maxlen}s ...", $mod );
+            printf("- %-${maxlen}s ...", $mod);
 
-            if ( $arg and $arg =~ /^\D/ ) {
+            if ($arg and $arg =~ /^\D/) {
                 unshift @$modules, $arg;
                 $arg = 0;
             }
 
             # XXX: check for conflicts and uninstalls(!) them.
             my $cur = _load($mod);
-            if (_version_cmp ($cur, $arg) >= 0)
-            {
-                print "loaded. ($cur" . ( $arg ? " >= $arg" : '' ) . ")\n";
+            if (_version_cmp($cur, $arg) >= 0) {
+                print "loaded. ($cur" . ($arg ? " >= $arg" : '') . ")\n";
                 push @Existing, $mod => $arg;
                 $DisabledTests{$_} = 1 for map { glob($_) } @skiptests;
-            }
-            else {
-                if (not defined $cur)   # indeed missing
+            } else {
+                if (not defined $cur)    # indeed missing
                 {
-                    print "missing." . ( $arg ? " (would need $arg)" : '' ) . "\n";
-                }
-                else
-                {
-                    # no need to check $arg as _version_cmp ($cur, undef) would satisfy >= above
+                    print "missing."
+                      . ($arg ? " (would need $arg)" : '') . "\n";
+                } else {
+
+    # no need to check $arg as _version_cmp ($cur, undef) would satisfy >= above
                     print "too old. ($cur < $arg)\n";
                 }
 
@@ -199,36 +186,35 @@ sub import {
 
         next unless @required;
 
-        my $mandatory = ( $feature eq '-core' or $core_all );
+        my $mandatory = ($feature eq '-core' or $core_all);
 
         if (
             !$SkipInstall
             and (
-                $CheckOnly
+                   $CheckOnly
                 or ($mandatory and $UnderCPAN)
                 or $AllDeps
                 or _prompt(
                     qq{==> Auto-install the }
-                      . ( @required / 2 )
-                      . ( $mandatory ? ' mandatory' : ' optional' )
+                      . (@required / 2)
+                      . ($mandatory ? ' mandatory' : ' optional')
                       . qq{ module(s) from CPAN?},
                     $default ? 'y' : 'n',
                 ) =~ /^[Yy]/
             )
           )
         {
-            push( @Missing, @required );
+            push(@Missing, @required);
             $DisabledTests{$_} = 1 for map { glob($_) } @skiptests;
         }
 
-        elsif ( !$SkipInstall
+        elsif (!$SkipInstall
             and $default
             and $mandatory
-            and
-            _prompt( qq{==> The module(s) are mandatory! Really skip?}, 'n', )
-            =~ /^[Nn]/ )
+            and _prompt(qq{==> The module(s) are mandatory! Really skip?}, 'n',)
+            =~ /^[Nn]/)
         {
-            push( @Missing, @required );
+            push(@Missing, @required);
             $DisabledTests{$_} = 1 for map { glob($_) } @skiptests;
         }
 
@@ -237,7 +223,7 @@ sub import {
         }
     }
 
-    if ( @Missing and not( $CheckOnly or $UnderCPAN ) ) {
+    if (@Missing and not($CheckOnly or $UnderCPAN)) {
         require Config;
         print
 "*** Dependencies will be installed the next time you type '$Config::Config{make}'.\n";
@@ -281,25 +267,24 @@ sub _check_lock {
         if ($cpan_env) {
             return _running_under('CPAN');
         }
-        return; # CPAN.pm new enough, don't need to check further
+        return;    # CPAN.pm new enough, don't need to check further
     }
 
     # last ditch attempt, this -will- configure CPAN, very sorry
 
-    _load_cpan(1); # force initialize even though it's already loaded
+    _load_cpan(1);    # force initialize even though it's already loaded
 
     # Find the CPAN lock-file
-    my $lock = MM->catfile( $CPAN::Config->{cpan_home}, ".lock" );
+    my $lock = MM->catfile($CPAN::Config->{cpan_home}, ".lock");
     return unless -f $lock;
 
     # Check the lock
     local *LOCK;
     return unless open(LOCK, $lock);
 
-    if (
-            ( $^O eq 'MSWin32' ? _under_cpan() : <LOCK> == getppid() )
-        and ( $CPAN::Config->{prerequisites_policy} || '' ) ne 'ignore'
-    ) {
+    if (    ($^O eq 'MSWin32' ? _under_cpan() : <LOCK> == getppid())
+        and ($CPAN::Config->{prerequisites_policy} || '') ne 'ignore')
+    {
         print <<'END_MESSAGE';
 
 *** Since we're running under CPAN, I'll just let it take care
@@ -316,22 +301,21 @@ sub install {
     my $class = shift;
 
     my $i;    # used below to strip leading '-' from config keys
-    my @config = ( map { s/^-// if ++$i; $_ } @{ +shift } );
+    my @config = (map { s/^-// if ++$i; $_ } @{ +shift });
 
-    my ( @modules, @installed );
-    while ( my ( $pkg, $ver ) = splice( @_, 0, 2 ) ) {
+    my (@modules, @installed);
+    while (my ($pkg, $ver) = splice(@_, 0, 2)) {
 
         # grep out those already installed
-        if ( _version_cmp( _load($pkg), $ver ) >= 0 ) {
+        if (_version_cmp(_load($pkg), $ver) >= 0) {
             push @installed, $pkg;
-        }
-        else {
+        } else {
             push @modules, $pkg, $ver;
         }
     }
 
-    return @installed unless @modules;  # nothing to do
-    return @installed if _check_lock(); # defer to the CPAN shell
+    return @installed unless @modules;    # nothing to do
+    return @installed if _check_lock();   # defer to the CPAN shell
 
     print "*** Installing dependencies...\n";
 
@@ -340,31 +324,30 @@ sub install {
     my %args = @config;
     my %failed;
     local *FAILED;
-    if ( $args{do_once} and open( FAILED, '.#autoinstall.failed' ) ) {
+    if ($args{do_once} and open(FAILED, '.#autoinstall.failed')) {
         while (<FAILED>) { chomp; $failed{$_}++ }
         close FAILED;
 
         my @newmod;
-        while ( my ( $k, $v ) = splice( @modules, 0, 2 ) ) {
-            push @newmod, ( $k => $v ) unless $failed{$k};
+        while (my ($k, $v) = splice(@modules, 0, 2)) {
+            push @newmod, ($k => $v) unless $failed{$k};
         }
         @modules = @newmod;
     }
 
-    if ( _has_cpanplus() and not $ENV{PERL_AUTOINSTALL_PREFER_CPAN} ) {
-        _install_cpanplus( \@modules, \@config );
+    if (_has_cpanplus() and not $ENV{PERL_AUTOINSTALL_PREFER_CPAN}) {
+        _install_cpanplus(\@modules, \@config);
     } else {
-        _install_cpan( \@modules, \@config );
+        _install_cpan(\@modules, \@config);
     }
 
     print "*** $class installation finished.\n";
 
     # see if we have successfully installed them
-    while ( my ( $pkg, $ver ) = splice( @modules, 0, 2 ) ) {
-        if ( _version_cmp( _load($pkg), $ver ) >= 0 ) {
+    while (my ($pkg, $ver) = splice(@modules, 0, 2)) {
+        if (_version_cmp(_load($pkg), $ver) >= 0) {
             push @installed, $pkg;
-        }
-        elsif ( $args{do_once} and open( FAILED, '>> .#autoinstall.failed' ) ) {
+        } elsif ($args{do_once} and open(FAILED, '>> .#autoinstall.failed')) {
             print FAILED "$pkg\n";
         }
     }
@@ -376,57 +359,57 @@ sub install {
 
 sub _install_cpanplus {
     my @modules   = @{ +shift };
-    my @config    = _cpanplus_config( @{ +shift } );
+    my @config    = _cpanplus_config(@{ +shift });
     my $installed = 0;
 
     require CPANPLUS::Backend;
     my $cp   = CPANPLUS::Backend->new;
     my $conf = $cp->configure_object;
 
-    return unless $conf->can('conf') # 0.05x+ with "sudo" support
-               or _can_write($conf->_get_build('base'));  # 0.04x
+    return unless $conf->can('conf')    # 0.05x+ with "sudo" support
+          or _can_write($conf->_get_build('base'));    # 0.04x
 
     # if we're root, set UNINST=1 to avoid trouble unless user asked for it.
     my $makeflags = $conf->get_conf('makeflags') || '';
-    if ( UNIVERSAL::isa( $makeflags, 'HASH' ) ) {
+    if (UNIVERSAL::isa($makeflags, 'HASH')) {
+
         # 0.03+ uses a hashref here
         $makeflags->{UNINST} = 1 unless exists $makeflags->{UNINST};
 
     } else {
+
         # 0.02 and below uses a scalar
-        $makeflags = join( ' ', split( ' ', $makeflags ), 'UNINST=1' )
-          if ( $makeflags !~ /\bUNINST\b/ and eval qq{ $> eq '0' } );
+        $makeflags = join(' ', split(' ', $makeflags), 'UNINST=1')
+          if ($makeflags !~ /\bUNINST\b/ and eval qq{ $> eq '0' });
 
     }
-    $conf->set_conf( makeflags => $makeflags );
-    $conf->set_conf( prereqs   => 1 );
+    $conf->set_conf(makeflags => $makeflags);
+    $conf->set_conf(prereqs   => 1);
 
-    
-
-    while ( my ( $key, $val ) = splice( @config, 0, 2 ) ) {
-        $conf->set_conf( $key, $val );
+    while (my ($key, $val) = splice(@config, 0, 2)) {
+        $conf->set_conf($key, $val);
     }
 
     my $modtree = $cp->module_tree;
-    while ( my ( $pkg, $ver ) = splice( @modules, 0, 2 ) ) {
+    while (my ($pkg, $ver) = splice(@modules, 0, 2)) {
         print "*** Installing $pkg...\n";
 
-        MY::preinstall( $pkg, $ver ) or next if defined &MY::preinstall;
+        MY::preinstall($pkg, $ver) or next if defined &MY::preinstall;
 
         my $success;
         my $obj = $modtree->{$pkg};
 
-        if ( $obj and _version_cmp( $obj->{version}, $ver ) >= 0 ) {
+        if ($obj and _version_cmp($obj->{version}, $ver) >= 0) {
             my $pathname = $pkg;
             $pathname =~ s/::/\\W/;
 
-            foreach my $inc ( grep { m/$pathname.pm/i } keys(%INC) ) {
+            foreach my $inc (grep { m/$pathname.pm/i } keys(%INC)) {
                 delete $INC{$inc};
             }
 
-            my $rv = $cp->install( modules => [ $obj->{module} ] );
+            my $rv = $cp->install(modules => [$obj->{module}]);
 
-            if ( $rv and ( $rv->{ $obj->{module} } or $rv->{ok} ) ) {
+            if ($rv and ($rv->{ $obj->{module} } or $rv->{ok})) {
                 print "*** $pkg successfully installed.\n";
                 $success = 1;
             } else {
@@ -441,31 +424,32 @@ sub _install_cpanplus {
 .
         }
 
-        MY::postinstall( $pkg, $ver, $success ) if defined &MY::postinstall;
+        MY::postinstall($pkg, $ver, $success) if defined &MY::postinstall;
     }
 
     return $installed;
 }
 
 sub _cpanplus_config {
-	my @config = ();
-	while ( @_ ) {
-		my ($key, $value) = (shift(), shift());
-		if ( $key eq 'prerequisites_policy' ) {
-			if ( $value eq 'follow' ) {
-				$value = CPANPLUS::Internals::Constants::PREREQ_INSTALL();
-			} elsif ( $value eq 'ask' ) {
-				$value = CPANPLUS::Internals::Constants::PREREQ_ASK();
-			} elsif ( $value eq 'ignore' ) {
-				$value = CPANPLUS::Internals::Constants::PREREQ_IGNORE();
-			} else {
-				die "*** Cannot convert option $key = '$value' to CPANPLUS version.\n";
-			}
-		} else {
-			die "*** Cannot convert option $key to CPANPLUS version.\n";
-		}
-	}
-	return @config;
+    my @config = ();
+    while (@_) {
+        my ($key, $value) = (shift(), shift());
+        if ($key eq 'prerequisites_policy') {
+            if ($value eq 'follow') {
+                $value = CPANPLUS::Internals::Constants::PREREQ_INSTALL();
+            } elsif ($value eq 'ask') {
+                $value = CPANPLUS::Internals::Constants::PREREQ_ASK();
+            } elsif ($value eq 'ignore') {
+                $value = CPANPLUS::Internals::Constants::PREREQ_IGNORE();
+            } else {
+                die
+"*** Cannot convert option $key = '$value' to CPANPLUS version.\n";
+            }
+        } else {
+            die "*** Cannot convert option $key to CPANPLUS version.\n";
+        }
+    }
+    return @config;
 }
 
 sub _install_cpan {
@@ -478,71 +462,73 @@ sub _install_cpan {
     require Config;
 
     if (CPAN->VERSION < 1.80) {
+
         # no "sudo" support, probe for writableness
-        return unless _can_write( MM->catfile( $CPAN::Config->{cpan_home}, 'sources' ) )
-                  and _can_write( $Config::Config{sitelib} );
+        return
+          unless _can_write(MM->catfile($CPAN::Config->{cpan_home}, 'sources'))
+              and _can_write($Config::Config{sitelib});
     }
 
     # if we're root, set UNINST=1 to avoid trouble unless user asked for it.
     my $makeflags = $CPAN::Config->{make_install_arg} || '';
     $CPAN::Config->{make_install_arg} =
-      join( ' ', split( ' ', $makeflags ), 'UNINST=1' )
-      if ( $makeflags !~ /\bUNINST\b/ and eval qq{ $> eq '0' } );
+      join(' ', split(' ', $makeflags), 'UNINST=1')
+      if ($makeflags !~ /\bUNINST\b/ and eval qq{ $> eq '0' });
 
     # don't show start-up info
     $CPAN::Config->{inhibit_startup_message} = 1;
 
     # set additional options
-    while ( my ( $opt, $arg ) = splice( @config, 0, 2 ) ) {
-        ( $args{$opt} = $arg, next )
+    while (my ($opt, $arg) = splice(@config, 0, 2)) {
+        ($args{$opt} = $arg, next)
           if $opt =~ /^force$/;    # pseudo-option
         $CPAN::Config->{$opt} = $arg;
     }
 
     local $CPAN::Config->{prerequisites_policy} = 'follow';
 
-    while ( my ( $pkg, $ver ) = splice( @modules, 0, 2 ) ) {
-        MY::preinstall( $pkg, $ver ) or next if defined &MY::preinstall;
+    while (my ($pkg, $ver) = splice(@modules, 0, 2)) {
+        MY::preinstall($pkg, $ver) or next if defined &MY::preinstall;
 
         print "*** Installing $pkg...\n";
 
-        my $obj     = CPAN::Shell->expand( Module => $pkg );
+        my $obj = CPAN::Shell->expand(Module => $pkg);
         my $success = 0;
 
-        if ( $obj and _version_cmp( $obj->cpan_version, $ver ) >= 0 ) {
+        if ($obj and _version_cmp($obj->cpan_version, $ver) >= 0) {
             my $pathname = $pkg;
             $pathname =~ s/::/\\W/;
 
-            foreach my $inc ( grep { m/$pathname.pm/i } keys(%INC) ) {
+            foreach my $inc (grep { m/$pathname.pm/i } keys(%INC)) {
                 delete $INC{$inc};
             }
 
-            my $rv = $args{force} ? CPAN::Shell->force( install => $pkg )
-                                  : CPAN::Shell->install($pkg);
+            my $rv =
+              $args{force}
+              ? CPAN::Shell->force(install => $pkg)
+              : CPAN::Shell->install($pkg);
             $rv ||= eval {
-                $CPAN::META->instance( 'CPAN::Distribution', $obj->cpan_file, )
+                $CPAN::META->instance('CPAN::Distribution', $obj->cpan_file,)
                   ->{install}
                   if $CPAN::META;
             };
 
-            if ( $rv eq 'YES' ) {
+            if ($rv eq 'YES') {
                 print "*** $pkg successfully installed.\n";
                 $success = 1;
-            }
-            else {
+            } else {
                 print "*** $pkg installation failed.\n";
                 $success = 0;
             }
 
             $installed += $success;
-        }
-        else {
+        } else {
             print << ".";
 *** Could not find a version $ver or above for $pkg; skipping.
 .
         }
 
-        MY::postinstall( $pkg, $ver, $success ) if defined &MY::postinstall;
+        MY::postinstall($pkg, $ver, $success) if defined &MY::postinstall;
     }
 
     return $installed;
@@ -562,10 +548,10 @@ sub _under_cpan {
     require Cwd;
     require File::Spec;
 
-    my $cwd  = File::Spec->canonpath( Cwd::cwd() );
-    my $cpan = File::Spec->canonpath( $CPAN::Config->{cpan_home} );
+    my $cwd  = File::Spec->canonpath(Cwd::cwd());
+    my $cpan = File::Spec->canonpath($CPAN::Config->{cpan_home});
 
-    return ( index( $cwd, $cpan ) > -1 );
+    return (index($cwd, $cpan) > -1);
 }
 
 sub _update_to {
@@ -573,11 +559,11 @@ sub _update_to {
     my $ver   = shift;
 
     return
-      if _version_cmp( _load($class), $ver ) >= 0;  # no need to upgrade
+      if _version_cmp(_load($class), $ver) >= 0;    # no need to upgrade
 
     if (
-        _prompt( "==> A newer version of $class ($ver) is required. Install?",
-            'y' ) =~ /^[Nn]/
+        _prompt("==> A newer version of $class ($ver) is required. Install?",
+            'y') =~ /^[Nn]/
       )
     {
         die "*** Please install $class $ver manually.\n";
@@ -589,7 +575,7 @@ sub _update_to {
 
     # install ourselves
     _load($class) and return $class->import(@_)
-      if $class->install( [], $class, $ver );
+      if $class->install([], $class, $ver);
 
     print << '.'; exit 1;
 
@@ -602,7 +588,7 @@ sub _connected_to {
     my $site = shift;
 
     return (
-        ( _load('Socket') and Socket::inet_aton($site) ) or _prompt(
+        (_load('Socket') and Socket::inet_aton($site)) or _prompt(
             qq(
 *** Your host cannot resolve the domain name '$site', which
     probably means the Internet connections are unavailable.
@@ -614,7 +600,7 @@ sub _connected_to {
 # check if a directory is writable; may create it on demand
 sub _can_write {
     my $path = shift;
-    mkdir( $path, 0755 ) unless -e $path;
+    mkdir($path, 0755) unless -e $path;
 
     return 1 if -w $path;
 
@@ -636,14 +622,15 @@ sub _can_write {
         print << ".";
 *** Trying to re-execute the autoinstall process with 'sudo'...
 .
-        my $missing = join( ',', @Missing );
-        my $config = join( ',',
-            UNIVERSAL::isa( $Config, 'HASH' ) ? %{$Config} : @{$Config} )
+        my $missing = join(',', @Missing);
+        my $config =
+          join(',', UNIVERSAL::isa($Config, 'HASH') ? %{$Config} : @{$Config})
           if $Config;
 
         return
-          unless system( 'sudo', $^X, $0, "--config=$config",
-            "--installdeps=$missing" );
+          unless
+            system('sudo', $^X, $0, "--config=$config",
+                  "--installdeps=$missing");
 
         print << ".";
 *** The 'sudo' command exited with error!  Resuming...
@@ -665,18 +652,20 @@ sub _load {
     $file .= '.pm';
 
     local $@;
-    return eval { require $file; $mod->VERSION } || ( $@ ? undef: 0 );
+    return eval { require $file; $mod->VERSION } || ($@ ? undef : 0);
 }
 
 # Load CPAN.pm and it's configuration
 sub _load_cpan {
     return if $CPAN::VERSION and $CPAN::Config and not @_;
     require CPAN;
-    if ( $CPAN::HandleConfig::VERSION ) {
+    if ($CPAN::HandleConfig::VERSION) {
+
         # Newer versions of CPAN have a HandleConfig module
         CPAN::HandleConfig->load;
     } else {
-    	# Older versions had the load method in Config directly
+
+        # Older versions had the load method in Config directly
         CPAN::Config->load;
     }
 }
@@ -684,26 +673,24 @@ sub _load_cpan {
 # compare two versions, either use Sort::Versions or plain comparison
 # return values same as <=>
 sub _version_cmp {
-    my ( $cur, $min ) = @_;
-    return -1 unless defined $cur;  # if 0 keep comparing
-    return 1 unless $min;
+    my ($cur, $min) = @_;
+    return -1 unless defined $cur;    # if 0 keep comparing
+    return 1  unless $min;
 
     $cur =~ s/\s+$//;
 
     # check for version numbers that are not in decimal format
-    if ( ref($cur) or ref($min) or $cur =~ /v|\..*\./ or $min =~ /v|\..*\./ ) {
-        if ( ( $version::VERSION or defined( _load('version') )) and
-             version->can('new') 
-            ) {
+    if (ref($cur) or ref($min) or $cur =~ /v|\..*\./ or $min =~ /v|\..*\./) {
+        if (($version::VERSION or defined(_load('version')))
+            and version->can('new'))
+        {
 
             # use version.pm if it is installed.
             return version->new($cur) <=> version->new($min);
-        }
-        elsif ( $Sort::Versions::VERSION or defined( _load('Sort::Versions') ) )
-        {
+        } elsif ($Sort::Versions::VERSION or defined(_load('Sort::Versions'))) {
 
             # use Sort::Versions as the sorting algorithm for a.b.c versions
-            return Sort::Versions::versioncmp( $cur, $min );
+            return Sort::Versions::versioncmp($cur, $min);
         }
 
         warn "Cannot reliably compare non-decimal formatted versions.\n"
@@ -722,24 +709,25 @@ sub _make_args {
     my %args = @_;
 
     $args{PREREQ_PM} = { %{ $args{PREREQ_PM} || {} }, @Existing, @Missing }
-      if $UnderCPAN or $TestOnly;
+      if $UnderCPAN
+          or $TestOnly;
 
-    if ( $args{EXE_FILES} and -e 'MANIFEST' ) {
+    if ($args{EXE_FILES} and -e 'MANIFEST') {
         require ExtUtils::Manifest;
         my $manifest = ExtUtils::Manifest::maniread('MANIFEST');
 
         $args{EXE_FILES} =
-          [ grep { exists $manifest->{$_} } @{ $args{EXE_FILES} } ];
+          [grep { exists $manifest->{$_} } @{ $args{EXE_FILES} }];
     }
 
     $args{test}{TESTS} ||= 't/*.t';
-    $args{test}{TESTS} = join( ' ',
-        grep { !exists( $DisabledTests{$_} ) }
-          map { glob($_) } split( /\s+/, $args{test}{TESTS} ) );
+    $args{test}{TESTS} = join(' ',
+        grep { !exists($DisabledTests{$_}) }
+        map { glob($_) } split(/\s+/, $args{test}{TESTS}));
 
-    my $missing = join( ',', @Missing );
+    my $missing = join(',', @Missing);
     my $config =
-      join( ',', UNIVERSAL::isa( $Config, 'HASH' ) ? %{$Config} : @{$Config} )
+      join(',', UNIVERSAL::isa($Config, 'HASH') ? %{$Config} : @{$Config})
       if $Config;
 
     $PostambleActions = (

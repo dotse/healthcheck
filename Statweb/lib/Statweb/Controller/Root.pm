@@ -59,16 +59,16 @@ sub auto : Private {
     my ($self, $c) = @_;
 
     if ($c->controller eq $c->controller('User')) {
-        return 1
+        return 1;
     }
-    
+
     unless ($c->session->{user_id}) {
         $c->res->redirect($c->uri_for('/user/login'));
         return 0;
     }
 
     $c->forward('left_bar');
-    $c->{zs} = Zonestat->new;
+    $c->{zs}   = Zonestat->new;
     $c->{user} = $c->{zs}->user($c->session->{user_id});
 }
 
@@ -105,17 +105,17 @@ sub toggletestrun : Global : Arg(1) {
     $c->res->redirect('/');
 }
 
-sub clearselection :Global :Arg(0) {
+sub clearselection : Global : Arg(0) {
     my ($self, $c) = @_;
-    
+
     $c->session->{testruns} = {};
-    
+
     $c->res->redirect('/');
 }
 
-sub enqueue :Global :Arg(1) {
+sub enqueue : Global : Arg(1) {
     my ($self, $c, $dsid) = @_;
-    
+
     my $ds = $c->model('DB::Domainset')->find($dsid);
     $c->{zs}->gather->enqueue_domainset($ds);
     $c->res->redirect('/');
