@@ -25,6 +25,11 @@
         [% END %]
     </tr>
     [% END -%]
+    <tr>
+        <th colspan="[% trs.size + 1 %]">
+        <a href="[% c.uri_for(csvaction) %]">CSV</a>
+        </th>
+    </tr>
 </table>
 [% END -%]
 
@@ -49,25 +54,25 @@
 
 </p>
 
-[% PROCESS table title=titles.software root=data.software h='http' -%]
+[% PROCESS table title=titles.software root=data.software h='http' csvaction='/csv/webserver_software_http' -%]
 
 <h2>Webserver software (https)</h2>
-[% PROCESS table title=titles.software root=data.software h='https' -%]
+[% PROCESS table title=titles.software root=data.software h='https' csvaction='/csv/webserver_software_https' -%]
 
 <h2>Webserver response codes</h2>
-[% PROCESS table title=titles.response root=data.response h='http' -%]
+[% PROCESS table title=titles.response root=data.response h='http' csvaction='/csv/webserver_response_http' -%]
 
 <h2>Webserver response codes (https)</h2>
-[% PROCESS table title=titles.response root=data.response h='https' -%]
+[% PROCESS table title=titles.response root=data.response h='https' csvaction='/csv/webserver_response_https' -%]
 
 <h2>Webserver content types</h2>
-[% PROCESS table title=titles.content root=data.content h='http' -%]
+[% PROCESS table title=titles.content root=data.content h='http' csvaction='/csv/webserver_content_http' -%]
 
 <h2>Webserver content types (https)</h2>
-[% PROCESS table title=titles.content root=data.content h='https' -%]
+[% PROCESS table title=titles.content root=data.content h='https' csvaction='/csv/webserver_content_https' -%]
 
 <h2>Webserver character encodings</h2>
-[% PROCESS table title=titles.charset root=data.charset h='http' -%]
+[% PROCESS table title=titles.charset root=data.charset h='http' csvaction='/csv/webserver_charset_http' -%]
 
 <h2>Webserver character encodings (https)</h2>
-[% PROCESS table title=titles.charset root=data.charset h='https' -%]
+[% PROCESS table title=titles.charset root=data.charset h='https' csvaction='/csv/webserver_charset_https' -%]
