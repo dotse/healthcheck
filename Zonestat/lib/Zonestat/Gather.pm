@@ -144,6 +144,7 @@ sub _https_test {
         $SIG{ALRM} = sub { die "timeout\n" };
         alarm(5);
         IO::Socket::SSL->start_SSL($s);
+        alarm(0);
     };
     if ($@) {
         die unless $@ eq "timeout\n";
@@ -183,7 +184,7 @@ sub get_http_server_data {
             next;
         }
 
-        $ssl = _https_test($u) if $https;
+        $ssl = _https_test('www.' . $domain) if $https;
 
         if ($https and !defined($ssl)) {
 
