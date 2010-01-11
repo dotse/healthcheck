@@ -26,6 +26,7 @@ CREATE TABLE IF NOT EXISTS `webserver` (
     `redirect_count` int(10) unsigned default 0,
     `redirect_urls` text,
     `ending_tld` varchar(63),
+    `robots_txt` boolean DEFAULT false,
     CONSTRAINT `webserver_domain` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
     CONSTRAINT `webserver_testrun` FOREIGN KEY (`testrun_id`) REFERENCES `testruns` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;

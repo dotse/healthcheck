@@ -8,6 +8,7 @@ use DNSCheck;
 
 use base 'Zonestat::Common';
 
+use LWP::Simple;
 use LWP::UserAgent;
 use HTTP::Request;
 use IO::Socket::SSL;
@@ -122,6 +123,36 @@ sub get_server_data {
     $self->collect_geoip_information_for_server($tr, $domain);
 }
 
+sub check_robots_txt {
+    my ($url) = @_;
+
+    return !!get($url . 'robots.txt');
+}
+
+# We need to implement a timeout. Specific trigger for this was www.seb.se,
+# which would accept a TCP connection but never respond to SSL negotiation.
+sub _https_test {
+    my ($host) = @_;
+
+    my $s = IO::Socket::INET->new(PeerAddr => $host, PeerPort => 443);
+
+    if (!defined($s)) {
+        return;
+    }
+
+    eval {
+        $SIG{ALRM} = sub { die "timeout\n" };
+        alarm(5);
+        IO::Socket::SSL->start_SSL($s);
+    };
+    if ($@) {
+        die unless $@ eq "timeout\n";
+        return;
+    }
+
+    return $s;
+}
+
 sub get_http_server_data {
     my $self     = shift;
     my $tr_id    = shift;
@@ -137,9 +168,11 @@ sub get_http_server_data {
     foreach
       my $u ('http://www.' . $domain . '/', 'https://www.' . $domain . '/')
     {
-        my $res = $ua->get($u);
         my $https;
         my $ip;
+        my $ssl;
+        my $res;
+        my $robots;
 
         if ($u =~ m|^http://www\.([^/]+)|) {
             $https = 0;
@@ -149,6 +182,17 @@ sub get_http_server_data {
             print STDERR "Failed to parse: $u\n";
             next;
         }
+
+        $ssl = _https_test($u) if $https;
+
+        if ($https and !defined($ssl)) {
+
+            # We have an HTTPS URL, but can't establish an SSL connection. Skip.
+            next DOMAIN;
+        }
+
+        $res    = $ua->get($u);
+        $robots = check_robots_txt($u);
 
         my $rcount = scalar($res->redirects);
         my $rurls = join ' ', map { $_->base } $res->redirects;
@@ -168,15 +212,8 @@ sub get_http_server_data {
         my $issuer;
 
         if (my $s = $res->header('Server')) {
-            if (
-                $https
-                and my $s = IO::Socket::SSL->new(
-                    PeerAddr => 'www.' . $domain,
-                    PeerPort => 443
-                )
-              )
-            {
-                $issuer = $s->peer_certificate('issuer');
+            if ($https and $ssl) {
+                $issuer = $ssl->peer_certificate('issuer');
             }
 
             foreach my $r (keys %server_regexps) {
@@ -201,6 +238,7 @@ sub get_http_server_data {
                             redirect_count => $rcount,
                             redirect_urls  => $rurls,
                             ending_tld     => $tld,
+                            robots_txt     => $robots,
                         }
                     );
                     $obj->update({ ip => $ip }) if defined($ip);
@@ -223,6 +261,7 @@ sub get_http_server_data {
                     redirect_count => $rcount,
                     redirect_urls  => $rurls,
                     ending_tld     => $tld,
+                    robots_txt     => $robots,
                 }
             );
             $obj->update({ ip => $ip }) if defined($ip);
