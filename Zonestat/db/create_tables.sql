@@ -6,6 +6,12 @@ CREATE TABLE IF NOT EXISTS `zone` (
         `data` varchar(32767) NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=ascii;
 
+CREATE TABLE IF NOT EXISTS `domainset` (
+    `id` serial primary key,
+    `name` varchar(255) not null,
+    INDEX domainset_name (name)
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+
 CREATE TABLE IF NOT EXISTS `testruns` (
     `id` serial primary key,
     `set_id` bigint(20) unsigned not null,
@@ -50,12 +56,6 @@ CREATE TABLE IF NOT EXISTS `user` (
     INDEX user_password (password)
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 
-CREATE TABLE IF NOT EXISTS `domainset` (
-    `id` serial primary key,
-    `name` varchar(255) not null,
-    INDEX domainset_name (name)
-    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
-    
 CREATE TABLE IF NOT EXISTS `domain_set_glue` (
     `id` serial primary key,
     `domain_id` int(10) unsigned not null,
