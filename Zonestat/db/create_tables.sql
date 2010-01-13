@@ -6,6 +6,15 @@ CREATE TABLE IF NOT EXISTS `zone` (
         `data` varchar(32767) NOT NULL
     ) ENGINE=InnoDB DEFAULT CHARSET=ascii;
 
+CREATE TABLE IF NOT EXISTS `testruns` (
+    `id` serial primary key,
+    `set_id` bigint(20) unsigned not null,
+    `name` varchar(255) not null,
+    `start` timestamp DEFAULT CURRENT_TIMESTAMP,
+    `finish` timestamp NULL,
+    CONSTRAINT `testruns_setid` FOREIGN KEY (`set_id`) REFERENCES `domainset` (`id`) ON DELETE CASCADE
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;    
+
 CREATE TABLE IF NOT EXISTS `webserver` (
     `id` serial primary key,
     `raw_type` varchar(512) NOT NULL,
@@ -55,15 +64,7 @@ CREATE TABLE IF NOT EXISTS `domain_set_glue` (
     CONSTRAINT `glue_setid` FOREIGN KEY (`set_id`) REFERENCES `domainset` (`id`) ON DELETE CASCADE
     ) ENGINE=InnoDB;
     
-CREATE TABLE IF NOT EXISTS `testruns` (
-    `id` serial primary key,
-    `set_id` bigint(20) unsigned not null,
-    `name` varchar(255) not null,
-    `start` timestamp DEFAULT CURRENT_TIMESTAMP,
-    `finish` timestamp NULL,
-    CONSTRAINT `testruns_setid` FOREIGN KEY (`set_id`) REFERENCES `domainset` (`id`) ON DELETE CASCADE
-    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;    
-    
+
 # Tables for dns2db import
 
 CREATE TABLE IF NOT EXISTS `dns2db` (
