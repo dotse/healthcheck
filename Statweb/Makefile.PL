@@ -19,6 +19,8 @@ requires (qw[
             Catalyst::Plugin::Session::Store::FastMmap
             Catalyst::Plugin::Session::State::Cookie
             
+            Catalyst::Plugin::Authentication
+            
             Time::HiRes
             Data::Dumper
             List::Util
