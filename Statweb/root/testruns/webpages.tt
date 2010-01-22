@@ -20,7 +20,11 @@
         [% END -%]
         [% FOREACH i IN t -%]
         <td class="numeric">
+            [% IF sizes.${h}.${loop.index} %]
             [% 100 * i / sizes.${h}.${loop.index} FILTER format("%0.1f") %]%
+            [% ELSE %]
+            N/A
+            [% END %]
         </td>
         [% END %]
     </tr>

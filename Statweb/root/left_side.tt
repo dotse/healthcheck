@@ -10,13 +10,24 @@
     <dd>[% c.user.name %] (<a href="[% c.uri_for('/user/logout') %]">Logout</a>)</dd>
     
     <dt>Menu</dt>
+    [% 
+    urls = {
+        'testruns/index' = 'Summary'
+        'testruns/dnscheck' = 'DNSCheck'
+        'testruns/webpages' = 'Web'
+        'testruns/servers' = 'Servers'
+    }
+    %]
     <dd id="links">
         <ul id="leftmenu">
-            <li><a href="[% c.uri_for('/') %]">Run selection</a></li>
-            <li><a href="[% c.uri_for('/testruns/') %]">Statistics: Summary</a></li>
-            <li><a href="[% c.uri_for('/testruns/dnscheck') %]">Statistics: DNSCheck</a></li>
-            <li><a href="[% c.uri_for('/testruns/webpages') %]">Statistics: Webpages</a></li>
-            <li><a href="[% c.uri_for('/testruns/servers') %]">Statistics: Servers</a></li>
+            <li><a href="[% c.uri_for('/') %]">Select</a></li>
+            [% FOREACH ac IN ['testruns/index' 'testruns/dnscheck' 'testruns/webpages' 'testruns/servers'] -%]
+            [% IF ac == c.action %]
+            <li class="current">[% urls.$ac %]</li>
+            [% ELSE %]
+            <li><a href="[% c.uri_for(ac) %]">[% urls.$ac %]</a></li>
+            [% END %]
+            [% END %]
         </ul>
     </dd>
 </dl>

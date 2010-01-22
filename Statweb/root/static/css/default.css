@@ -1,4 +1,7 @@
-/* @override http://dev.cyberpomo.com/css/default.css */
+/* @override 
+	http://dev.cyberpomo.com/css/default.css
+	http://dev.cyberpomo.com:3000/static/css/default.css
+*/
 
 img {
     float: right;
@@ -46,8 +49,8 @@ h1, h2 {
     text-align: left;
     padding-left: 1em;
     color: gray;
-	border-top-style: solid;
-	border-left-style: solid;
+	border-top-style: none;
+	border-left-style: none;
 	width: 66%;
 	border-left-color: black;
 	border-top-color: black;
@@ -209,7 +212,7 @@ ul.testrunlist li a, ul.testrunlist li a:visited {
 	width: 15%;
 	overflow: hidden;
 	border: thin none silver;
-	position: fixed;
+	position: absolute;
 	top: 0;
 	left: 0;
 }

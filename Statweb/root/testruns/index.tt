@@ -1,9 +1,5 @@
 [% META title = 'Statistics Overview' %]
 
-<a href="[% c.uri_for('/') %]">(Back to top)</a>
-
-<h1>Statistics for [% pagetitle %]</h1>
-
 <h2>General information</h2>
 <table>
 
@@ -184,10 +180,3 @@
     </tr>
 
 </table>
-
-<h2>Further information</h2>
-<ul>
-    <li><a href="[% c.uri_for('dnscheck') %]">DNSCheck data</a></li>
-    <li><a href="[% c.uri_for('webpages') %]">Webpage data</a></li>
-    <li><a href="[% c.uri_for('servers') %]">Server data</a></li>
-</ul>
