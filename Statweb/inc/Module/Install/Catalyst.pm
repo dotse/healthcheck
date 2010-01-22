@@ -47,7 +47,7 @@ sub catalyst_files {
 
     my @files;
     opendir CATDIR, '.';
-  CATFILES: for my $name (readdir CATDIR) {
+  CATFILES: for my $name ( readdir CATDIR ) {
         for my $ignore (@IGNORE) {
             next CATFILES if $name =~ /^$ignore$/;
             next CATFILES if $name !~ /\w/;
@@ -57,22 +57,22 @@ sub catalyst_files {
     closedir CATDIR;
     my @path = split '-', $self->name;
     for my $orig (@files) {
-        my $path = File::Spec->catdir('blib', 'lib', @path, $orig);
-        rcopy($orig, $path);
+        my $path = File::Spec->catdir( 'blib', 'lib', @path, $orig );
+        rcopy( $orig, $path );
     }
 }
 
 #line 84
 
 sub catalyst_ignore_all {
-    my ($self, $ignore) = @_;
+    my ( $self, $ignore ) = @_;
     @IGNORE = @$ignore;
 }
 
 #line 93
 
 sub catalyst_ignore {
-    my ($self, @ignore) = @_;
+    my ( $self, @ignore ) = @_;
     push @IGNORE, @ignore;
 }
 
@@ -80,7 +80,7 @@ sub catalyst_ignore {
 
 # Workaround for a namespace conflict
 sub catalyst_par {
-    my ($self, $par) = @_;
+    my ( $self, $par ) = @_;
     $par ||= '';
     return if $SAFETY;
     $SAFETY++;
@@ -101,42 +101,42 @@ EOF
 #line 126
 
 sub catalyst_par_core {
-    my ($self, $core) = @_;
-    $core ? ($CORE = $core) : $CORE++;
+    my ( $self, $core ) = @_;
+    $core ? ( $CORE = $core ) : $CORE++;
 }
 
 #line 135
 
 sub catalyst_par_classes {
-    my ($self, @classes) = @_;
+    my ( $self, @classes ) = @_;
     push @CLASSES, @classes;
 }
 
 #line 144
 
 sub catalyst_par_engine {
-    my ($self, $engine) = @_;
+    my ( $self, $engine ) = @_;
     $ENGINE = $engine;
 }
 
 #line 153
 
 sub catalyst_par_multiarch {
-    my ($self, $multiarch) = @_;
-    $multiarch ? ($MULTIARCH = $multiarch) : $MULTIARCH++;
+    my ( $self, $multiarch ) = @_;
+    $multiarch ? ( $MULTIARCH = $multiarch ) : $MULTIARCH++;
 }
 
 #line 162
 
 sub catalyst_par_script {
-    my ($self, $script) = @_;
+    my ( $self, $script ) = @_;
     $SCRIPT = $script;
 }
 
 #line 171
 
 sub catalyst_par_usage {
-    my ($self, $usage) = @_;
+    my ( $self, $usage ) = @_;
     $USAGE = $usage;
 }
 
@@ -148,7 +148,7 @@ use File::Copy::Recursive 'rmove';
 use File::Spec ();
 
 sub _catalyst_par {
-    my ($par, $class_name, $opts) = @_;
+    my ( $par, $class_name, $opts ) = @_;
 
     my $ENGINE    = $opts->{ENGINE};
     my $CLASSES   = $opts->{CLASSES} || [];
@@ -175,14 +175,14 @@ sub _catalyst_par {
 
     my $root = $FindBin::Bin;
     $class_name =~ s/-/::/g;
-    my $path = File::Spec->catfile('blib', 'lib', split('::', $class_name));
+    my $path = File::Spec->catfile( 'blib', 'lib', split( '::', $class_name ) );
     $path .= '.pm';
-    unless (-f $path) {
+    unless ( -f $path ) {
         print qq/Not writing PAR, "$path" doesn't exist\n/;
         return 0;
     }
     print qq/Writing PAR "$par"\n/;
-    chdir File::Spec->catdir($root, 'blib');
+    chdir File::Spec->catdir( $root, 'blib' );
 
     my $par_pl = 'par.pl';
     unlink $par_pl;
@@ -264,7 +264,7 @@ EOF
         'x' => 1,
         'n' => 0,
         'o' => $par,
-        'a' => [grep(!/par.pl/, glob '.')],
+        'a' => [ grep( !/par.pl/, glob '.' ) ],
         'p' => 1,
         'B' => $CORE,
         'm' => $MULTIARCH
@@ -281,7 +281,7 @@ EOF
 
     unlink $par_pl;
     chdir $root;
-    rmove(File::Spec->catfile('blib', $par), $par);
+    rmove( File::Spec->catfile( 'blib', $par ), $par );
     return 1;
 }
 

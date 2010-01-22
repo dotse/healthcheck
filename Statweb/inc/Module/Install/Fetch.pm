@@ -5,25 +5,22 @@ use strict;
 use Module::Install::Base ();
 
 use vars qw{$VERSION @ISA $ISCORE};
-
 BEGIN {
-    $VERSION = '0.91';
-    @ISA     = 'Module::Install::Base';
-    $ISCORE  = 1;
+	$VERSION = '0.91';
+	@ISA     = 'Module::Install::Base';
+	$ISCORE  = 1;
 }
 
 sub get_file {
     my ($self, %args) = @_;
     my ($scheme, $host, $path, $file) =
-      $args{url} =~ m|^(\w+)://([^/]+)(.+)/(.+)|
-      or return;
+        $args{url} =~ m|^(\w+)://([^/]+)(.+)/(.+)| or return;
 
-    if ($scheme eq 'http' and !eval { require LWP::Simple; 1 }) {
+    if ( $scheme eq 'http' and ! eval { require LWP::Simple; 1 } ) {
         $args{url} = $args{ftp_url}
-          or (warn("LWP support unavailable!\n"), return);
+            or (warn("LWP support unavailable!\n"), return);
         ($scheme, $host, $path, $file) =
-          $args{url} =~ m|^(\w+)://([^/]+)(.+)/(.+)|
-          or return;
+            $args{url} =~ m|^(\w+)://([^/]+)(.+)/(.+)| or return;
     }
 
     $|++;
@@ -42,38 +39,28 @@ sub get_file {
 
     if (eval { require LWP::Simple; 1 }) {
         LWP::Simple::mirror($args{url}, $file);
-    } elsif (
-        eval {
-            require Net::FTP;
-            1;
+    }
+    elsif (eval { require Net::FTP; 1 }) { eval {
+        # use Net::FTP to get past firewall
+        my $ftp = Net::FTP->new($host, Passive => 1, Timeout => 600);
+        $ftp->login("anonymous", 'anonymous@example.com');
+        $ftp->cwd($path);
+        $ftp->binary;
+        $ftp->get($file) or (warn("$!\n"), return);
+        $ftp->quit;
+    } }
+    elsif (my $ftp = $self->can_run('ftp')) { eval {
+        # no Net::FTP, fallback to ftp.exe
+        require FileHandle;
+        my $fh = FileHandle->new;
+
+        local $SIG{CHLD} = 'IGNORE';
+        unless ($fh->open("|$ftp -n")) {
+            warn "Couldn't open ftp: $!\n";
+            chdir $dir; return;
         }
-      )
-    {
-        eval {
 
-            # use Net::FTP to get past firewall
-            my $ftp = Net::FTP->new($host, Passive => 1, Timeout => 600);
-            $ftp->login("anonymous", 'anonymous@example.com');
-            $ftp->cwd($path);
-            $ftp->binary;
-            $ftp->get($file) or (warn("$!\n"), return);
-            $ftp->quit;
-        };
-    } elsif (my $ftp = $self->can_run('ftp')) {
-        eval {
-
-            # no Net::FTP, fallback to ftp.exe
-            require FileHandle;
-            my $fh = FileHandle->new;
-
-            local $SIG{CHLD} = 'IGNORE';
-            unless ($fh->open("|$ftp -n")) {
-                warn "Couldn't open ftp: $!\n";
-                chdir $dir;
-                return;
-            }
-
-            my @dialog = split(/\n/, <<"END_FTP");
+        my @dialog = split(/\n/, <<"END_FTP");
 open $host
 user anonymous anonymous\@example.com
 cd $path
@@ -81,35 +68,26 @@ binary
 get $file $file
 quit
 END_FTP
-            foreach (@dialog) { $fh->print("$_\n") }
-            $fh->close;
-        };
-    } else {
+        foreach (@dialog) { $fh->print("$_\n") }
+        $fh->close;
+    } }
+    else {
         warn "No working 'ftp' program available!\n";
-        chdir $dir;
-        return;
+        chdir $dir; return;
     }
 
     unless (-f $file) {
         warn "Fetching failed: $@\n";
-        chdir $dir;
-        return;
+        chdir $dir; return;
     }
 
     return if exists $args{size} and -s $file != $args{size};
     system($args{run}) if exists $args{run};
     unlink($file) if $args{remove};
 
-    print(
-        (
-            (!exists $args{check_for} or -e $args{check_for})
-            ? "done!"
-            : "failed! ($!)"
-        ),
-        "\n"
-    );
-    chdir $dir;
-    return !$?;
+    print(((!exists $args{check_for} or -e $args{check_for})
+        ? "done!" : "failed! ($!)"), "\n");
+    chdir $dir; return !$?;
 }
 
 1;
