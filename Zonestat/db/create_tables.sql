@@ -163,3 +163,47 @@ CREATE TABLE IF NOT EXISTS `mailserver` (
     INDEX (`run_id`),
     INDEX (`domain_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+    
+CREATE TABLE IF NOT EXISTS `pageanalysis` (
+    `id` serial primary key,
+    `webserver_id` bigint(20) unsigned not null,
+    `load_time` double,
+    `requests` int,
+    `rx_bytes` int,
+    `compressed_resources` int,
+    `average_compression` double,
+    `effective_compression` double,
+    `external_resources` int,
+    `error` varchar(255),
+    CONSTRAINT `pageanalysis_webserverid` FOREIGN KEY (`webserver_id`) REFERENCES `webserver` (`id`) ON DELETE CASCADE,
+    INDEX (`webserver_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+    
+CREATE TABLE IF NOT EXISTS `pa_row` (
+    `id` serial primary key,
+    `pageanalysis_id` bigint(20) unsigned not null,
+    `url` varchar(255),
+    `ip` varchar(255),
+    `resource_type` varchar(255),
+    `found_in` varchar(255),
+    `depth` int,
+    `start_order` int,
+    `offset_time` double,
+    `time_in_queue` double,
+    `dns_lookup_time` double,
+    `connect_time` double,
+    `redirect_time` double,
+    `first_byte` double,
+    `download_time` double,
+    `load_time` double,
+    `status_code` int,
+    `compressed` boolean,
+    `compression_ratio` double,
+    `compressed_file_size` int,
+    `file_size` int,
+    `request_headers` varchar(2048),
+    `response_headers` varchar(2048),
+    `error` varchar(255),
+    CONSTRAINT `parow_pageanalysisid` FOREIGN KEY (`pageanalysis_id`) REFERENCES `pageanalysis` (`id`) ON DELETE CASCADE,
+    INDEX (`pageanalysis_id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;

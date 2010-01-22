@@ -154,6 +154,77 @@ sub _https_test {
     return $s;
 }
 
+sub pageanalyze {
+    my ($self, $ws) = @_;
+    my $padir  = $self->cget(qw[zonestat pageanalyzer]);
+    my $python = $self->cget(qw[zonestat python]);
+    my @report4;
+    my @report5;
+
+    if (chdir($padir)) {
+        if (open my $pa,
+            '-|', $python, '-Wi::DeprecationWarning', 'pageanalyzer.py', $ws->url)
+        {
+            while (my $line = <$pa>) {
+                chomp($line);
+                my @fields = split /;/, $line;
+                if (!$fields[1]) {
+                    next;
+                } elsif ($fields[1] eq 'REPORT5') {
+                    @report5 = @fields;
+                } elsif ($fields[1] eq 'REPORT4') {
+                    push @report4, [@fields];
+                } else {
+
+                    # Not interested in this
+                }
+            }
+            my $obj = $ws->create_related('pageanalysis',
+                {
+                    load_time             => $report5[2],
+                    requests              => $report5[3],
+                    rx_bytes              => $report5[4],
+                    compressed_resources  => $report5[5],
+                    average_compression   => $report5[6],
+                    effective_compression => $report5[7],
+                    external_resources    => $report5[8],
+                    error                 => $report5[9]
+                }
+            );
+            foreach my $r (@report4) {
+                $obj->create_related('result_row',
+                    {
+                        url                  => pack('H*', $r->[2]),
+                        ip                   => $r->[3],
+                        resource_type        => $r->[4],
+                        found_in             => pack('H*', $r->[5]),
+                        depth                => $r->[6],
+                        start_order          => $r->[7],
+                        offset_time          => $r->[8],
+                        time_in_queue        => $r->[9],
+                        dns_lookup_time      => $r->[10],
+                        connect_time         => $r->[11],
+                        redirect_time        => $r->[12],
+                        first_byte           => $r->[13],
+                        download_time        => $r->[14],
+                        load_time            => $r->[15],
+                        status_code          => $r->[16],
+                        compressed           => $r->[17],
+                        compression_ratio    => $r->[18],
+                        compressed_file_size => $r->[19],
+                        file_size            => $r->[20],
+                        request_headers      => pack('H*', $r->[21]),
+                        response_headers     => pack('H*', $r->[22]),
+                        error                => $r->[23]
+                    }
+                );
+            }
+        } else {
+            warn "Failed to run pageanalyser: $!\n";
+        }
+    }
+}
+
 sub get_http_server_data {
     my $self     = shift;
     my $tr_id    = shift;
@@ -243,6 +314,7 @@ sub get_http_server_data {
                         }
                     );
                     $obj->update({ ip => $ip }) if defined($ip);
+                    $self->pageanalyze($obj);
                     next DOMAIN;
                 }
             }
@@ -266,6 +338,7 @@ sub get_http_server_data {
                 }
             );
             $obj->update({ ip => $ip }) if defined($ip);
+            $self->pageanalyze($obj);
         }
     }
 }

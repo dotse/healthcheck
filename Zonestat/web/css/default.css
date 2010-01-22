@@ -1,4 +1,7 @@
-/* @override http://dev.cyberpomo.com/css/default.css */
+/* @override 
+	http://dev.cyberpomo.com/css/default.css
+	http://dev.cyberpomo.com:3000/static/css/default.css
+*/
 
 img {
     float: right;
@@ -46,11 +49,41 @@ h1, h2 {
     text-align: left;
     padding-left: 1em;
     color: gray;
-	border-top-style: solid;
-	border-left-style: solid;
+	border-top-style: none;
+	border-left-style: none;
 	width: 66%;
 	border-left-color: black;
 	border-top-color: black;
+}
+
+#tabnav {
+	display: block;
+	list-style-type: none;
+	padding: 0;
+	border-bottom: 1px solid black;
+}
+
+#tabnav li {
+	display: inline;
+	border: 1px solid black;
+	padding-right: 3px;
+	padding-left: 3px;
+	margin-left: 5px;
+	background-color: #e3feed;
+}
+
+#tabnav li.current {
+	border-bottom: 1px solid white;
+	background-color: white;
+}
+
+#tabnav li:hover {
+	background-color: #9cfdc0;
+}
+
+#tabnav li a {
+	text-decoration: none;
+	color: black;
 }
 
 h1.top {
@@ -209,7 +242,7 @@ ul.testrunlist li a, ul.testrunlist li a:visited {
 	width: 15%;
 	overflow: hidden;
 	border: thin none silver;
-	position: fixed;
+	position: absolute;
 	top: 0;
 	left: 0;
 }

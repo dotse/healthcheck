@@ -27,4 +27,7 @@ __PACKAGE__->belongs_to(
     'testrun_id'
 );
 
+__PACKAGE__->has_one('pageanalysis', 'Zonestat::DBI::Result::Pageanalysis',
+    'webserver_id');
+
 1;
