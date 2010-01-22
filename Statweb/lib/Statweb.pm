@@ -21,6 +21,7 @@ use Catalyst qw/-Debug
   Session
   Session::Store::FastMmap
   Session::State::Cookie
+  
   /;
 our $VERSION = '0.01';
 
@@ -33,7 +34,12 @@ our $VERSION = '0.01';
 # with an external configuration file acting as an override for
 # local deployment.
 
-__PACKAGE__->config(name => 'Statweb');
+__PACKAGE__->config(
+    name => 'Statweb',
+    'Plugin::Session' => {
+        expires => 86400,
+    },
+);
 
 # Start the application
 __PACKAGE__->setup();
