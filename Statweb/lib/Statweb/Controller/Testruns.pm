@@ -78,7 +78,13 @@ my %http_response_code = (
     510 => q{Not Extended},
 );
 
-sub index : Path : Args(0) {
+sub index :Local :Args(0) {
+    my ($self, $c) = @_;
+    
+    $c->detach('default');
+}
+
+sub default : Path : Args(0) {
     my ($self, $c) = @_;
 
     my $db  = $c->model('DB::Testrun');

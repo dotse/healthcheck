@@ -25,7 +25,7 @@
             [% IF ac == c.action %]
             <li class="current">[% urls.$ac %]</li>
             [% ELSE %]
-            <li><a href="[% c.uri_for(ac) %]">[% urls.$ac %]</a></li>
+            <li><a href="[% c.uri_for("/$ac") %]">[% urls.$ac %]</a></li>
             [% END %]
             [% END %]
         </ul>

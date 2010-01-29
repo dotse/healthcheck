@@ -1,5 +1,7 @@
 <h1>[% dset.name %]</h1>
+[% IF page.last_page > 1 -%]
 <h2>Page [% page.current_page %]/[% page.last_page %]</h2>
+[% END %]
 
 [% IF page.previous_page -%]
 <a href="[% c.uri_for('', dset.id, page.previous_page) %]">Previous</a>
