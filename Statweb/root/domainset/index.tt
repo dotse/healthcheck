@@ -1,7 +1,18 @@
 <h1>[% dset.name %]</h1>
+<h2>Page [% page.current_page %]/[% page.last_page %]</h2>
 
+[% IF page.previous_page -%]
+<a href="[% c.uri_for('', dset.id, page.previous_page) %]">Previous</a>
+[% END -%]
+
+[% IF page.next_page -%]
+<a href="[% c.uri_for('', dset.id, page.next_page) %]">Next</a>
+[% END -%]
+
+[% f = page.first -%]
 <ul>
-    [% FOREACH domain IN dset.domains -%]
-    <li>[% domain.domain %]</li>
+    [% FOREACH row IN rows.all -%]
+    <li>[% f %]: [% row.domain.domain %]</li>
+    [% f = f + 1 -%]
     [% END -%]
 </ul>

@@ -21,6 +21,8 @@ __PACKAGE__->set_primary_key('id');
 
 __PACKAGE__->belongs_to('webserver', 'Zonestat::DBI::Result::Webserver',
     'webserver_id');
-__PACKAGE__->has_many('result_row', 'Zonestat::DBI::Result::PA_Row',
-    'pageanalysis_id');
+__PACKAGE__->has_many(
+    'result_rows', 'Zonestat::DBI::Result::PA_Row',
+    'pageanalysis_id', { order_by => 'start_order' }
+);
 1;

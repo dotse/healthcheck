@@ -163,7 +163,8 @@ sub pageanalyze {
 
     if (chdir($padir)) {
         if (open my $pa,
-            '-|', $python, '-Wi::DeprecationWarning', 'pageanalyzer.py', $ws->url)
+            '-|', $python, '-Wi::DeprecationWarning', 'pageanalyzer.py',
+            $ws->url)
         {
             while (my $line = <$pa>) {
                 chomp($line);
@@ -179,7 +180,8 @@ sub pageanalyze {
                     # Not interested in this
                 }
             }
-            my $obj = $ws->create_related('pageanalysis',
+            my $obj = $ws->create_related(
+                'pageanalysis',
                 {
                     load_time             => $report5[2],
                     requests              => $report5[3],
@@ -192,7 +194,8 @@ sub pageanalyze {
                 }
             );
             foreach my $r (@report4) {
-                $obj->create_related('result_row',
+                $obj->create_related(
+                    'result_row',
                     {
                         url                  => pack('H*', $r->[2]),
                         ip                   => $r->[3],

@@ -20,15 +20,34 @@ Catalyst Controller.
 
 =cut
 
-sub index : Path : Args(1) {
+sub index : Chained('/') : CaptureArgs(1) : PathPart('domainset') {
     my ($self, $c, $id) = @_;
+    my $ds = $c->model('DB::Domainset')->find($id);
 
     $c->stash(
         {
-            dset     => $c->model('DB::Domainset')->find($id),
+            dset     => $ds,
             template => 'domainset/index.tt'
         }
     );
+}
+
+sub first : Chained('index') : Args(0) : PathPart('') {
+    my ($self, $c) = @_;
+
+    $c->stash->{rows} =
+      $c->stash->{dset}
+      ->search_related('glue', undef, { page => 1, rows => 25 });
+    $c->stash->{page} = $c->stash->{rows}->pager;
+}
+
+sub later : Chained('index') : Args(1) : PathPart('') {
+    my ($self, $c, $page) = @_;
+
+    $c->stash->{rows} =
+      $c->stash->{dset}
+      ->search_related('glue', undef, { page => $page, rows => 25 });
+    $c->stash->{page} = $c->stash->{rows}->pager;
 }
 
 =head1 AUTHOR
