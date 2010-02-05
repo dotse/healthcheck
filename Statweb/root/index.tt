@@ -28,7 +28,7 @@
                         <li class="unselected">
                         [% END -%]
                             <a href="[% c.uri_for('/toggletestrun', tr.id) %]">
-                                [% tr.name %] ([% 0 + tr.tests.size %] tests)
+                                [% tr.name %] ([% PERL -%] print $stash->get('tr')->tests->count; [% END -%] tests)
                             </a>
                         </li>
                         [% END -%]

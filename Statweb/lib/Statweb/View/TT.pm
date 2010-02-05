@@ -9,6 +9,7 @@ __PACKAGE__->config(
     TEMPLATE_EXTENSION => '.tt',
     WRAPPER            => 'wrapper.tt',
     TIMER              => 1,
+    EVAL_PERL          => 1,
 );
 
 =head1 NAME

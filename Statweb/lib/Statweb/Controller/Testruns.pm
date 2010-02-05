@@ -78,9 +78,9 @@ my %http_response_code = (
     510 => q{Not Extended},
 );
 
-sub index :Local :Args(0) {
+sub index : Local : Args(0) {
     my ($self, $c) = @_;
-    
+
     $c->detach('default');
 }
 
