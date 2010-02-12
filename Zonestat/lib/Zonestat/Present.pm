@@ -14,6 +14,39 @@ our $VERSION = '0.01';
 
 my $locale = LoadFile $Config{siteprefix} . '/share/dnscheck/locale/en.yaml';
 
+sub build_cache_for_testrun {
+    my $self = shift;
+    my $tr   = shift;
+
+    foreach my $t (qw[charset content_type response_code type]) {
+        $self->webservers_by_field($t, 0, $tr);
+        $self->webservers_by_field($t, 1, $tr);
+    }
+    $self->tests_with_max_severity($tr);
+    foreach my $f (qw[DNS HTTP SMTP]) {
+        $self->top_foo_servers($f, $tr);
+    }
+    $self->nameservers_per_asn(0, $tr);
+    $self->nameservers_per_asn(1, $tr);
+    $self->ipv6_percentage_for_testrun($tr);
+    $self->multihome_percentage_for_testrun($tr, 0);
+    $self->multihome_percentage_for_testrun($tr, 1);
+    $self->dnssec_percentage_for_testrun($tr);
+    $self->recursing_percentage_for_testrun($tr);
+    $self->adsp_percentage_for_testrun($tr);
+    $self->spf_percentage_for_testrun($tr);
+    $self->starttls_percentage_for_testrun($tr);
+    $self->nameserver_count($tr, 0);
+    $self->nameserver_count($tr, 1);
+    $self->mailservers_in_sweden($tr, 0);
+    $self->mailservers_in_sweden($tr, 1);
+
+    foreach my $l (qw[CRITICAL ERROR WARNING]) {
+        $self->message_bands($tr, $l);
+        $self->number_of_domains_with_message($l, $tr);
+    }
+}
+
 sub total_tested_domains {
     my $self = shift;
     my $tr   = shift;
@@ -274,7 +307,6 @@ sub top_foo_servers {
                   )->all
             ]
         );
-        warn "Regenerated data for '$key'.\n";
     }
 
     return @{ $self->chi->get($key) };
