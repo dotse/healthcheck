@@ -195,7 +195,7 @@ sub pageanalyze {
             );
             foreach my $r (@report4) {
                 $obj->create_related(
-                    'result_row',
+                    'result_rows',
                     {
                         url                  => pack('H*', $r->[2]),
                         ip                   => $r->[3],
