@@ -356,146 +356,186 @@ sub nameservers_per_asn {
 sub ipv6_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
+    my $key  = "ipv6_percentage_for_testrun " . $tr->id;
 
-    my $all = $tr->domainset->domains->count;
-    my $v6 =
-      $tr->search_related('servers', { ipv6 => 1 })
-      ->search_related('domain', {}, { group_by => ['domain'] })->count;
+    unless ($self->chi->is_valid($key)) {
+        my $all = $tr->domainset->domains->count;
+        my $v6 =
+          $tr->search_related('servers', { ipv6 => 1 })
+          ->search_related('domain', {}, { group_by => ['domain'] })->count;
 
-    return (100 * ($v6 / $all), $v6);
+        $self->chi->set($key, (100 * ($v6 / $all), $v6));
+    }
+    return $self->chi->get($key);
 }
 
 sub multihome_percentage_for_testrun {
     my $self = shift;
     my ($tr, $ipv6) = @_;
+    my $key = "multihome_percentage_for_testrun " . $tr->id . " $ipv6";
 
-    my $message;
-    if ($ipv6) {
-        $message = 'CONNECTIVITY:V6_ASN_COUNT_OK';
-    } else {
-        $message = 'CONNECTIVITY:ASN_COUNT_OK';
+    unless ($self->chi->is_valid($key)) {
+        my $message;
+        if ($ipv6) {
+            $message = 'CONNECTIVITY:V6_ASN_COUNT_OK';
+        } else {
+            $message = 'CONNECTIVITY:ASN_COUNT_OK';
+        }
+
+        my $all = $tr->tests->count;
+        my $ok =
+          $tr->search_related('tests', {})
+          ->search_related('results', { message => $message })->count;
+
+        $self->chi->set($key, (100 * ($ok / $all), $ok));
     }
-
-    my $all = $tr->tests->count;
-    my $ok =
-      $tr->search_related('tests', {})
-      ->search_related('results', { message => $message })->count;
-
-    return (100 * ($ok / $all), $ok);
+    return $self->chi->get($key);
 }
 
 sub dnssec_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
+    my $key  = "dnssec_percentage_for_testrun " . $tr->id;
 
-    my $all = $tr->tests->count;
-    my $ds =
-      $tr->search_related('tests', {})
-      ->search_related('results', { message => 'DNSSEC:DS_FOUND' })->count;
+    unless ($self->chi->is_valid($key)) {
+        my $all = $tr->tests->count;
+        my $ds =
+          $tr->search_related('tests', {})
+          ->search_related('results', { message => 'DNSSEC:DS_FOUND' })->count;
 
-    return (100 * ($ds / $all), $ds);
+        $self->chi->set($key, (100 * ($ds / $all), $ds));
+    }
+    return $self->chi->get($key);
 }
 
 sub recursing_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
+    my $key  = "recursing_percentage_for_testrun " . $tr->id;
 
-    my $all = $tr->tests->count;
-    my $ds = $tr->search_related('tests', {})->search_related(
-        'results',
-        { message  => 'NAMESERVER:RECURSIVE' },
-        { group_by => ['test_id'] }
-    )->count;
+    unless ($self->chi->is_valid($key)) {
+        my $all = $tr->tests->count;
+        my $ds = $tr->search_related('tests', {})->search_related(
+            'results',
+            { message  => 'NAMESERVER:RECURSIVE' },
+            { group_by => ['test_id'] }
+        )->count;
 
-    return (100 * ($ds / $all), $ds);
+        $self->chi->set($key, (100 * ($ds / $all), $ds));
+    }
+    return $self->chi->get($key);
 }
 
 sub adsp_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
+    my $key  = "adsp_percentage_for_testrun " . $tr->id;
 
-    my $all  = $tr->tests->count;
-    my $adsp = $self->dbx('Mailserver')->search(
-        {
-            run_id => $tr->id,
-            adsp   => { '!=', undef }
-        },
-        { group_by => ['domain_id'] }
-    )->count;
+    unless ($self->chi->is_valid($key)) {
+        my $all  = $tr->tests->count;
+        my $adsp = $self->dbx('Mailserver')->search(
+            {
+                run_id => $tr->id,
+                adsp   => { '!=', undef }
+            },
+            { group_by => ['domain_id'] }
+        )->count;
 
-    return (100 * ($adsp / $all), $adsp);
+        $self->chi->set($key, (100 * ($adsp / $all), $adsp));
+    }
+    return $self->chi->get($key);
 }
 
 sub spf_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
+    my $key  = 'spf_percentage_for_testrun ' . $tr->id;
 
-    my $all  = $tr->tests->count;
-    my $adsp = $self->dbx('Mailserver')->search(
-        {
-            run_id => $tr->id,
-            '-or'  => {
-                spf_spf => { '!=', undef },
-                spf_txt => { '!=', undef }
-            }
-        },
-        { group_by => ['domain_id'] }
-    )->count;
+    unless ($self->chi->is_valid($key)) {
+        my $all  = $tr->tests->count;
+        my $adsp = $self->dbx('Mailserver')->search(
+            {
+                run_id => $tr->id,
+                '-or'  => {
+                    spf_spf => { '!=', undef },
+                    spf_txt => { '!=', undef }
+                }
+            },
+            { group_by => ['domain_id'] }
+        )->count;
 
-    return (100 * ($adsp / $all), $adsp);
+        $self->chi->set($key, (100 * ($adsp / $all), $adsp));
+    }
+    return $self->chi->get($key);
 }
 
 sub starttls_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
+    my $key  = 'starttls_percentage_for_testrun ' . $tr->id;
 
-    my $all      = $tr->tests->count;
-    my $starttls = $self->dbx('Mailserver')->search(
-        { run_id   => $tr->id, starttls => 1 },
-        { group_by => ['domain_id'] }
-    )->count;
+    unless ($self->chi->is_valid($key)) {
+        my $all      = $tr->tests->count;
+        my $starttls = $self->dbx('Mailserver')->search(
+            { run_id   => $tr->id, starttls => 1 },
+            { group_by => ['domain_id'] }
+        )->count;
 
-    return (100 * ($starttls / $all), $starttls);
+        $self->chi->set($key, (100 * ($starttls / $all), $starttls));
+    }
+    return $self->chi->get($key);
 }
 
 sub nameserver_count {
     my $self = shift;
     my ($tr, $ipv6) = @_;
+    my $key = 'nameserver_count ' . $tr->id . ' ' . $ipv6;
 
-    my $divider = $ipv6 ? '%:%' : '%.%';
+    unless ($self->chi->is_valid($key)) {
+        my $divider = $ipv6 ? '%:%' : '%.%';
 
-    return $tr->search_related('tests', {})->search_related(
-        'results',
-        {
-            message => 'DNS:NAMESERVER_FOUND',
-            arg0    => {
-                '!=' => '',
-                '='  => \'domain',
-            },
-            arg3 => { -like => [$divider] },
-        },
-        {
-            columns  => [qw(arg3)],
-            distinct => 1
-        }
-    )->count;
+        $self->chi->set(
+            $key,
+            $tr->search_related('tests', {})->search_related(
+                'results',
+                {
+                    message => 'DNS:NAMESERVER_FOUND',
+                    arg0    => {
+                        '!=' => '',
+                        '='  => \'domain',
+                    },
+                    arg3 => { -like => [$divider] },
+                },
+                {
+                    columns  => [qw(arg3)],
+                    distinct => 1
+                }
+              )->count
+        );
+    }
+    return $self->chi->get($key);
 }
 
 sub mailservers_in_sweden {
     my $self = shift;
     my ($tr, $ipv6) = @_;
+    my $key = 'mailservers_in_sweden ' . $tr->id . ' ' . $ipv6;
 
-    my $ms =
-      $tr->search_related('servers', { kind => 'SMTP', ipv6 => $ipv6 })->count;
-    my $se =
-      $tr->search_related('servers',
-        { kind => 'SMTP', ipv6 => $ipv6, code => 'SE' })->count;
+    unless ($self->chi->is_valid($key)) {
+        my $ms =
+          $tr->search_related('servers', { kind => 'SMTP', ipv6 => $ipv6 })
+          ->count;
+        my $se =
+          $tr->search_related('servers',
+            { kind => 'SMTP', ipv6 => $ipv6, code => 'SE' })->count;
 
-    if ($ms > 0) {
-        return 100 * ($se / $ms);
-    } else {
-        return 'N/A';
+        if ($ms > 0) {
+            $self->chi->set($key, 100 * ($se / $ms));
+        } else {
+            $self->chi->set($key, 'N/A');
+        }
     }
+    return $self->chi->get($key);
 }
 
 sub message_bands {
