@@ -207,3 +207,9 @@ CREATE TABLE IF NOT EXISTS `pa_row` (
     CONSTRAINT `parow_pageanalysisid` FOREIGN KEY (`pageanalysis_id`) REFERENCES `pageanalysis` (`id`) ON DELETE CASCADE,
     INDEX (`pageanalysis_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
+    
+CREATE TABLE IF NOT EXISTS `chi_Zonestat` (
+    `key` varchar(600) NOT NULL default '',
+    `value` longtext,
+    PRIMARY KEY  (`key`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
