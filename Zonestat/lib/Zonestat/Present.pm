@@ -53,31 +53,34 @@ sub number_of_domains_with_message {
     my $level = shift;
     my @trs   = @_;
     my %res;
-    my $key =
-        'number_of_domains_with_message ' 
-      . $level . ' '
-      . join(' ', sort map { $_->id } @trs);
 
-    unless ($self->chi->is_valid($key)) {
-        foreach my $tr (@trs) {
+    foreach my $tr (@trs) {
+        my $key = 'number_of_domains_with_message ' . $level . ' ' . $tr->id;
+        unless ($self->chi->is_valid($key)) {
+            my %tmp;
             my $mr = $tr->search_related('tests', {})->search_related(
                 'results',
                 { level    => $level },
                 { group_by => ['message'] }
             );
             while (my $m = $mr->next) {
-                $res{ $m->message }{ $tr->id } =
+                $tmp{ $m->message } =
                   $tr->search_related('tests', {})->search_related(
                     'results',
                     { message  => $m->message },
                     { group_by => ['test_id'] }
                   )->count;
             }
+            $self->chi->set($key, \%tmp);
         }
-        $self->chi->set($key, \%res);
+        my %tmp = %{ $self->chi->get($key) };
+        foreach my $m (keys %tmp) {
+            $res{$m}{ $tr->id } = $tmp{$m};
+        }
+
     }
 
-    return %{ $self->chi->get($key) };
+    return %res;
 }
 
 sub number_of_servers_with_software {
@@ -183,17 +186,18 @@ sub tests_with_max_severity {
     my @ds   = @_;
 
     my %res;
-    my $key = 'tests_with_max_severity ' . join(' ', sort map { $_->id } @ds);
 
-    unless ($self->chi->is_valid($key)) {
-        foreach my $ds (@ds) {
-            $res{critical}{ $ds->id } =
+    foreach my $ds (@ds) {
+        my $key = 'tests_with_max_severity ' . $ds->id;
+        unless ($self->chi->is_valid($key)) {
+            my %tmp;
+            $tmp{critical} =
               $ds->search_related('tests', { count_critical => { '>', 0 } })
               ->count;
-            $res{error}{ $ds->id } =
+            $tmp{error} =
               $ds->search_related('tests',
                 { count_critical => 0, count_error => { '>', 0 } })->count;
-            $res{warning}{ $ds->id } = $ds->search_related(
+            $tmp{warning} = $ds->search_related(
                 'tests',
                 {
                     count_critical => 0,
@@ -201,7 +205,7 @@ sub tests_with_max_severity {
                     count_warning  => { '>', 0 }
                 }
             )->count;
-            $res{notice}{ $ds->id } = $ds->search_related(
+            $tmp{notice} = $ds->search_related(
                 'tests',
                 {
                     count_critical => 0,
@@ -210,7 +214,7 @@ sub tests_with_max_severity {
                     count_notice   => { '>', 0 }
                 }
             )->count;
-            $res{info}{ $ds->id } = $ds->search_related(
+            $tmp{info} = $ds->search_related(
                 'tests',
                 {
                     count_critical => 0,
@@ -220,11 +224,15 @@ sub tests_with_max_severity {
                     count_info     => { '>', 0 }
                 }
             )->count;
+            $self->chi->set($key, \%tmp);
         }
-        $self->chi->set($key, \%res);
+        my %tmp = %{ $self->chi->get($key) };
+        foreach my $l (keys %tmp) {
+            $res{$l}{ $ds->id } = $tmp{$l};
+        }
     }
 
-    return %{ $self->chi->get($key) };
+    return %res;
 }
 
 sub domainset_being_tested {
@@ -272,41 +280,6 @@ sub top_foo_servers {
     return @{ $self->chi->get($key) };
 }
 
-sub google_mapchart_url {
-    my $self = shift;
-    my ($trid, $kind) = @_;
-    my $tr = $self->dbx('Testrun')->find($trid);
-
-    my %data =
-      map { $_->code, $_->get_column('count') }
-      grep { $_->code } $self->dbx('Server')->search(
-        { kind => uc($kind), run_id => $tr->id },
-        {
-            select   => [qw[code], { count => '*' }],
-            as       => [qw[code], 'count'],
-            group_by => [qw[code]],
-            order_by => ['count(*) DESC'],
-        }
-      )->all;
-
-    my $max = 0;
-    foreach my $v (values %data) {
-        $max = $v if $v > $max;
-    }
-
-    foreach my $k (keys %data) {
-        $data{$k} = sprintf "%0.1f", 100 * ($data{$k} / $max);
-    }
-
-    my $chd  = 'chd=t:' . join ',', values %data;
-    my $chld = 'chld=' . join '',   keys %data;
-
-    return
-'http://chart.apis.google.com/chart?chs=440x220&cht=t&chtm=world&chco=FFFFFF,CCFFCC,00FF00&chf=bg,s,EAF7FE&'
-      . $chld . '&'
-      . $chd;
-}
-
 sub top_dns_servers {
     my $self = shift;
     return $self->top_foo_servers('DNS', @_);
@@ -329,23 +302,29 @@ sub nameservers_per_asn {
     my %res;
 
     foreach my $t (@tr) {
-        foreach my $r (
-            $self->dbx('Server')->search(
-                {
-                    kind   => 'DNS',
-                    run_id => $t->id,
-                    ipv6   => $ipv6,
-                    asn    => { '!=', undef }
-                },
-                {
-                    select   => [qw[asn], { count => '*' }],
-                    as       => [qw[asn], 'count'],
-                    group_by => [qw[asn]],
-                    order_by => ['count(*) DESC'],
-                }
-            )->all
-          )
-        {
+        my $key = 'nameservers_per_asn ' . $t->id . ' ' . $ipv6;
+        unless ($self->chi->is_valid($key)) {
+            $self->chi->set(
+                $key,
+                [
+                    $self->dbx('Server')->search(
+                        {
+                            kind   => 'DNS',
+                            run_id => $t->id,
+                            ipv6   => $ipv6,
+                            asn    => { '!=', undef }
+                        },
+                        {
+                            select   => [qw[asn], { count => '*' }],
+                            as       => [qw[asn], 'count'],
+                            group_by => [qw[asn]],
+                            order_by => ['count(*) DESC'],
+                        }
+                      )->all
+                ]
+            );
+        }
+        foreach my $r (@{ $self->chi->get($key) }) {
             $res{ $r->asn }{ $t->id } = $r->get_column('count');
         }
     }
