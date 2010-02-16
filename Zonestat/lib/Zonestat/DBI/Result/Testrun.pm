@@ -21,4 +21,11 @@ __PACKAGE__->has_many(
 );
 __PACKAGE__->has_many(servers => 'Zonestat::DBI::Result::Server', 'run_id');
 
+sub invalidate_cache {
+    my $self = shift;
+
+    $self->result_source->storage->dbh->do(
+        q[DELETE FROM chi_Zonestat WHERE `key` LIKE '% ] . $self->id . q[ %']);
+}
+
 1;

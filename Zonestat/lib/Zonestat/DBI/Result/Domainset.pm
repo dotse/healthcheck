@@ -28,9 +28,7 @@ sub remove_domain {
 
     my $trs = $self->testruns;
     while (defined(my $tr = $trs->next)) {
-        my $dbh = $tr->result_source->storage->dbh;
-        my $id  = $tr->id;
-        $dbh->do(qq[DELETE FROM chi_Zonestat WHERE `key` LIKE '% $id %']);
+        $tr->invalidate_cache;
 
         foreach my $relation ($tr->webservers_rs, $tr->mailservers_rs,
             $tr->servers_rs)
