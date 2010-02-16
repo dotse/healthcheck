@@ -23,17 +23,25 @@ sub remove_domain {
     my ($self, $did) = @_;
 
     my $glue = $self->search_related('glue', { domain_id => $did })->first;
+    my $domain = $glue->domain;
     $glue->delete;
 
     my $trs = $self->testruns;
     while (defined(my $tr = $trs->next)) {
-        foreach my $relation (
-            $tr->tests_rs,       $tr->webservers_rs,
-            $tr->mailservers_rs, $tr->servers_rs
-          )
+        my $dbh = $tr->result_source->storage->dbh;
+        my $id  = $tr->id;
+        $dbh->do(qq[DELETE FROM chi_Zonestat WHERE `key` LIKE '% $id %']);
+
+        foreach my $relation ($tr->webservers_rs, $tr->mailservers_rs,
+            $tr->servers_rs)
         {
             my $d = $relation->search({ domain_id => $did })->first;
             $d->delete if $d;
+        }
+
+        my $tests = $tr->search_related('tests', { domain => $domain->domain });
+        while (defined(my $test = $tests->next)) {
+            $test->delete;
         }
     }
 }
