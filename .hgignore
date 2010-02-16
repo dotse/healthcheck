@@ -10,3 +10,4 @@ Zonestat/Issuers.numbers
 Zonestat/examples/csv_split.pl
 Zonestat/examples/foo.pl
 *.pyc
+pageanalyzer/lextab.py
