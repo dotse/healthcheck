@@ -12,16 +12,16 @@
     <dt>Menu</dt>
     [% 
     urls = {
-        'testruns/index' = 'Summary'
-        'testruns/dnscheck' = 'DNSCheck'
-        'testruns/webpages' = 'Web'
-        'testruns/servers' = 'Servers'
+        'showstats/index' = 'Summary'
+        'showstats/dnscheck' = 'DNSCheck'
+        'showstats/webpages' = 'Web'
+        'showstats/servers' = 'Servers'
     }
     %]
     <dd id="links">
         <ul id="leftmenu">
             <li><a href="[% c.uri_for('/') %]">Select</a></li>
-            [% FOREACH ac IN ['testruns/index' 'testruns/dnscheck' 'testruns/webpages' 'testruns/servers'] -%]
+            [% FOREACH ac IN ['showstats/index' 'showstats/dnscheck' 'showstats/webpages' 'showstats/servers'] -%]
             [% IF ac == c.action %]
             <li class="current">[% urls.$ac %]</li>
             [% ELSE %]

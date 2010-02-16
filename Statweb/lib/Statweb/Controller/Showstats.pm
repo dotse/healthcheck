@@ -1,4 +1,4 @@
-package Statweb::Controller::Testruns;
+package Statweb::Controller::Showstats;
 
 use strict;
 use warnings;
@@ -10,7 +10,7 @@ use List::Util qw[max];
 
 =head1 NAME
 
-Statweb::Controller::Testruns - Catalyst Controller
+Statweb::Controller::Showstats - Catalyst Controller
 
 =head1 DESCRIPTION
 
@@ -159,7 +159,7 @@ sub default : Path : Args(0) {
 
     $c->stash(
         {
-            template  => 'testruns/index.tt',
+            template  => 'showstats/index.tt',
             pagetitle => $name,
             data      => \%data,
         }
@@ -226,7 +226,7 @@ sub webpages : Local : Args(0) {
 
     $c->stash(
         {
-            template  => 'testruns/webpages.tt',
+            template  => 'showstats/webpages.tt',
             pagetitle => $name,
             http_code => \%http_response_code,
             names     => {
@@ -312,7 +312,7 @@ sub dnscheck : Local : Args(0) {
 
     $c->stash(
         {
-            template     => 'testruns/dnscheck.tt',
+            template     => 'showstats/dnscheck.tt',
             pagetitle    => $name,
             data         => \%data,
             errors       => \%errors,
@@ -393,7 +393,7 @@ sub servers : Local : Args(0) {
 
     $c->stash(
         {
-            template      => 'testruns/servers.tt',
+            template      => 'showstats/servers.tt',
             pagetitle     => $name,
             trs           => \@trs,
             data          => \%data,
@@ -415,7 +415,7 @@ sub view_by_level : Local : Args(2) {
 
     $c->stash(
         {
-            template => 'testruns/view_by_level.tt',
+            template => 'showstats/view_by_level.tt',
             tr       => $tr,
             level    => $level,
             tests    => \@tests,

@@ -3,6 +3,7 @@ package Statweb::Controller::Root;
 use strict;
 use warnings;
 use parent 'Catalyst::Controller';
+use Data::Dumper;
 
 #
 # Sets the actions in this controller to be registered with no prefix
