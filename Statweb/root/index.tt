@@ -27,7 +27,7 @@
                         [% ELSE -%]
                         <li class="unselected">
                         [% END -%]
-                            [% tr.name %], [% PERL -%] print $stash->get('tr')->tests->count; [% END -%] tests.
+                            <a href="[% c.uri_for('/testrun', tr.id) %]">[% tr.name %]</a>, [% PERL -%] print $stash->get('tr')->tests->count; [% END -%] tests.
                             <a href="[% c.uri_for('/toggletestrun', tr.id) %]">(toggle)</a>
                         </li>
                         [% END -%]

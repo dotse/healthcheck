@@ -1,0 +1,20 @@
+<table>
+    <tr>
+        <th>Domain</th>
+        <th>Started</th>
+        <th>Critical</th>
+        <th>Error</th>
+        <th>Warning</th>
+    </tr>
+    [% FOR test IN run.tests -%]
+    <tr class="[% loop.parity %]">
+        <td>
+            <a href="[% c.uri_for('/testrun', run.id, test.tested_domain.id) %]">[% test.domain %]</a>
+        </td>
+        <td>[% test.begin(1) %]</td>
+        <td class="numeric">[% test.count_critical %]</td>
+        <td class="numeric">[% test.count_error %]</td>
+        <td class="numeric">[% test.count_warning %]</td>
+    </tr>
+    [% END -%]
+</table>
