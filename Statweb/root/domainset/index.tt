@@ -11,7 +11,7 @@
 <a href="[% c.uri_for('', dset.id, page.next_page) %]">Next</a>
 [% END -%]
 
-<p class="notice"> Note that if you delete a domain from a domainset, all
+<p class="notice"> Note that if you delete or add a domain in a domainset, all
 calculated statistics for that set will be invalidated and may take some
 considerable time to recalculate. </p>
 
@@ -28,3 +28,9 @@ considerable time to recalculate. </p>
         <input type="text" name="domainname" size="63">
         <input type="submit" name="add" value="add">
     </form>
+    
+<h2>Initiate cache rebuild</h2>
+<p class="notice">This may in extreme cases take several hours.</p>
+<form method="POST" action="[% c.uri_for('',dset.id,'rebuild') %]">
+    <input type="submit" value="Rebuild">
+</form>
