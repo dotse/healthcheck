@@ -50,6 +50,25 @@ sub later : Chained('index') : Args(1) : PathPart('') {
     $c->stash->{page} = $c->stash->{rows}->pager;
 }
 
+sub delete : Chained('index') : Args(1) : PathPart('delete') {
+    my ($self, $c, $domain_id) = @_;
+
+    $c->stash->{dset}->remove_domain($domain_id);
+    
+    $c->res->redirect(
+        $c->uri_for_action('/domainset/first', [$c->stash->{dset}->id]));
+}
+
+sub add : Chained('index') : Args(0) : PathPart('add') {
+    my ($self, $c) = @_;
+    my $domainname = $c->req->params->{domainname};
+    my $domain = $c->model('DB::Domains')->find({ domain => $domainname });
+
+    $c->stash->{dset}->add_to_glue({ domain_id => $domain->id });
+    $c->res->redirect(
+        $c->uri_for_action('/domainset/first', [$c->stash->{dset}->id]));
+}
+
 =head1 AUTHOR
 
 Calle Dybedahl

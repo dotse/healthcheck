@@ -29,15 +29,7 @@ Statweb::Controller::Root - Root Controller for Statweb
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
 
-    # Hello World
-    # $c->response->body( $c->welcome_message );
-
-    $c->stash(
-        {
-            now  => scalar(localtime),
-            dset => [$c->model('DB::Domainset')->all]
-        }
-    );
+    $c->stash({ dset => [$c->model('DB::Domainset')->all] });
 }
 
 sub default : Path {

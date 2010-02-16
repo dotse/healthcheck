@@ -19,4 +19,23 @@ sub tests {
     $self->glue->search_related('domain', {})->search_related('tests', {});
 }
 
+sub remove_domain {
+    my ($self, $did) = @_;
+
+    my $glue = $self->search_related('glue', { domain_id => $did })->first;
+    $glue->delete;
+
+    my $trs = $self->testruns;
+    while (defined(my $tr = $trs->next)) {
+        foreach my $relation (
+            $tr->tests_rs,       $tr->webservers_rs,
+            $tr->mailservers_rs, $tr->servers_rs
+          )
+        {
+            my $d = $relation->search({ domain_id => $did })->first;
+            $d->delete if $d;
+        }
+    }
+}
+
 1;

@@ -11,10 +11,20 @@
 <a href="[% c.uri_for('', dset.id, page.next_page) %]">Next</a>
 [% END -%]
 
+<p class="notice"> Note that if you delete a domain from a domainset, all
+calculated statistics for that set will be invalidated and may take some
+considerable time to recalculate. </p>
+
 [% f = page.first -%]
-<ul>
+<ul class="domainset">
     [% FOREACH row IN rows.all -%]
-    <li>[% f %]: [% row.domain.domain %]</li>
+    <li>[% f %]: [% row.domain.domain %] (<a href="[% c.uri_for('',dset.id,'delete',row.domain.id) %]">delete</a>)</li>
     [% f = f + 1 -%]
     [% END -%]
 </ul>
+
+<h2>Add new</h2>
+    <form method="POST" action="[% c.uri_for('',dset.id,'add') %]">
+        <input type="text" name="domainname" size="63">
+        <input type="submit" name="add" value="add">
+    </form>

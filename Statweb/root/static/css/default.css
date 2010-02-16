@@ -279,3 +279,7 @@ dd#links {
 #leftmenu li a:hover {
 	text-decoration: underline;
 }
+
+ul.domainset {
+    list-style-type: none;
+}
