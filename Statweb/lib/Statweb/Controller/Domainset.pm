@@ -60,7 +60,7 @@ sub delete : Chained('index') : Args(1) : PathPart('delete') {
 sub add : Chained('index') : Args(0) : PathPart('add') {
     my ($self, $c) = @_;
     my $domainname = $c->req->params->{domainname};
-    my $domain = $c->model('DB::Domains')->find({ domain => $domainname });
+    my $domain = $c->model('DB::Domains')->find_or_create({ domain => $domainname });
 
     $c->stash->{dset}->add_to_glue({ domain_id => $domain->id });
     my $trs = $c->stash->{dset}->testruns;
