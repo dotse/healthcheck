@@ -81,6 +81,8 @@ sub lame_delegated_domains {
     )->count;
 }
 
+### FIXME: Special table for DNSSEC problems. 
+
 sub number_of_domains_with_message {
     my $self  = shift;
     my $level = shift;

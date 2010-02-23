@@ -38,11 +38,12 @@ use Zonestat;
 use Getopt::Long;
 use Sys::Syslog;
 use POSIX qw(:sys_wait_h strftime);
-use Time::HiRes 'sleep';
+use Time::HiRes qw(sleep gettimeofday);
 
 use vars qw[
   %running
   %reaped
+  %start_time
   %problem
   $debug
   $verbose
@@ -60,6 +61,7 @@ use vars qw[
 
 %running   = ();
 %reaped    = ();
+%start_time = ();
 %problem   = ();
 $debug     = 0;
 $verbose   = 0;
@@ -161,7 +163,8 @@ sub setup {
 }
 
 sub detach
-{  # Instead of using ioctls and setfoo calls we use the old double-fork method.
+{  
+    # Instead of using ioctls and setfoo calls we use the old double-fork method.
     my $pid;
 
     # Once...
@@ -314,6 +317,7 @@ sub process {
 
     if ($pid) {    # True values, so parent
         $running{$pid} = $domain;
+        $start_time{$pid} = gettimeofday();
         slog 'debug', "Child process $pid has been started.";
     } elsif ($pid == 0) {    # Zero value, so child
         running_in_child($domain, $id, $source, $source_data, $fake_glue,
@@ -416,11 +420,19 @@ sub monitor_children {
         my $exitcode = $reaped{$pid};
         delete $running{$pid};
         delete $reaped{$pid};
+        delete $start_time{$pid};
         cleanup($domain, $exitcode, $pid);
     }
 
     if (defined($exit_timeout) and time() - $exit_timeout > 300) {
         %running = ();
+    }
+    
+    foreach my $pid (keys %start_time) {
+        if ((gettimeofday() - $start_time{$pid}) > 180) {
+            slog 'warning', "Child $pid timed out, killing it.\n";
+            kill 9, $pid;
+        }
     }
 }
 

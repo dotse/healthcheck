@@ -1,3 +1,64 @@
 [% FOR w IN web -%]
-    [% w.url %]
+    <h2>[% w.url %]</h2>
+
+    <table>
+        <tr>
+            <th>IP Address</th>
+            <td>[% w.ip %]</td>
+        </tr>
+        <tr>
+            <th>Server software</th>
+            <td>[% w.type %] [% w.version %]</td>
+        </tr>
+        [% IF w.https %]
+        <tr>
+            <th>Certificate issuer</th>
+            <td>[% w.issuer %]</td>
+        </tr>
+        [% END %]
+        <tr>
+            <th>Response Code</th>
+            <td>[% w.response_code %]</td>
+        </tr>
+        <tr>
+            <th>Content Type</th>
+            <td>[% w.content_type %]</td>
+        </tr>
+        [% IF w.redirect_count > 0 %]
+        <tr>
+            <th>Redirect chain</th>
+            <td>[% w.redirect_urls %]</td>
+        </tr>
+        <tr>
+            <th>Ending TLD</th>
+            <td>[% w.ending_tld %]</td>
+        </tr>
+        [% END %]
+        <tr>
+            <th><tt>robots.txt</tt></th>
+            <td>
+                [% IF w.robots_txt %]
+                Yes
+                [% ELSE %]
+                No
+                [% END %]
+            </td>
+        </tr>
+        [% IF w.pageanalysis %]
+        <tr>
+            <th>Load Time</th>
+            <td>[% (w.pageanalysis.load_time) / 1000 %]s</td>
+        </tr>
+        <tr>
+            <th>Included URLs</th>
+            <td>
+                <ol>
+                    [% FOR pa IN w.pageanalysis.result_rows %]
+                    <li>[% pa.url %]</li>
+                    [% END %]
+                </ol>
+            </td>
+        </tr>
+        [% END %]
+    </table>
 [% END %]

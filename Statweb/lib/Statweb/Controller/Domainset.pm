@@ -36,10 +36,7 @@ sub index : Chained('/') : CaptureArgs(1) : PathPart('domainset') {
 sub first : Chained('index') : Args(0) : PathPart('') {
     my ($self, $c) = @_;
 
-    $c->stash->{rows} =
-      $c->stash->{dset}
-      ->search_related('glue', undef, { page => 1, rows => 25 });
-    $c->stash->{page} = $c->stash->{rows}->pager;
+    $c->detach('later', [1]);
 }
 
 sub later : Chained('index') : Args(1) : PathPart('') {
