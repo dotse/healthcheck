@@ -153,6 +153,7 @@ sub chi {
         on_set_error => 'die',
         on_get_error => 'die',
         create_table => 1,
+        expires_at   => 1899557035, # 12 March 2030
     ) unless defined($self->{chi});
 
     $DBIx::Class::ResultSourceHandle::thaw_schema = $self->schema;
