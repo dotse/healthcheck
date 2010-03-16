@@ -59,20 +59,20 @@ use vars qw[
   %levels
 ];
 
-%running   = ();
-%reaped    = ();
+%running    = ();
+%reaped     = ();
 %start_time = ();
-%problem   = ();
-$debug     = 0;
-$verbose   = 0;
-$check     = DNSCheck->new;
-$zs        = Zonestat->new(%{ $check->config });
-$limit     = $check->config->get("daemon")->{maxchild};
-$savelevel = $check->config->get("daemon")->{savelevel} || 'INFO';
-$running   = 1;
-$restart   = 0;
-$syslog    = 1;
-%levels    = (
+%problem    = ();
+$debug      = 0;
+$verbose    = 0;
+$check      = DNSCheck->new;
+$zs         = Zonestat->new(%{ $check->config });
+$limit      = $check->config->get("daemon")->{maxchild};
+$savelevel  = $check->config->get("daemon")->{savelevel} || 'INFO';
+$running    = 1;
+$restart    = 0;
+$syslog     = 1;
+%levels     = (
     DEBUG    => 0,
     INFO     => 1,
     NOTICE   => 2,
@@ -162,9 +162,9 @@ sub setup {
     };
 }
 
-sub detach
-{  
-    # Instead of using ioctls and setfoo calls we use the old double-fork method.
+sub detach {
+
+   # Instead of using ioctls and setfoo calls we use the old double-fork method.
     my $pid;
 
     # Once...
@@ -316,7 +316,7 @@ sub process {
     my $pid = fork;
 
     if ($pid) {    # True values, so parent
-        $running{$pid} = $domain;
+        $running{$pid}    = $domain;
         $start_time{$pid} = gettimeofday();
         slog 'debug', "Child process $pid has been started.";
     } elsif ($pid == 0) {    # Zero value, so child
@@ -427,7 +427,7 @@ sub monitor_children {
     if (defined($exit_timeout) and time() - $exit_timeout > 300) {
         %running = ();
     }
-    
+
     foreach my $pid (keys %start_time) {
         if ((gettimeofday() - $start_time{$pid}) > 180) {
             slog 'warning', "Child $pid timed out, killing it.";

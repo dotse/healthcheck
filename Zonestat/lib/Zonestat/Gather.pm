@@ -272,10 +272,10 @@ sub get_http_server_data {
         my $rcount = scalar($res->redirects);
         my $rurls = join ' ', map { $_->base } $res->redirects;
         $rurls .= ' ' . $res->base;
-        
+
         # Don't try to deal with anything but HTTP.
         next DOMAIN unless $res->base->scheme eq 'http';
-        
+
         my ($tld) = $res->base->host =~ m|\.([-_0-9a-z]+)(:\d+)?$|i;
 
         my $ddb = $db->search({ domain => $domain })->first;
