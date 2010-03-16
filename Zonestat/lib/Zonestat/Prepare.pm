@@ -37,7 +37,7 @@ sub fetch_zone {
         my %flags = map { $_, 0 } @{ $zcfg->{flagdomains} };
         while (defined(my $line = <$zfile>)) {
             next unless $line =~ /^(\S+?)\.\s+/;
-            if (exist($flags{$1})) {
+            if (exists($flags{$1})) {
                 $flags{$1} = 1;
             }
         }

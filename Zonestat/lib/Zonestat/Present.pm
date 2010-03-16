@@ -81,7 +81,7 @@ sub lame_delegated_domains {
     )->count;
 }
 
-### FIXME: Special table for DNSSEC problems. 
+### FIXME: Special table for DNSSEC problems.
 
 sub number_of_domains_with_message {
     my $self  = shift;
@@ -377,9 +377,9 @@ sub ipv6_percentage_for_testrun {
           $tr->search_related('servers', { ipv6 => 1 })
           ->search_related('domain', {}, { group_by => ['domain'] })->count;
 
-        $self->chi->set($key, (100 * ($v6 / $all), $v6));
+        $self->chi->set($key, [100 * ($v6 / $all), $v6]);
     }
-    return $self->chi->get($key);
+    return @{ $self->chi->get($key) };
 }
 
 sub multihome_percentage_for_testrun {
@@ -396,13 +396,17 @@ sub multihome_percentage_for_testrun {
         }
 
         my $all = $tr->tests->count;
-        my $ok =
-          $tr->search_related('tests', {})
-          ->search_related('results', { message => $message })->count;
+        if ($all > 0) {
+            my $ok =
+              $tr->search_related('tests', {})
+              ->search_related('results', { message => $message })->count;
 
-        $self->chi->set($key, (100 * ($ok / $all), $ok));
+            $self->chi->set($key, [100 * ($ok / $all), $ok]);
+        } else {
+            $self->chi->set($key, [qw[N/A N/A]]);
+        }
     }
-    return $self->chi->get($key);
+    return @{ $self->chi->get($key) };
 }
 
 sub dnssec_percentage_for_testrun {
@@ -412,13 +416,18 @@ sub dnssec_percentage_for_testrun {
 
     unless ($self->chi->is_valid($key)) {
         my $all = $tr->tests->count;
-        my $ds =
-          $tr->search_related('tests', {})
-          ->search_related('results', { message => 'DNSSEC:DS_FOUND' })->count;
+        if ($all > 0) {
+            my $ds =
+              $tr->search_related('tests', {})
+              ->search_related('results', { message => 'DNSSEC:DS_FOUND' })
+              ->count;
 
-        $self->chi->set($key, (100 * ($ds / $all), $ds));
+            $self->chi->set($key, [100 * ($ds / $all), $ds]);
+        } else {
+            $self->chi->set($key, [qw[N/A N/A]]);
+        }
     }
-    return $self->chi->get($key);
+    return @{ $self->chi->get($key) };
 }
 
 sub recursing_percentage_for_testrun {
@@ -428,15 +437,19 @@ sub recursing_percentage_for_testrun {
 
     unless ($self->chi->is_valid($key)) {
         my $all = $tr->tests->count;
-        my $ds = $tr->search_related('tests', {})->search_related(
-            'results',
-            { message  => 'NAMESERVER:RECURSIVE' },
-            { group_by => ['test_id'] }
-        )->count;
+        if ($all > 0) {
+            my $ds = $tr->search_related('tests', {})->search_related(
+                'results',
+                { message  => 'NAMESERVER:RECURSIVE' },
+                { group_by => ['test_id'] }
+            )->count;
 
-        $self->chi->set($key, (100 * ($ds / $all), $ds));
+            $self->chi->set($key, [100 * ($ds / $all), $ds]);
+        } else {
+            $self->chi->set($key, [qw[N/A N/A]]);
+        }
     }
-    return $self->chi->get($key);
+    return @{ $self->chi->get($key) };
 }
 
 sub adsp_percentage_for_testrun {
@@ -445,18 +458,22 @@ sub adsp_percentage_for_testrun {
     my $key  = "adsp_percentage_for_testrun " . $tr->id;
 
     unless ($self->chi->is_valid($key)) {
-        my $all  = $tr->tests->count;
-        my $adsp = $self->dbx('Mailserver')->search(
-            {
-                run_id => $tr->id,
-                adsp   => { '!=', undef }
-            },
-            { group_by => ['domain_id'] }
-        )->count;
+        my $all = $tr->tests->count;
+        if ($all > 0) {
+            my $adsp = $self->dbx('Mailserver')->search(
+                {
+                    run_id => $tr->id,
+                    adsp   => { '!=', undef }
+                },
+                { group_by => ['domain_id'] }
+            )->count;
 
-        $self->chi->set($key, (100 * ($adsp / $all), $adsp));
+            $self->chi->set($key, [100 * ($adsp / $all), $adsp]);
+        } else {
+            $self->chi->set($key, [qw[N/A N/A]]);
+        }
     }
-    return $self->chi->get($key);
+    return @{ $self->chi->get($key) };
 }
 
 sub spf_percentage_for_testrun {
@@ -465,21 +482,25 @@ sub spf_percentage_for_testrun {
     my $key  = 'spf_percentage_for_testrun ' . $tr->id;
 
     unless ($self->chi->is_valid($key)) {
-        my $all  = $tr->tests->count;
-        my $adsp = $self->dbx('Mailserver')->search(
-            {
-                run_id => $tr->id,
-                '-or'  => {
-                    spf_spf => { '!=', undef },
-                    spf_txt => { '!=', undef }
-                }
-            },
-            { group_by => ['domain_id'] }
-        )->count;
+        my $all = $tr->tests->count;
+        if ($all > 0) {
+            my $adsp = $self->dbx('Mailserver')->search(
+                {
+                    run_id => $tr->id,
+                    '-or'  => {
+                        spf_spf => { '!=', undef },
+                        spf_txt => { '!=', undef }
+                    }
+                },
+                { group_by => ['domain_id'] }
+            )->count;
 
-        $self->chi->set($key, (100 * ($adsp / $all), $adsp));
+            $self->chi->set($key, [100 * ($adsp / $all), $adsp]);
+        } else {
+            $self->chi->set($key, [qw[N/A N/A]]);
+        }
     }
-    return $self->chi->get($key);
+    return @{ $self->chi->get($key) };
 }
 
 sub starttls_percentage_for_testrun {
@@ -488,15 +509,19 @@ sub starttls_percentage_for_testrun {
     my $key  = 'starttls_percentage_for_testrun ' . $tr->id;
 
     unless ($self->chi->is_valid($key)) {
-        my $all      = $tr->tests->count;
-        my $starttls = $self->dbx('Mailserver')->search(
-            { run_id   => $tr->id, starttls => 1 },
-            { group_by => ['domain_id'] }
-        )->count;
+        my $all = $tr->tests->count;
+        if ($all > 0) {
+            my $starttls = $self->dbx('Mailserver')->search(
+                { run_id   => $tr->id, starttls => 1 },
+                { group_by => ['domain_id'] }
+            )->count;
 
-        $self->chi->set($key, (100 * ($starttls / $all), $starttls));
+            $self->chi->set($key, [100 * ($starttls / $all), $starttls]);
+        } else {
+            $self->chi->set($key, [qw[N/A N/A]]);
+        }
     }
-    return $self->chi->get($key);
+    return @{ $self->chi->get($key) };
 }
 
 sub nameserver_count {
