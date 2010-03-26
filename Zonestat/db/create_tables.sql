@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `zone` (
 CREATE TABLE IF NOT EXISTS `domainset` (
     `id` serial primary key,
     `name` varchar(255) not null,
+    `dsgroup_id` bigint(20) unsigned not null,
     INDEX domainset_name (name)
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 
@@ -213,3 +214,9 @@ CREATE TABLE IF NOT EXISTS `chi_Zonestat` (
     `value` longtext,
     PRIMARY KEY  (`key`)
     ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+CREATE TABLE IF NOT EXISTS `dsgroup` (
+    `id` serial primary key,
+    `name` varchar(255),
+    INDEX (`name`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;

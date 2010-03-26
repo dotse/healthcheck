@@ -3,7 +3,7 @@ use base 'DBIx::Class';
 
 __PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('domainset');
-__PACKAGE__->add_columns(qw[id name]);
+__PACKAGE__->add_columns(qw[id name dsgroup_id]);
 __PACKAGE__->set_primary_key('id');
 __PACKAGE__->has_many(
     glue => 'Zonestat::DBI::Result::DomainSetGlue',
@@ -12,6 +12,8 @@ __PACKAGE__->has_many(
 __PACKAGE__->has_many(testruns => 'Zonestat::DBI::Result::Testrun', 'set_id');
 
 __PACKAGE__->many_to_many(domains => 'glue', 'domain');
+
+__PACKAGE__->belongs_to('dsgroup', 'Zonestat::DBI::Result::Dsgroup','dsgroup_id');
 
 sub tests {
     my $self = shift;
