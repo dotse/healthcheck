@@ -45,6 +45,7 @@ use vars qw[
   %reaped
   %start_time
   %problem
+  %killed
   $debug
   $verbose
   $check
@@ -63,6 +64,7 @@ use vars qw[
 %reaped     = ();
 %start_time = ();
 %problem    = ();
+%killed     = ();
 $debug      = 0;
 $verbose    = 0;
 $check      = DNSCheck->new;
@@ -145,7 +147,7 @@ sub setup {
     slog 'info', 'Reading config from %s and %s.',
       $check->config->get("configfile"), $check->config->get("siteconfigfile");
 
-    unless ($check->dbh) {
+    unless ($zs->dbh) {
         die "Failed to connect to database. Exiting.\n";
     }
     detach() unless $debug;
@@ -181,34 +183,39 @@ sub detach {
 
 # Clean up residue from earlier run(s), if any.
 sub inital_cleanup {
-    my $dbh;
-
-    eval { $dbh = $check->dbh; };
+    eval { $zs->dbh; };
     if ($@) {
         slog 'critical', 'Database not available. Exiting.';
         exit(1);
     }
 
-    $dbh->do(
-q[UPDATE queue SET inprogress = NULL WHERE inprogress IS NOT NULL AND tester_pid IS NULL]
+    my $queue = $zs->dbx('Queue');
+
+    $queue->search(
+        {
+            inprogress => { '!=', undef },
+            tester_pid => undef,
+        }
+    )->update({ inprogress => undef });
+
+    my $c = $queue->search(
+        {
+            inprogress => { '!=', undef },
+            tester_pid => { '!=', undef },
+        }
     );
-    my $c = $dbh->selectall_hashref(
-q[SELECT id, domain, tester_pid FROM queue WHERE inprogress IS NOT NULL AND tester_pid IS NOT NULL],
-        'tester_pid'
-    );
-    foreach my $k (keys %$c) {
-        if (kill 0, $c->{$k}{tester_pid}) {
+    foreach my $k ($c->all) {
+        if (kill 0, $k->tester_pid) {
 
       # The process running this test is still alive, so just remove it from the
       # queue.
-            $dbh->do(q[DELETE FROM queue WHERE id = ?], undef, $c->{$k}{id});
-            slog 'info', 'Removed %s from queue', $c->{$k}{domain};
+            $k->delete;
+            slog 'info', 'Removed %s from queue', $k->domain;
         } else {
 
             # The process running this test has died, so reschedule it
-            $dbh->do(q[UPDATE queue SET inprogress = NULL WHERE id = ?],
-                undef, $c->{$k}{id});
-            slog 'info', 'Rescheduled test for %s', $c->{$k}{domain};
+            $k->update({ inprogress => undef });
+            slog 'info', 'Rescheduled test for %s', $k->domain;
         }
     }
 }
@@ -251,58 +258,41 @@ sub dispatch {
 }
 
 sub get_entry {
-    my $dbh;
-
-    eval { $dbh = $check->dbh; };
+    eval { $check->dbh; };
     if ($@) {
         slog 'critical', 'Database not available. Exiting.';
         exit(1);
     }
-
-    my ($id, $domain, $source, $source_data, $fake_glue, $priority);
+    my $queue = $zs->dbx('Queue');
+    my $entry;
 
     eval {
-        $dbh->begin_work;
-        ($id, $domain, $source, $source_data, $fake_glue, $priority) =
-          $dbh->selectrow_array(
-q[SELECT id, domain, source_id, source_data, fake_parent_glue, priority FROM queue WHERE inprogress IS NULL AND priority = (SELECT MAX(priority) FROM queue WHERE inprogress IS NULL) ORDER BY id ASC LIMIT 1 FOR UPDATE]
-          );
-        slog 'debug', "Got $id, $domain from database."
-          if (defined($domain) or defined($id));
-        $dbh->do(q[UPDATE queue SET inprogress = NOW() WHERE id = ?],
-            undef, $id);
-        $dbh->commit;
+        my $max_prio =
+          $queue->search({ inprogress => undef, })->get_column('priority')->max;
+        return unless $max_prio;
+        $entry = $queue->search(
+            {
+                inprogress => undef,
+                priority   => $max_prio,
+            },
+            { order_by => { -asc => 'id' } }
+        )->first;
+        slog 'debug',
+          "Got " . $entry->id . ", " . $entry->domain . " from database."
+          if $entry;
+        $entry->update({ inprogress => \'NOW()' }) if $entry;
     };
     if ($@) {
-        my $err = $@;
-        slog 'warning', "Database error in get_entry: $err";
-
-        if ($err =~
-/(DBD driver has not implemented the AutoCommit attribute)|(Lost connection to MySQL server during query)/
-            and defined($id))
-        {
-
-            # Database handle went away. Try to recover.
-            slog 'info',
-              "Known problem. Trying to clear inprogress for queue id $id.";
-            $dbh = $check->dbh;
-            $dbh->do(q[UPDATE queue SET inprogress = NULL WHERE id = ?],
-                undef, $id);
-        }
-
-        if ($err =~ m|Already in a transaction|) {
-            slog 'critical',
-              'Serious problem. Sleeping, then trying to restart.';
-            $running = 0;
-            $restart = 1;
-            sleep(15);
-            return;
-        }
-
-        return undef;
+        print STDERR "DBIx::Class did not help us...\n";
+        die($@);
     }
 
-    return ($domain, $id, $source, $source_data, $fake_glue, $priority);
+    if ($entry) {
+        return ($entry->domain, $entry->id, $entry->source_id,
+            $entry->source_data, $entry->fake_parent_glue, $entry->priority);
+    } else {
+        return;
+    }
 }
 
 sub process {
@@ -353,51 +343,64 @@ sub running_in_child {
    # On some OS:s (including Ubuntu Linux), this is visible in the process list.
     $0 = "dispatcher: gathering $domain (queue id $id)";
 
-    $dbh->do(q[UPDATE queue SET tester_pid = ? WHERE id = ?], undef, $$, $id);
-    $dbh->do(
-q[INSERT INTO tests (domain,begin, source_id, source_data, run_id) VALUES (?,NOW(),?,?,?)],
-        undef, $domain, $source, $source_data, $source_data
+    $zs->dbx('Queue')->find($id)->update({ tester_pid => $$ });
+    my $test = $zs->dbx('Tests')->create(
+        {
+            domain      => $domain,
+            source_id   => $source,
+            begin       => \'NOW()',
+            source_data => $source_data,
+            run_id      => $source_data
+        }
     );
 
-    my $test_id = $dbh->{'mysql_insertid'};
-    slog 'debug', "$$ running test number $test_id.";
+    slog 'debug', "$$ running test number " . $test->id . ".\n";
     my $line = 0;
 
-    # These lines hides all the actual useful work.
+    # These lines hide all the actual useful work.
+    slog 'debug', "Running DNSCheck tests for $domain.";
     $dc->zone->test($domain);
 
-    my $sth = $dbh->prepare(
-        q[
-        INSERT INTO results
-          (test_id,line,module_id,parent_module_id,timestamp,level,message,
-          arg0,arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9)
-          VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
-        ]
-    );
     while (defined(my $e = $log->get_next_entry)) {
         next if ($levels{ $e->{level} } < $levels{$savelevel});
-        $line++;
-        my $time = strftime("%Y-%m-%d %H:%M:%S", localtime($e->{timestamp}));
-        $sth->execute(
-            $test_id,               $line,        $e->{module_id},
-            $e->{parent_module_id}, $time,        $e->{level},
-            $e->{tag},              $e->{arg}[0], $e->{arg}[1],
-            $e->{arg}[2],           $e->{arg}[3], $e->{arg}[4],
-            $e->{arg}[5],           $e->{arg}[6], $e->{arg}[7],
-            $e->{arg}[8],           $e->{arg}[9],
+        $test->add_to_results(
+            {
+                line             => ++$line,
+                module_id        => $e->{module_id},
+                parent_module_id => $e->{parent_module_id},
+                timestamp =>
+                  strftime("%Y-%m-%d %H:%M:%S", localtime($e->{timestamp})),
+                level   => $e->{level},
+                message => $e->{tag},
+                arg0    => $e->{arg}[0],
+                arg1    => $e->{arg}[1],
+                arg2    => $e->{arg}[2],
+                arg3    => $e->{arg}[3],
+                arg4    => $e->{arg}[4],
+                arg5    => $e->{arg}[5],
+                arg6    => $e->{arg}[6],
+                arg7    => $e->{arg}[7],
+                arg8    => $e->{arg}[8],
+                arg9    => $e->{arg}[9],
+            }
         );
     }
 
+    slog 'debug', "Getting server data for $domain.";
     $zs->gather->get_server_data($source_data, $domain);
     $zs->gather->from_plugins($source_data, $domain);
 
     # End of useful work
 
-    $dbh->do(
-q[UPDATE tests SET end = NOW(), count_critical = ?, count_error = ?, count_warning = ?, count_notice = ?, count_info = ?
-  WHERE id = ?],
-        undef, $log->count_critical, $log->count_error, $log->count_warning,
-        $log->count_notice, $log->count_info, $test_id
+    $test->update(
+        {
+            end            => \'NOW()',
+            count_critical => $log->count_critical,
+            count_error    => $log->count_error,
+            count_warning  => $log->count_warning,
+            count_notice   => $log->count_notice,
+            count_info     => $log->count_info,
+        }
     );
 
 # Everything went well, so exit nicely (if they didn't go well, we've already died not-so-nicely).
@@ -424,7 +427,7 @@ sub monitor_children {
         cleanup($domain, $exitcode, $pid);
     }
 
-    if (defined($exit_timeout) and time() - $exit_timeout > 300) {
+    if (defined($exit_timeout) and time() - $exit_timeout > 900) {
         %running = ();
     }
 
@@ -440,9 +443,10 @@ sub cleanup {
     my $domain   = shift;
     my $exitcode = shift;
     my $pid      = shift;
-    my $dbh;
+    my $queue    = $zs->dbx('Queue');
+    my $tests    = $zs->dbx('Tests');
 
-    eval { $dbh = $check->dbh; };
+    eval { $zs->dbh; };
     if ($@) {
         slog 'critical', "Cannot connect to database. Exiting.";
         exit(1);
@@ -455,15 +459,13 @@ sub cleanup {
 
         # Child died nicely.
       AGAIN: eval {
-            $dbh->do(q[DELETE FROM queue WHERE domain = ? AND tester_pid = ?],
-                undef, $domain, $pid);
+            $queue->search({ domain => $domain, tester_pid => $pid })->delete;
         };
         if ($@)
         { # mysqld dumped us. Get a new handle and try again, after a little pause
             slog 'warning',
-              "Failed to delete queue entry for $domain. Retrying.";
+              "Failed to delete queue entry for $domain. Retrying.\n   $@";
             sleep(0.25);
-            $dbh = $check->dbh;
             goto AGAIN;
         }
 
@@ -472,12 +474,14 @@ sub cleanup {
         # Child blew up. Clean up.
         $problem{$domain} += 1;
         slog 'warning', "Unclean exit when testing $domain (status $status).";
-        $dbh->do(q[UPDATE queue SET inprogress = NULL WHERE domain = ?],
-            undef, $domain);
-        $dbh->do(
-q[DELETE FROM tests WHERE begin IS NOT NULL AND end IS NULL AND domain = ?],
-            undef, $domain
-        );
+        $queue->search({ domain => $domain })->update({ inprogress => undef });
+        $tests->search(
+            {
+                begin  => { '!=', undef },
+                end    => undef,
+                domain => $domain,
+            }
+        )->delete;
     }
 }
 
