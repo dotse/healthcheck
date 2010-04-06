@@ -432,9 +432,10 @@ sub monitor_children {
     }
 
     foreach my $pid (keys %start_time) {
-        if ((gettimeofday() - $start_time{$pid}) > 180) {
+        if ((gettimeofday() - $start_time{$pid}) > 900 and not $killed{$pid}) {
             slog 'warning', "Child $pid timed out, killing it.";
             kill 9, $pid;
+            $killed{$pid} = time;
         }
     }
 }
