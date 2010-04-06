@@ -217,6 +217,6 @@ CREATE TABLE IF NOT EXISTS `chi_Zonestat` (
 
 CREATE TABLE IF NOT EXISTS `dsgroup` (
     `id` serial primary key,
-    `name` varchar(255),
+    `name` varchar(255) not null unique,
     INDEX (`name`)
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;

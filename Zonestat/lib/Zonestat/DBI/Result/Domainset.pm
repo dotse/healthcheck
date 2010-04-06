@@ -13,7 +13,8 @@ __PACKAGE__->has_many(testruns => 'Zonestat::DBI::Result::Testrun', 'set_id');
 
 __PACKAGE__->many_to_many(domains => 'glue', 'domain');
 
-__PACKAGE__->belongs_to('dsgroup', 'Zonestat::DBI::Result::Dsgroup','dsgroup_id');
+__PACKAGE__->belongs_to('dsgroup', 'Zonestat::DBI::Result::Dsgroup',
+    'dsgroup_id');
 
 sub tests {
     my $self = shift;
@@ -43,6 +44,21 @@ sub remove_domain {
         while (defined(my $test = $tests->next)) {
             $test->delete;
         }
+    }
+}
+
+sub name {
+    my $self = shift;
+
+    if (@_) {
+        return $self->next::method(@_);
+    }
+
+    my $n = $self->get_column('name');
+    if ($n ne '') {
+        return $n;
+    } else {
+        return $self->dsgroup->name . ' ' . $self->created_at;
     }
 }
 
