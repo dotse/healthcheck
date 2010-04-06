@@ -568,12 +568,12 @@ sub mailservers_in_sweden {
             { kind => 'SMTP', ipv6 => $ipv6, code => 'SE' })->count;
 
         if ($ms > 0) {
-            $self->chi->set($key, 100 * ($se / $ms));
+            $self->chi->set($key, [ 100 * ($se / $ms), $se]);
         } else {
-            $self->chi->set($key, 'N/A');
+            $self->chi->set($key, [ 'N/A', 'N/A']);
         }
     }
-    return $self->chi->get($key);
+    return @{$self->chi->get($key)};
 }
 
 sub message_bands {
