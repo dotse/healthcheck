@@ -30,7 +30,7 @@ Statweb::Controller::Root - Root Controller for Statweb
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
 
-    $c->stash({ dset => [$c->model('DB::Domainset')->all] });
+    $c->stash({ dset => [$c->model('DB::Dsgroup')->all] });
 }
 
 sub default : Path {

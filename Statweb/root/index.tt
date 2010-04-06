@@ -10,11 +10,11 @@
         <td>
             <table>
                 <tr>
-                    <th><a href="[% c.uri_for('/domainset', d.id) %]">[% d.name %]</a></th>
+                    <th><a href="[% c.uri_for('/domainset', d.active_set.id) %]">[% d.name %]</a></th>
                 </tr>
                 <tr>
                     <th class="commands">
-                        <a href="[% c.uri_for('/enqueue', d.id) %]">(start gathering)</a>
+                        <a href="[% c.uri_for('/enqueue', d.active_set.id) %]">(start gathering)</a>
                     </th>
                 </tr>
                 <tr>
