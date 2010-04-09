@@ -13,7 +13,6 @@ WriteMakefile(
         HTTP::Request => 0,
         DBIx::Class => 0.08112,
         Apache2::Request => 0,
-        MasonX::Request::WithApacheSession => 0,
         IO::Socket::SSL => 0,
         Text::CSV_XS => 0,
         Geo::IP => 0,
