@@ -16,9 +16,14 @@ sub testruns {
 }
 
 sub active_set {
-    return
-      shift->search_related('domainsets', {}, { order_by => { -desc => 'id' } })
-      ->single;
+    return shift->search_related(
+        'domainsets',
+        {},
+        {
+            order_by => { -desc => 'id' },
+            rows     => 1,
+        }
+    )->single;
 }
 
 1;
