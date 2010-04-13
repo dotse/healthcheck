@@ -225,71 +225,64 @@ sub inital_cleanup {
 ################################################################
 
 sub dispatch {
-    my $domain;
-    my $id;
-    my $source;
-    my $source_data;
-    my $fake_glue;
-    my $priority;
+    my @entries;
 
     if (scalar keys %running < $limit) {
-        ($domain, $id, $source, $source_data, $fake_glue, $priority) =
-          get_entry();
-        slog 'debug', "Fetched $domain from database." if defined($domain);
-    } else {
-
-        # slog 'info', 'Process limit reached.';
+        @entries = get_entries($limit - scalar keys %running);
     }
 
-    if (defined($domain)) {
-        unless (defined($problem{$domain}) and $problem{$domain} >= 5) {
-            process($domain, $id, $source, $source_data, $fake_glue, $priority);
-        } else {
-            slog 'error',
-"Testing $domain caused repeated abnormal termination of children. Assuming bug. Exiting.";
-            $running = 0;
+    if (@entries) {
+        foreach my $e (@entries) {
+            print STDERR "About to dispatch " . $e->domain . "\n";
+            unless (defined($problem{ $e->domain })
+                and $problem{ $e->domain } >= 5)
+            {
+                process($e->domain, $e->id, $e->source_id, $e->source_data,
+                    $e->fake_parent_glue, $e->priority);
+            } else {
+                slog 'error',
+                    "Testing "
+                  . $e->domain
+                  . " caused repeated abnormal termination of children. Assuming bug. Exiting.";
+                $running = 0;
+            }
         }
-        return
-          0.0
-          ;  # There was something in the queue, so check for more without delay
     } else {
-        return 0.25;    # Queue empty or process slots full. Wait a little.
+        print STDERR "Retrieved no entries\n";
     }
+    return 1.0;
 }
 
-sub get_entry {
-    eval { $check->dbh; };
-    if ($@) {
-        slog 'critical', 'Database not available. Exiting.';
-        exit(1);
-    }
+sub get_entries {
+    my ($entries_to_get) = @_;
+
     my $queue = $zs->dbx('Queue');
-    my $entry;
+    my @entries;
 
     eval {
         my $max_prio =
           $queue->search({ inprogress => undef, })->get_column('priority')->max;
         return unless $max_prio;
-        $entry = $queue->search(
+        @entries = $queue->search(
             {
                 inprogress => undef,
                 priority   => $max_prio,
             },
-            { order_by => { -asc => 'id' } }
-        )->first;
-        slog 'debug',
-          "Got " . $entry->id . ", " . $entry->domain . " from database."
-          if $entry;
-        $entry->update({ inprogress => \'NOW()' }) if $entry;
+            {
+                order_by => { -asc => 'id' },
+                rows     => $entries_to_get,
+            }
+        )->all;
+        $queue->search({ id => { in => [map { $_->id } @entries] }, })
+          ->update({ inprogress => \'NOW()' });
     };
     if ($@) {
         print STDERR "DBIx::Class did not help us...\n";
         die($@);
     }
 
-    if ($entry) {
-        return ($entry->domain, $entry->id, $entry->source_id,
-            $entry->source_data, $entry->fake_parent_glue, $entry->priority);
+    if (@entries) {
+        return @entries;
     } else {
         return;
     }
