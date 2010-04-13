@@ -233,7 +233,6 @@ sub dispatch {
 
     if (@entries) {
         foreach my $e (@entries) {
-            print STDERR "About to dispatch " . $e->domain . "\n";
             unless (defined($problem{ $e->domain })
                 and $problem{ $e->domain } >= 5)
             {
@@ -247,8 +246,6 @@ sub dispatch {
                 $running = 0;
             }
         }
-    } else {
-        print STDERR "Retrieved no entries\n";
     }
     return 1.0;
 }
@@ -320,7 +317,6 @@ sub running_in_child {
 
     # Reuse the old configuration, but get new everything else.
     my $dc  = DNSCheck->new({ with_config_object => $check->config });
-    my $dbh = $dc->dbh;
     my $log = $dc->logger;
 
     setpriority(0, $$, 20 - 2 * $priority);
@@ -439,12 +435,6 @@ sub cleanup {
     my $pid      = shift;
     my $queue    = $zs->dbx('Queue');
     my $tests    = $zs->dbx('Tests');
-
-    eval { $zs->dbh; };
-    if ($@) {
-        slog 'critical', "Cannot connect to database. Exiting.";
-        exit(1);
-    }
 
     my $status = $exitcode >> 8;
     my $signal = $exitcode & 127;
