@@ -96,20 +96,24 @@ q[INSERT INTO domains (domain) VALUES (?) ON DUPLICATE KEY UPDATE last_import = 
 
 sub create_random_set {
     my $self = shift;
-    
-    my $ds = $self->dbx('Dsgroup')->find({name => '.se'})->active_set;
+
+    my $ds = $self->dbx('Dsgroup')->find({ name => '.se' })->active_set;
     croak 'Failed to find dsgroup .se' unless $ds;
-    my $rd = $self->dbx('Dsgroup')->find({name => 'Random'})->add_to_domainsets({});
+    my $rd =
+      $self->dbx('Dsgroup')->find({ name => 'Random' })->add_to_domainsets({});
     croak 'Failed to create new domainset in Random group' unless $rd;
-    my $domains = $ds->search({},{
-        order_by => \'rand()',
-        rows => 10000,
-    });
-    
+    my $domains = $ds->search(
+        {},
+        {
+            order_by => \'rand()',
+            rows     => 10000,
+        }
+    );
+
     while (my $d = $domains->next) {
         $rd->add_to_domains($d);
     }
-    
+
     return $rd;
 }
 
