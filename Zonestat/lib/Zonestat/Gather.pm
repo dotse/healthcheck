@@ -174,7 +174,31 @@ sub pageanalyze {
                 } elsif ($fields[1] eq 'REPORT5') {
                     @report5 = @fields;
                 } elsif ($fields[1] eq 'REPORT4') {
-                    push @report4, [@fields];
+                    push @report4,
+                      {
+                        url                  => pack('H*', $fields[2]),
+                        ip                   => $fields[3],
+                        resource_type        => $fields[4],
+                        found_in             => pack('H*', $fields[5]),
+                        depth                => $fields[6],
+                        start_order          => $fields[7],
+                        offset_time          => $fields[8],
+                        time_in_queue        => $fields[9],
+                        dns_lookup_time      => $fields[10],
+                        connect_time         => $fields[11],
+                        redirect_time        => $fields[12],
+                        first_byte           => $fields[13],
+                        download_time        => $fields[14],
+                        load_time            => $fields[15],
+                        status_code          => $fields[16],
+                        compressed           => $fields[17],
+                        compression_ratio    => $fields[18],
+                        compressed_file_size => $fields[19],
+                        file_size            => $fields[20],
+                        request_headers      => pack('H*', $fields[21]),
+                        response_headers     => pack('H*', $fields[22]),
+                        error                => $fields[23]
+                      };
                 } else {
 
                     # Not interested in this
@@ -190,38 +214,10 @@ sub pageanalyze {
                     average_compression   => $report5[6],
                     effective_compression => $report5[7],
                     external_resources    => $report5[8],
-                    error                 => $report5[9]
+                    error                 => $report5[9],
+                    result_rows           => \@report4,
                 }
             );
-            foreach my $r (@report4) {
-                $obj->create_related(
-                    'result_rows',
-                    {
-                        url                  => pack('H*', $r->[2]),
-                        ip                   => $r->[3],
-                        resource_type        => $r->[4],
-                        found_in             => pack('H*', $r->[5]),
-                        depth                => $r->[6],
-                        start_order          => $r->[7],
-                        offset_time          => $r->[8],
-                        time_in_queue        => $r->[9],
-                        dns_lookup_time      => $r->[10],
-                        connect_time         => $r->[11],
-                        redirect_time        => $r->[12],
-                        first_byte           => $r->[13],
-                        download_time        => $r->[14],
-                        load_time            => $r->[15],
-                        status_code          => $r->[16],
-                        compressed           => $r->[17],
-                        compression_ratio    => $r->[18],
-                        compressed_file_size => $r->[19],
-                        file_size            => $r->[20],
-                        request_headers      => pack('H*', $r->[21]),
-                        response_headers     => pack('H*', $r->[22]),
-                        error                => $r->[23]
-                    }
-                );
-            }
         } else {
             warn "Failed to run pageanalyser: $!\n";
         }
