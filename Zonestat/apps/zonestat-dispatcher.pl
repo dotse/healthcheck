@@ -316,7 +316,7 @@ sub running_in_child {
     my $priority    = shift;
 
     # Reuse the old configuration, but get new everything else.
-    my $dc  = DNSCheck->new({ with_config_object => $check->config });
+    my $dc = DNSCheck->new({ with_config_object => $check->config });
     my $log = $dc->logger;
 
     setpriority(0, $$, 20 - 2 * $priority);
@@ -350,30 +350,32 @@ sub running_in_child {
     slog 'debug', "Running DNSCheck tests for $domain.";
     $dc->zone->test($domain);
 
+    my @tmp_results;
     while (defined(my $e = $log->get_next_entry)) {
         next if ($levels{ $e->{level} } < $levels{$savelevel});
-        $test->add_to_results(
-            {
-                line             => ++$line,
-                module_id        => $e->{module_id},
-                parent_module_id => $e->{parent_module_id},
-                timestamp =>
-                  strftime("%Y-%m-%d %H:%M:%S", localtime($e->{timestamp})),
-                level   => $e->{level},
-                message => $e->{tag},
-                arg0    => $e->{arg}[0],
-                arg1    => $e->{arg}[1],
-                arg2    => $e->{arg}[2],
-                arg3    => $e->{arg}[3],
-                arg4    => $e->{arg}[4],
-                arg5    => $e->{arg}[5],
-                arg6    => $e->{arg}[6],
-                arg7    => $e->{arg}[7],
-                arg8    => $e->{arg}[8],
-                arg9    => $e->{arg}[9],
-            }
-        );
+        push @tmp_results,
+          {
+            line             => ++$line,
+            module_id        => $e->{module_id},
+            parent_module_id => $e->{parent_module_id},
+            timestamp =>
+              strftime("%Y-%m-%d %H:%M:%S", localtime($e->{timestamp})),
+            level   => $e->{level},
+            message => $e->{tag},
+            arg0    => $e->{arg}[0],
+            arg1    => $e->{arg}[1],
+            arg2    => $e->{arg}[2],
+            arg3    => $e->{arg}[3],
+            arg4    => $e->{arg}[4],
+            arg5    => $e->{arg}[5],
+            arg6    => $e->{arg}[6],
+            arg7    => $e->{arg}[7],
+            arg8    => $e->{arg}[8],
+            arg9    => $e->{arg}[9],
+            test_id => $test->id,
+          };
     }
+    $zs->dbx('Results')->populate(\@tmp_results);
 
     slog 'debug', "Getting server data for $domain.";
     $zs->gather->get_server_data($source_data, $domain);
