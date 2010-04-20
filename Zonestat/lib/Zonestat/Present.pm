@@ -602,6 +602,39 @@ sub lookup_desc {
     return $locale->{messages}{$message}{descr};
 }
 
+sub pageanalyzer_summary {
+    my $self = shift;
+    my ($tr) = @_;
+
+    my $pa =
+      $tr->search_related('webservers', {})->search_related('pageanalysis', {});
+
+    my $res = {
+        load_time => {
+            average => $pa->get_column('load_time')->func('avg'),
+            stddev  => $pa->get_column('load_time')->func('stddev'),
+        },
+        requests => {
+            average => $pa->get_column('requests')->func('avg'),
+            stddev  => $pa->get_column('requests')->func('stddev'),
+        },
+        external => {
+            average => $pa->get_column('external_resources')->func('avg'),
+            stddev  => $pa->get_column('external_resources')->func('stddev'),
+        },
+        rx_bytes => {
+            average => $pa->get_column('rx_bytes')->func('avg'),
+            stddev  => $pa->get_column('rx_bytes')->func('stddev'),
+        },
+        compression => {
+            average => $pa->get_column('average_compression')->func('avg'),
+            stddev  => $pa->get_column('average_compression')->func('stddev'),
+        },
+    };
+
+    return $res;
+}
+
 1;
 __END__
 
