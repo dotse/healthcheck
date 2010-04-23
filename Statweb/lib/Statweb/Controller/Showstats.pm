@@ -211,6 +211,16 @@ sub webpages_charset : Private {
     };
 }
 
+sub webpages_pageanalyzer : Private {
+    my ($self, $c) = @_;
+    my @trs = @{ $c->stash->{trs} };
+    my $p = $c->{zs}->present;
+    
+    foreach my $tr (@trs) {
+        $c->stash->{pa}{$tr->id} = $p->pageanalyzer_summary($tr);
+    }
+}
+
 sub webpages : Local : Args(0) {
     my ($self, $c) = @_;
     my $db  = $c->model('DB::Testrun');
@@ -250,6 +260,7 @@ sub webpages : Local : Args(0) {
     $c->forward('webpages_response');
     $c->forward('webpages_content');
     $c->forward('webpages_charset');
+    $c->forward('webpages_pageanalyzer');
 }
 
 sub _reshuffle {

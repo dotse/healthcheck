@@ -41,6 +41,45 @@
 
 <h1>Web statistics for [% pagetitle %]</h1>
 
+<h2>Pageanalyzer summary</h2>
+<p>
+    This table summarizes the results from the Pageanalyzer tool.
+</p>
+
+<table>
+    <tr>
+        <th rowspan="2">&nbsp;</th>
+        <th colspan="2">Total load time (seconds)</th>
+        <th colspan="2">Total number of requests</th>
+        <th colspan="2">Total external requests</th>
+        <th colspan="2">Total number of bytes</th>
+        <th colspan="2">Compression ratio</th>
+    </tr>
+    <tr>
+        <th>Avg.</th><th>Std. Dev.</th>
+        <th>Avg.</th><th>Std. Dev.</th>
+        <th>Avg.</th><th>Std. Dev.</th>
+        <th>Avg.</th><th>Std. Dev.</th>
+        <th>Avg.</th><th>Std. Dev.</th>
+    </tr>
+    [% FOREACH tr IN trs -%]
+    [% p = pa.${tr.id} %]
+    <tr class="[% loop.parity %]">
+        <th>[% names.${tr.id} %]</th>
+        <td class="numeric">[% p.load_time.average FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.load_time.stddev FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.requests.average FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.requests.stddev FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.external.average FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.external.stddev FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.rx_bytes.average FILTER format("%0.0f") %]</td>
+        <td class="numeric">[% p.rx_bytes.stddev FILTER format("%0.0f") %]</td>
+        <td class="numeric">[% p.compression.average FILTER format("%0.1f") %]%</td>
+        <td class="numeric">[% p.compression.stddev FILTER format("%0.1f") %]%</td>
+    </tr>
+    [% END -%]
+</table>
+
 <h2>Webserver software</h2>
 <p>
 
