@@ -13,7 +13,7 @@ use LWP::UserAgent;
 use HTTP::Request;
 use IO::Socket::SSL;
 use Carp;
-use POSIX qw[strftime];
+use POSIX qw[strftime :signal_h];
 use Geo::IP;
 use Net::IP;
 use Net::SMTP;
@@ -53,6 +53,23 @@ our %server_regexps = (
     qr|^Microsoft-HTTPAPI/(\S+)|               => 'Microsoft HTTPAPI',
     qr|^Mongrel (\S+)|                         => 'Mongrel',
 );
+
+sub run_with_timeout {
+    my ($cref, $timeout) = @_;
+    my $res = '';
+
+    my $mask      = POSIX::SigSet->new(SIGALRM);
+    my $action    = POSIX::SigAction->new(sub { die "timeout\n" }, $mask);
+    my $oldaction = POSIX::SigAction->new;
+    sigaction(SIGALRM, $action, $oldaction);
+    eval {
+        alarm($timeout);
+        $res = $cref->();
+        alarm(0);
+    };
+    sigaction(SIGALRM, $oldaction);
+    return $res;
+}
 
 sub enqueue_domainset {
     my $self = shift;

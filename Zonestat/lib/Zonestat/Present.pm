@@ -18,6 +18,10 @@ sub build_cache_for_testrun {
     my $self = shift;
     my $tr   = shift;
 
+    if ($self->dbx('Queue')->search({ source_data => $tr->id })->count > 0) {
+        return;    # Don't process testruns that haven't finished running.
+    }
+
     foreach my $t (qw[charset content_type response_code type]) {
         $self->webservers_by_field($t, 0, $tr);
         $self->webservers_by_field($t, 1, $tr);
@@ -614,8 +618,8 @@ sub pageanalyzer_summary {
 
         my $res = {
             load_time => {
-                average => $pa->get_column('load_time')->func('avg'),
-                stddev  => $pa->get_column('load_time')->func('stddev'),
+                average => $pa->get_column('load_time')->func('avg') / 1000,
+                stddev  => $pa->get_column('load_time')->func('stddev') / 1000,
             },
             requests => {
                 average => $pa->get_column('requests')->func('avg'),
