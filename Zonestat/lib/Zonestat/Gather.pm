@@ -138,6 +138,7 @@ sub get_server_data {
       if $debug;
     $self->get_http_server_data($tr->id, $domain->domain);
     $self->collect_geoip_information_for_server($tr, $domain);
+    $self->sslscan($tr, $domain);
 }
 
 sub check_robots_txt {
@@ -593,6 +594,64 @@ sub kaminsky_check {
     }
 
     return "UNKNOWN";
+}
+
+sub _run_with_timeout {
+    my ($cref, $timeout) = @_;
+    my $res = '';
+
+    my $mask      = POSIX::SigSet->new(SIGALRM);
+    my $action    = POSIX::SigAction->new(sub { die "timeout\n" }, $mask);
+    my $oldaction = POSIX::SigAction->new;
+    sigaction(SIGALRM, $action, $oldaction);
+    eval {
+        alarm($timeout);
+        $res = $cref->();
+        alarm(0);
+    };
+    sigaction(SIGALRM, $oldaction);
+    return $res;
+}
+
+sub sslscan {
+    my ($self, $tr, $domain) = @_;
+
+    my $host = $domain->domain;
+    my $scan = $self->cget(qw[zonestat sslscan]);
+
+    unless ($scan) {
+        return;
+    }
+
+    my $cmd_https = "$scan --xml=stdout --quiet $host";
+    my $cmd_smtp  = "$scan --starttls --xml=stdout --quiet $host";
+
+    my $https = _run_with_timeout(sub { qx[$cmd_https] }, 600);
+    my $smtp  = _run_with_timeout(sub { qx[$cmd_smtp] },  600);
+
+    my $rs = $self->dbx('Sslscan');
+
+    if ($https) {
+        $rs->create(
+            {
+                domain_id => $domain->id,
+                run_id    => $tr->id,
+                xml       => $https,
+                port      => 443
+            }
+        );
+    }
+
+    if ($smtp) {
+        $rs->create(
+            {
+                domain_id => $domain->id,
+                run_id    => $tr->id,
+                xml       => $smtp,
+                port      => 25
+            }
+        );
+    }
 }
 
 1;
