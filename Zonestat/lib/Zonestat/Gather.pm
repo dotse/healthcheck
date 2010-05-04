@@ -615,6 +615,8 @@ sub _run_with_timeout {
 
 sub sslscan {
     my ($self, $tr, $domain) = @_;
+    
+    print STDERR "sslscan for" . $domain->domain . " testrun " . $tr->id . "\n";
 
     my $host = $domain->domain;
     my $scan = $self->cget(qw[zonestat sslscan]);
@@ -623,11 +625,12 @@ sub sslscan {
         return;
     }
 
-    my $cmd_https = "$scan --xml=stdout --quiet $host";
-    my $cmd_smtp  = "$scan --starttls --xml=stdout --quiet $host";
+    my $dns       = DNSCheck->new->dns;
+    my $cmd_https = "$scan --xml=stdout --quiet www.$host";
 
+    print STDERR "sslscan running command $cmd_https\n";
     my $https = _run_with_timeout(sub { qx[$cmd_https] }, 600);
-    my $smtp  = _run_with_timeout(sub { qx[$cmd_smtp] },  600);
+    print STDERR "result: $https\n";
 
     my $rs = $self->dbx('Sslscan');
 
@@ -637,20 +640,28 @@ sub sslscan {
                 domain_id => $domain->id,
                 run_id    => $tr->id,
                 xml       => $https,
-                port      => 443
+                port      => 443,
+                name      => "www.$host",
             }
         );
     }
 
-    if ($smtp) {
-        $rs->create(
-            {
-                domain_id => $domain->id,
-                run_id    => $tr->id,
-                xml       => $smtp,
-                port      => 25
-            }
-        );
+    foreach my $h ($dns->find_mx($host)) {
+        my $cmd_smtp = "$scan --starttls --xml=stdout --quiet $h";
+        print STDERR "sslscan running command $cmd_smtp\n";
+        my $smtp = _run_with_timeout(sub { qx[$cmd_smtp] }, 600);
+        print STDERR "results: $smtp\n";
+        if ($smtp) {
+            $rs->create(
+                {
+                    domain_id => $domain->id,
+                    run_id    => $tr->id,
+                    xml       => $smtp,
+                    port      => 25,
+                    name      => $h,
+                }
+            );
+        }
     }
 }
 

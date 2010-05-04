@@ -22,5 +22,6 @@ __PACKAGE__->has_many(
 );
 __PACKAGE__->many_to_many(sets => 'glue', 'domainset');
 __PACKAGE__->has_many(servers => 'Zonestat::DBI::Result::Server', 'domain_id');
+__PACKAGE__->has_many(sslscans => 'Zonestat::DBI::Result::Sslscan', 'domain_id');
 
 1;

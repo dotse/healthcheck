@@ -227,6 +227,7 @@ CREATE TABLE IF NOT EXISTS `sslscan` (
     `port` integer,
     `run_id` bigint(20) unsigned not null,
     `domain_id` int(10) unsigned not null,
+    `name` varchar(255) not null,
     CONSTRAINT `sslscan_runid` FOREIGN KEY (`run_id`) REFERENCES `testruns` (`id`) ON DELETE CASCADE,
     CONSTRAINT `sslscan_domainid` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
     INDEX (`run_id`),
