@@ -52,7 +52,7 @@
         <th colspan="2">Total load time (seconds)</th>
         <th colspan="2">Total number of requests</th>
         <th colspan="2">Total external requests</th>
-        <th colspan="2">Total number of bytes</th>
+        <th colspan="2">Total number of kilobytes</th>
         <th colspan="2">Compression ratio</th>
     </tr>
     <tr>
@@ -72,8 +72,8 @@
         <td class="numeric">[% p.requests.stddev FILTER format("%0.1f") %]</td>
         <td class="numeric">[% p.external.average FILTER format("%0.1f") %]</td>
         <td class="numeric">[% p.external.stddev FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.rx_bytes.average FILTER format("%0.0f") %]</td>
-        <td class="numeric">[% p.rx_bytes.stddev FILTER format("%0.0f") %]</td>
+        <td class="numeric">[% p.rx_bytes.average / 1024 FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.rx_bytes.stddev / 1024 FILTER format("%0.1f") %]</td>
         <td class="numeric">[% p.compression.average FILTER format("%0.1f") %]%</td>
         <td class="numeric">[% p.compression.stddev FILTER format("%0.1f") %]%</td>
     </tr>
