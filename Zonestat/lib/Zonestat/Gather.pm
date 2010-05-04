@@ -288,7 +288,7 @@ sub get_http_server_data {
         $rurls .= ' ' . $res->base;
 
         # Don't try to deal with anything but HTTP.
-        next DOMAIN unless $res->base->scheme eq 'http';
+        next DOMAIN unless ($res->base->scheme eq 'http' or $res->base->scheme eq 'https');
 
         my ($tld) = $res->base->host =~ m|\.([-_0-9a-z]+)(:\d+)?$|i;
 
