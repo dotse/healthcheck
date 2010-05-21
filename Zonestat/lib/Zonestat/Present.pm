@@ -607,6 +607,8 @@ sub lookup_desc {
 }
 
 sub pageanalyzer_summary {
+    no warnings 'uninitialized';
+
     my $self      = shift;
     my ($tr)      = @_;
     my $cache_key = 'pageanalyzer_summary ' . $tr->id;
@@ -615,6 +617,20 @@ sub pageanalyzer_summary {
         my $pa =
           $tr->search_related('webservers', {})
           ->search_related('pageanalysis',  {});
+
+        my $par = $pa->search_related(
+            'result_rows',
+            {},
+            {
+                select => [
+                    'resource_type',
+                    { sum => 'result_rows.file_size', -as => 'size' },
+                    { sum => 'result_rows.load_time', -as => 'time' },
+                ],
+                as       => ['type', 'size', 'time'],
+                group_by => 'resource_type'
+            }
+        );
 
         my $res = {
             load_time => {
@@ -638,7 +654,29 @@ sub pageanalyzer_summary {
                 stddev =>
                   $pa->get_column('average_compression')->func('stddev'),
             },
+            effective_compression => {
+                average =>
+                  $pa->get_column('effective_compression')->func('avg'),
+                stddev =>
+                  $pa->get_column('effective_compression')->func('stddev'),
+            },
+            compressed_resources => {
+                average => $pa->get_column('compressed_resources')->func('avg'),
+                stddev =>
+                  $pa->get_column('compressed_resources')->func('stddev'),
+            },
         };
+        foreach my $t ($par->all) {
+            $res->{time}{ $t->get_column('type') } = $t->get_column('time');
+            $res->{size}{ $t->get_column('type') } = $t->get_column('size');
+        }
+        $res->{size}{total} =
+          $pa->search_related('result_rows', {})->get_column('file_size')
+          ->func('sum');
+        $res->{time}{total} =
+          $pa->search_related('result_rows', {})->get_column('load_time')
+          ->func('sum');
+
         $self->chi->set($cache_key, $res);
     }
 

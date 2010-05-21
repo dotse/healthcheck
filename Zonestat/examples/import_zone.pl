@@ -7,7 +7,7 @@ use Zonestat;
 
 my $prep = Zonestat->new->prepare;
 
-if($prep->fetch_zone) {
+if ($prep->fetch_zone) {
     $prep->db_import_zone;
     $prep->create_random_set;
 } else {

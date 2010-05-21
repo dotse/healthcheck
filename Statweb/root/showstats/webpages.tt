@@ -53,7 +53,10 @@
         <th colspan="2">Total number of requests</th>
         <th colspan="2">Total external requests</th>
         <th colspan="2">Total number of kilobytes</th>
-        <th colspan="2">Compression ratio</th>
+        <th colspan="2">Average compression</th>
+        <th colspan="2">Effective compression</th>
+        <th colspan="2">Compressed resources</th>
+        <th colspan="2">Page Elements</th>
     </tr>
     <tr>
         <th>Avg.</th><th>Std. Dev.</th>
@@ -61,6 +64,9 @@
         <th>Avg.</th><th>Std. Dev.</th>
         <th>Avg.</th><th>Std. Dev.</th>
         <th>Avg.</th><th>Std. Dev.</th>
+        <th>Avg.</th><th>Std. Dev.</th>
+        <th>Avg.</th><th>Std. Dev.</th>
+        <th>Size</th><th>Time</th>
     </tr>
     [% FOREACH tr IN trs -%]
     [% p = pa.${tr.id} %]
@@ -76,6 +82,30 @@
         <td class="numeric">[% p.rx_bytes.stddev / 1024 FILTER format("%0.1f") %]</td>
         <td class="numeric">[% p.compression.average FILTER format("%0.1f") %]%</td>
         <td class="numeric">[% p.compression.stddev FILTER format("%0.1f") %]%</td>
+        <td class="numeric">[% p.effective_compression.average FILTER format("%0.1f") %]%</td>
+        <td class="numeric">[% p.effective_compression.stddev FILTER format("%0.1f") %]%</td>
+        <td class="numeric">[% p.compressed_resources.average FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.compressed_resources.stddev FILTER format("%0.1f") %]</td>
+        <td>
+            <table>
+            [% FOREACH k IN ["document", "image", "stylesheet", "script", "embed"] -%]
+                <tr>
+                    <td>[% k %]</td>
+                    <td class="numeric">[% 100 * p.size.$k / p.size.total FILTER format("%0.1f") %]%</td>
+                </tr>
+            [% END -%]
+            </table>
+        </td>
+        <td>
+            <table>
+            [% FOREACH k IN ["document", "image", "stylesheet", "script", "embed"] -%]
+                <tr>
+                    <td>[% k %]</td>
+                    <td class="numeric">[% 100 * p.time.$k / p.time.total FILTER format("%0.1f") %]%</td>
+                </tr>
+            [% END -%]
+            </table>
+        </td>
     </tr>
     [% END -%]
 </table>

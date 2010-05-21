@@ -19,7 +19,7 @@ __PACKAGE__->has_many(
     mailservers => 'Zonestat::DBI::Result::Mailserver',
     'run_id'
 );
-__PACKAGE__->has_many(servers => 'Zonestat::DBI::Result::Server', 'run_id');
+__PACKAGE__->has_many(servers  => 'Zonestat::DBI::Result::Server',  'run_id');
 __PACKAGE__->has_many(sslscans => 'Zonestat::DBI::Result::Sslscan', 'run_id');
 
 sub invalidate_cache {
