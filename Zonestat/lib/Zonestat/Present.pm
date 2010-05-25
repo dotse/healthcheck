@@ -624,10 +624,11 @@ sub pageanalyzer_summary {
             {
                 select => [
                     'resource_type',
-                    { sum => 'result_rows.file_size', -as => 'size' },
-                    { sum => 'result_rows.load_time', -as => 'time' },
+                    { sum   => 'result_rows.file_size', -as => 'size' },
+                    { sum   => 'result_rows.load_time', -as => 'time' },
+                    { count => '*',                     -as => 'count' },
                 ],
-                as       => ['type', 'size', 'time'],
+                as       => ['type', 'size', 'time', 'count'],
                 group_by => 'resource_type'
             }
         );
@@ -667,8 +668,9 @@ sub pageanalyzer_summary {
             },
         };
         foreach my $t ($par->all) {
-            $res->{time}{ $t->get_column('type') } = $t->get_column('time');
-            $res->{size}{ $t->get_column('type') } = $t->get_column('size');
+            $res->{time}{ $t->get_column('type') }  = $t->get_column('time');
+            $res->{size}{ $t->get_column('type') }  = $t->get_column('size');
+            $res->{count}{ $t->get_column('type') } = $t->get_column('count');
         }
         $res->{size}{total} =
           $pa->search_related('result_rows', {})->get_column('file_size')
@@ -676,6 +678,7 @@ sub pageanalyzer_summary {
         $res->{time}{total} =
           $pa->search_related('result_rows', {})->get_column('load_time')
           ->func('sum');
+        $res->{count}{total} = $pa->search_related('result_rows', {})->count;
 
         $self->chi->set($cache_key, $res);
     }
