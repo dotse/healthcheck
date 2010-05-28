@@ -322,7 +322,7 @@ sub get_http_server_data {
                             raw_type      => $s,
                             https         => $https,
                             issuer        => $issuer,
-                            raw_response  => $res,
+                            raw_response  => {raw_response => $res},
                             testrun_id    => $tr->id,
                             url           => $u,
                             response_code => $res->code,
@@ -347,7 +347,7 @@ sub get_http_server_data {
                 {
                     type           => 'Unknown',
                     raw_type       => $s,
-                    raw_response   => $res,
+                    raw_response   => {raw_response => $res},
                     testrun_id     => $tr->id,
                     url            => $u,
                     response_code  => $res->code,

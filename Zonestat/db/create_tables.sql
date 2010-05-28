@@ -34,13 +34,12 @@ CREATE TABLE IF NOT EXISTS `webserver` (
     `testrun_id` bigint(20) unsigned not null,
     `ip` varchar(15) null,
     `url` varchar(255) not null,
-    `raw_response` longtext,
     `response_code` int(10) unsigned,
     `content_type` varchar(255),
     `content_length` int(10) unsigned,
     `charset` varchar(255),
     `redirect_count` int(10) unsigned default 0,
-    `redirect_urls` text,
+    `redirect_urls` varchar(1024),
     `ending_tld` varchar(63),
     `robots_txt` boolean DEFAULT false,
     CONSTRAINT `webserver_domain` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE,
@@ -234,3 +233,10 @@ CREATE TABLE IF NOT EXISTS `sslscan` (
     INDEX (`domain_id`)
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 
+CREATE TABLE `rawresponses` (
+    `id` serial primary key,
+    `webserver_id` bigint(20) unsigned NOT NULL,
+    `raw_response` longtext,
+    INDEX (`webserver_id`),
+    CONSTRAINT `rawresponses_webserverid` FOREIGN KEY (`webserver_id`) REFERENCES `webserver` (`id`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
