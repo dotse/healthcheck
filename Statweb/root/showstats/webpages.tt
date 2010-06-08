@@ -92,7 +92,11 @@
             [% FOREACH k IN ["document", "image", "stylesheet", "script", "embed"] -%]
                 <tr>
                     <td>[% names.$k %]</td>
+                    [% IF p.size.total -%]
                     <td class="numeric">[% 100 * p.size.$k / p.size.total FILTER format("%0.1f") %]%</td>
+                    [% ELSE -%]
+                    <td class="numeric">N/A</td>
+                    [% END -%]
                 </tr>
             [% END -%]
             </table>
@@ -102,7 +106,11 @@
             [% FOREACH k IN ["document", "image", "stylesheet", "script", "embed"] -%]
                 <tr>
                     <td>[% names.$k %]</td>
+                    [% IF p.time.total -%]
                     <td class="numeric">[% 100 * p.time.$k / p.time.total FILTER format("%0.1f") %]%</td>
+                    [% ELSE -%]
+                    <td class="numeric">N/A</td>
+                    [% END -%]
                 </tr>
             [% END -%]
             </table>
@@ -112,7 +120,11 @@
             [% FOREACH k IN ["document", "image", "stylesheet", "script", "embed"] -%]
                 <tr>
                     <td>[% names.$k %]</td>
+                    [% IF p.count.total -%]
                     <td class="numeric">[% 100 * p.count.$k / p.count.total FILTER format("%0.1f") %]%</td>
+                    [% ELSE -%]
+                    <td class="numeric">N/A</td>
+                    [% END -%]
                 </tr>
             [% END -%]
             </table>
