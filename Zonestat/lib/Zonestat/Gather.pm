@@ -301,7 +301,10 @@ sub get_http_server_data {
         }
 
         if ($res->header('Client-Peer')) {
-            $ip = ((split(/:/, $res->header('Client-Peer')))[0]);
+            # Works with LWP 5.836
+            # Not guaranteed to work with later versions!
+            $ip = $res->header('Client-Peer');
+            $ip =~ s/:\d+$//;
         }
 
         my $issuer;
