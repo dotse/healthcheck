@@ -28,7 +28,7 @@ sub invalidate_cache {
     $self->result_source->storage->dbh->do(
         q[DELETE FROM chi_Zonestat WHERE `key` LIKE '% ] . $self->id . q[ %']);
     $self->result_source->storage->dbh->do(
-        q[DELETE FROM chi_Zonestat WHERE `key` LIKE '% ] . $self->id);
+        q[DELETE FROM chi_Zonestat WHERE `key` LIKE '% ] . $self->id . q[']);
 }
 
 1;

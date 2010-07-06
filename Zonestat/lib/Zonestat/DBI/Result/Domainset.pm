@@ -3,7 +3,7 @@ use base 'DBIx::Class';
 
 __PACKAGE__->load_components(qw[Core Serialize::Storable]);
 __PACKAGE__->table('domainset');
-__PACKAGE__->add_columns(qw[id name dsgroup_id]);
+__PACKAGE__->add_columns(qw[id name dsgroup_id created_at]);
 __PACKAGE__->set_primary_key('id');
 __PACKAGE__->has_many(
     glue => 'Zonestat::DBI::Result::DomainSetGlue',

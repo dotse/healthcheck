@@ -274,7 +274,7 @@ sub get_http_server_data {
 
         $ssl = _https_test('www.' . $domain) if $https;
 
-        if ($https and !defined($ssl)) {
+        if ($https and (!defined($ssl) or (!$ssl->can('peer_certificate')))) {
 
             # We have an HTTPS URL, but can't establish an SSL connection. Skip.
             next DOMAIN;
