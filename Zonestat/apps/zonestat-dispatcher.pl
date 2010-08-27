@@ -349,7 +349,7 @@ sub running_in_child {
     # These lines hide all the actual useful work.
     slog 'debug', "Running DNSCheck tests for $domain.";
     $dc->zone->test($domain);
-    $dc->log_nameserver_times;
+    $dc->log_nameserver_times($domain);
 
     my @tmp_results;
     while (defined(my $e = $log->get_next_entry)) {
