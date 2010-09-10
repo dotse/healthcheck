@@ -1,0 +1,4 @@
+This is a tool used at .SE to check the general health of a DNS zone. At the
+moment, it was moved from internal to public without much preparation (just
+stripping out one part that was unfortunately proprietary). Expect name
+changes and some cleanup in the near(ish) future.
