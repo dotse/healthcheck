@@ -1,0 +1,7 @@
+*.tmproj
+*/blib
+*/Makefile
+*/pm_to_blib
+*/MANIFEST.bak
+*/*.old
+pageanalyzer/lextab.py
