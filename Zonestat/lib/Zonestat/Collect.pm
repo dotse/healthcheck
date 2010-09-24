@@ -10,7 +10,9 @@ use DNSCheck;
 use Time::HiRes qw[time];
 use POSIX qw[:signal_h];
 use JSON;
-
+use XML::Simple;
+use IO::Socket::INET;
+use IO::Socket::INET6;
 use Data::Dumper;
 
 my $debug = 0;
@@ -25,9 +27,9 @@ sub for_domain {
     );
 
     $dc->zone->test($domain);
-    $res{dc_results} = dnscheck_log_cleanup($dc->logger->export);
+    $res{dnscheck} = dnscheck_log_cleanup($dc->logger->export);
 
-    my %hosts = extract_hosts($res{dc_results});
+    my %hosts = extract_hosts($res{dnscheck});
     $hosts{webservers} = get_webservers($domain);
     $res{sslscan_mail} = $self->sslscan_mail($hosts{mailservers});
     $res{sslscan_web}  = $self->sslscan_web($domain);
@@ -37,15 +39,39 @@ sub for_domain {
 
     $res{geoip} = $self->geoip(\%hosts);
 
-    print Dumper(\%res);
+    return \%res;
 }
 
 sub sslscan_mail {
-
+    my $self = shift;
+    my $hosts = shift;
+    my @res = ();
+    my $scan = $self->cget(qw[zonestat sslscan]);
+    
+    return unless -x $scan;
+    
+    my $cmd = "$scan --starttls --xml=stdout --quiet ";
+    foreach my $server (@$hosts) {
+        push @res, { name => $server->{name}, data => XMLin(run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600))};
+    }
+    
+    return \@res;
 }
 
 sub sslscan_web {
+    my $self = shift;
+    my $domain = shift;
+    my $scan = $self->cget(qw[zonestat sslscan]);
+    my %res = ();
+    my $name = "www.$domain";
+    
+    return \%res unless -x $scan;
 
+    my $cmd = "$scan --xml=stdout --quiet ";
+    $res{name} = $name;
+    $res{data} = XMLin(run_with_timeout(sub { qx[$cmd . $name] }, 600));
+    
+    return \%res;
 }
 
 sub pageanalyze {
@@ -75,11 +101,15 @@ sub pageanalyze {
 }
 
 sub webinfo {
+    my $self = shift;
 
+    return;
 }
 
 sub geoip {
+    my $self = shift;
 
+    return;
 }
 
 ###
