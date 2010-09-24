@@ -22,6 +22,7 @@ __PACKAGE__->belongs_to(
 __PACKAGE__->has_one('pageanalysis', 'Zonestat::DBI::Result::Pageanalysis',
     'webserver_id');
 
-__PACKAGE__->has_one('raw_response', 'Zonestat::DBI::Result::Rawresponse', 'webserver_id');
+__PACKAGE__->has_one('raw_response', 'Zonestat::DBI::Result::Rawresponse',
+    'webserver_id');
 
 1;

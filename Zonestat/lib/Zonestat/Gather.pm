@@ -284,6 +284,7 @@ sub get_http_server_data {
         }
 
         if ($res->header('Client-Peer')) {
+
             # Works with LWP 5.836
             # Not guaranteed to work with later versions!
             $ip = $res->header('Client-Peer');
@@ -308,7 +309,7 @@ sub get_http_server_data {
                             raw_type      => $s,
                             https         => $https,
                             issuer        => $issuer,
-                            raw_response  => {raw_response => $res},
+                            raw_response  => { raw_response => $res },
                             testrun_id    => $tr->id,
                             url           => $u,
                             response_code => $res->code,
@@ -333,7 +334,7 @@ sub get_http_server_data {
                 {
                     type           => 'Unknown',
                     raw_type       => $s,
-                    raw_response   => {raw_response => $res},
+                    raw_response   => { raw_response => $res },
                     testrun_id     => $tr->id,
                     url            => $u,
                     response_code  => $res->code,
