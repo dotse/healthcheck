@@ -43,34 +43,39 @@ sub for_domain {
 }
 
 sub sslscan_mail {
-    my $self = shift;
+    my $self  = shift;
     my $hosts = shift;
-    my @res = ();
-    my $scan = $self->cget(qw[zonestat sslscan]);
-    
+    my @res   = ();
+    my $scan  = $self->cget(qw[zonestat sslscan]);
+
     return unless -x $scan;
-    
+
     my $cmd = "$scan --starttls --xml=stdout --quiet ";
     foreach my $server (@$hosts) {
-        push @res, { name => $server->{name}, data => XMLin(run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600))};
+        push @res,
+          {
+            name => $server->{name},
+            data =>
+              XMLin(run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600))
+          };
     }
-    
+
     return \@res;
 }
 
 sub sslscan_web {
-    my $self = shift;
+    my $self   = shift;
     my $domain = shift;
-    my $scan = $self->cget(qw[zonestat sslscan]);
-    my %res = ();
-    my $name = "www.$domain";
-    
+    my $scan   = $self->cget(qw[zonestat sslscan]);
+    my %res    = ();
+    my $name   = "www.$domain";
+
     return \%res unless -x $scan;
 
     my $cmd = "$scan --xml=stdout --quiet ";
     $res{name} = $name;
     $res{data} = XMLin(run_with_timeout(sub { qx[$cmd . $name] }, 600));
-    
+
     return \%res;
 }
 
