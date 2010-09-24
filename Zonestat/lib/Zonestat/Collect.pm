@@ -37,7 +37,7 @@ sub for_domain {
 
     $res{geoip} = $self->geoip(\%hosts);
 
-    print Dumper(\%hosts);
+    print Dumper(\%res);
 }
 
 sub sslscan_mail {
@@ -49,20 +49,28 @@ sub sslscan_web {
 }
 
 sub pageanalyze {
-    my $self = shift;
+    my $self   = shift;
     my $domain = shift;
     my $padir  = $self->cget(qw[zonestat pageanalyzer]);
     my $python = $self->cget(qw[zonestat python]);
-    my %res = ();
+    my %res    = ();
 
     if ($padir and $python and -d $padir and -x $python) {
         foreach my $method (qw[http https]) {
-        if(open my $pa, '-|', $python, $padir . '/pageanalyzer.py', '-s', '--nohex', '-t', '300', '-f', 'json', "$method://www.$domain/") {
-            $res{$method} = decode_json(join('',<$pa>));
+            if (
+                open my $pa, '-|',
+                $python,     $padir . '/pageanalyzer.py',
+                '-s',        '--nohex',
+                '-t',        '300',
+                '-f',        'json',
+                "$method://www.$domain/"
+              )
+            {
+                $res{$method} = decode_json(join('', <$pa>));
+            }
         }
     }
-    }
-    
+
     return \%res;
 }
 
