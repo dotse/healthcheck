@@ -9,6 +9,7 @@ use base 'Zonestat::Common';
 use DNSCheck;
 use Time::HiRes qw[time];
 use POSIX qw[:signal_h];
+use JSON;
 
 use Data::Dumper;
 
@@ -28,13 +29,13 @@ sub for_domain {
 
     my %hosts = extract_hosts($res{dc_results});
     $hosts{webservers} = get_webservers($domain);
-    $res{sslscan_mail} = sslscan_mail($hosts{mailservers});
-    $res{sslscan_web}  = sslscan_web($domain);
+    $res{sslscan_mail} = $self->sslscan_mail($hosts{mailservers});
+    $res{sslscan_web}  = $self->sslscan_web($domain);
 
-    $res{pageanalyze} = pageanalyze($domain);
-    $res{webinfo}     = webinfo($domain);
+    $res{pageanalyze} = $self->pageanalyze($domain);
+    $res{webinfo}     = $self->webinfo($domain);
 
-    $res{geoip} = geoip(\%hosts);
+    $res{geoip} = $self->geoip(\%hosts);
 
     print Dumper(\%hosts);
 }
@@ -48,7 +49,21 @@ sub sslscan_web {
 }
 
 sub pageanalyze {
+    my $self = shift;
+    my $domain = shift;
+    my $padir  = $self->cget(qw[zonestat pageanalyzer]);
+    my $python = $self->cget(qw[zonestat python]);
+    my %res = ();
 
+    if ($padir and $python and -d $padir and -x $python) {
+        foreach my $method (qw[http https]) {
+        if(open my $pa, '-|', $python, $padir . '/pageanalyzer.py', '-s', '--nohex', '-t', '300', '-f', 'json', "$method://www.$domain/") {
+            $res{$method} = decode_json(join('',<$pa>));
+        }
+    }
+    }
+    
+    return \%res;
 }
 
 sub webinfo {
