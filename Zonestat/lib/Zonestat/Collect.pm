@@ -204,11 +204,10 @@ sub webinfo {
 
         my $issuer;
 
+        if ($https and $ssl) {
+            $issuer = $ssl->peer_certificate('issuer');
+        }
         if (my $s = $res->header('Server')) {
-            if ($https and $ssl) {
-                $issuer = $ssl->peer_certificate('issuer');
-            }
-
             foreach my $r (keys %server_regexps) {
                 if ($s =~ $r) {
                     my ($type, $encoding) =
@@ -219,7 +218,6 @@ sub webinfo {
                         raw_type      => $s,
                         https         => $https,
                         issuer        => $issuer,
-                        raw_response  => freeze($res),
                         url           => $u,
                         response_code => $res->code,
                         content_type  => $type,
@@ -236,24 +234,24 @@ sub webinfo {
                     next DOMAIN;
                 }
             }
-            my ($type, $encoding) =
-              content_type_from_header($res->header('Content-Type'));
-            $res{ $https ? 'https' : 'http' } = {
-                type           => 'Unknown',
-                raw_type       => $s,
-                raw_response   => freeze($res),
-                url            => $u,
-                response_code  => $res->code,
-                content_type   => $type,
-                charset        => $encoding,
-                content_length => scalar($res->header('Content-Length')),
-                redirect_count => $rcount,
-                redirect_urls  => $rurls,
-                ending_tld     => $tld,
-                robots_txt     => $robots,
-                ip             => $ip,
-            };
         }
+        my ($type, $encoding) =
+          content_type_from_header($res->header('Content-Type'));
+        $res{ $https ? 'https' : 'http' } = {
+            type           => 'Unknown',
+            raw_type       => $res->header('Server'),
+            url            => $u,
+            response_code  => $res->code,
+            content_type   => $type,
+            charset        => $encoding,
+            content_length => scalar($res->header('Content-Length')),
+            redirect_count => $rcount,
+            redirect_urls  => $rurls,
+            ending_tld     => $tld,
+            robots_txt     => $robots,
+            ip             => $ip,
+            issuer         => $issuer,
+        };
     }
 
     return \%res;
@@ -379,6 +377,7 @@ sub get_webservers {
     my $r = $dns->query_resolver("www.$domain", 'A', 'IN');
     if (defined($r) and $r->header->ancount > 0) {
         foreach my $rr ($r->answer) {
+            next unless ($rr->type eq 'A' or $rr->type eq 'AAAA');
             push @res, { name => $rr->name, address => $rr->address };
         }
     }
