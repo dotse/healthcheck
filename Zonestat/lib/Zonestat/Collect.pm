@@ -13,9 +13,11 @@ use JSON;
 use XML::Simple;
 use IO::Socket::INET;
 use IO::Socket::INET6;
+use Geo::IP;
 use Data::Dumper;
 
 my $debug = 0;
+my $dns   = DNSCheck->new->dns;
 
 sub for_domain {
     my $self   = shift;
@@ -29,7 +31,7 @@ sub for_domain {
     $dc->zone->test($domain);
     $res{dnscheck} = dnscheck_log_cleanup($dc->logger->export);
 
-    my %hosts = extract_hosts($res{dnscheck});
+    my %hosts = extract_hosts($domain, $res{dnscheck});
     $hosts{webservers} = get_webservers($domain);
     $res{sslscan_mail} = $self->sslscan_mail($hosts{mailservers});
     $res{sslscan_web}  = $self->sslscan_web($domain);
@@ -112,9 +114,46 @@ sub webinfo {
 }
 
 sub geoip {
-    my $self = shift;
+    my $self    = shift;
+    my $hostref = shift;
+    my $geoip   = Geo::IP->open($self->cget(qw[daemon geoip]));
+    my @res     = ();
 
-    return;
+    foreach my $ns (@{ $hostref->{nameservers} }) {
+        my $g = $geoip->record_by_addr($ns->{address});
+        next unless defined($g);
+        push @res,
+          {
+            address   => $ns->{address},
+            type      => 'nameserver',
+            country   => $g->country_name,
+            code      => $g->country_code,
+            city      => $g->city,
+            longitude => $g->longitude,
+            latitude  => $g->latitude,
+            name      => $ns->{name},
+          };
+    }
+
+    foreach my $mx (@{ $hostref->{mailservers} }) {
+        foreach my $addr ($dns->find_addresses($mx->{name}, 'IN')) {
+            my $g = $geoip->record_by_addr($addr);
+            next unless defined($g);
+            push @res,
+              {
+                address   => $addr,
+                type      => 'mailserver',
+                country   => $g->country_name,
+                code      => $g->country_code,
+                city      => $g->city,
+                longitude => $g->longitude,
+                latitude  => $g->latitude,
+                name      => $mx->{name},
+              };
+        }
+    }
+
+    return \@res;
 }
 
 ###
@@ -145,11 +184,13 @@ sub dnscheck_log_cleanup {
 }
 
 sub extract_hosts {
-    my $dcref = shift;
+    my $domain = shift;
+    my $dcref  = shift;
     my %res;
 
     foreach my $r (@$dcref) {
         if ($r->{tag} eq 'DNS:NAMESERVER_FOUND') {
+            next unless $r->{args}[0] eq $domain;
             push @{ $res{nameservers} },
               {
                 domain  => $r->{args}[0],
@@ -158,6 +199,7 @@ sub extract_hosts {
               };
         } elsif ($r->{tag} eq 'DNS:FIND_MX_RESULT') {
             foreach my $s (split(/,/, $r->{args}[1])) {
+                next unless $r->{args}[0] eq $domain;
                 push @{ $res{mailservers} },
                   { domain => $r->{args}[0], name => $s };
             }
@@ -188,7 +230,6 @@ sub get_webservers {
     my $domain = shift;
     my @res;
 
-    my $dns = DNSCheck->new->dns;
     my $r = $dns->query_resolver("www.$domain", 'A', 'IN');
     if (defined($r) and $r->header->ancount > 0) {
         foreach my $rr ($r->answer) {
