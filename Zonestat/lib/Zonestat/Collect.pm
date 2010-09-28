@@ -13,11 +13,48 @@ use JSON;
 use XML::Simple;
 use IO::Socket::INET;
 use IO::Socket::INET6;
+use IO::Socket::SSL;
 use Geo::IP;
-use Data::Dumper;
+use Storable q[freeze];
+use LWP::Simple;
+use LWP::UserAgent;
+use HTTP::Request;
+use POSIX qw[strftime :signal_h];
 
 my $debug = 0;
 my $dns   = DNSCheck->new->dns;
+
+our %server_regexps = (
+    qr|^Apache/?(\S+)?|                   => 'Apache',
+    qr|^Microsoft-IIS/(\S+)|              => 'Microsoft IIS',
+    qr|^nginx/?(\S+)?|                    => 'nginx',
+    qr|^Lotus-Domino|                     => 'Lotus Domino',
+    qr|^GFE/(\S+)|                        => 'Google Web Server',
+    qr|^lighttpd/?(\S+)?|                 => 'lighttpd',
+    qr|^WebServerX|                       => 'WebServerX',
+    qr|^Zope/\(Zope ([-a-zA-Z0-9.]+)|     => 'Zope',
+    qr|^Resin/?(\S+)?|                    => 'Resin',
+    qr|^Roxen.{0,2}(Challenger)?/?(\S+)?| => 'Roxen',
+    qr|^ODERLAND|                         => 'Oderland',
+    qr|WebSTAR/?(\S+)|                    => 'WebSTAR',
+    qr|^IBM_HTTP_Server|                  => 'IBM HTTP Server (WebSphere)',
+    qr|^Zeus/?(\S+)|                      => 'Zeus',
+    qr|^Oversee Webserver v(\S+)|         => 'Oversee',
+    qr|^Sun Java System Application Server (\S+)| =>
+      'Sun Java System Application Server (GlassFish)',
+    qr|^AkamaiGHost|                           => 'Akamai',
+    qr|^Stronghold/?(\S+)|                     => 'RedHat Stronghold',
+    qr|^Stoned Webserver (\S+)?|               => 'Stoned Webserver',
+    qr|^Oracle HTTP Server Powered by Apache|  => 'Oracle HTTP Server',
+    qr|^Oracle-Application-Server-10g/(\S+)|   => 'Oracle Application Server',
+    qr|^TimmiT HTTPD Server powered by Apache| => 'TimmiT HTTPD Server',
+    qr|^Sun-ONE-Web-Server/(\S+)?|             => 'Sun ONE',
+    qr|^Server\d|                              => 'Oderland',
+    qr|^mod-xslt/(\S+) Apache|                 => 'Apache (mod_xslt)',
+    qr|^AppleIDiskServer-(\S+)|                => 'Apple iDisk',
+    qr|^Microsoft-HTTPAPI/(\S+)|               => 'Microsoft HTTPAPI',
+    qr|^Mongrel (\S+)|                         => 'Mongrel',
+);
 
 sub for_domain {
     my $self   = shift;
@@ -108,9 +145,118 @@ sub pageanalyze {
 }
 
 sub webinfo {
-    my $self = shift;
+    my $self   = shift;
+    my $domain = shift;
+    my %res    = ();
 
-    return;
+    my $ua = LWP::UserAgent->new(max_size => 1024 * 1024, timeout => 30)
+      ;    # Don't get more content than one megabyte
+    $ua->agent('.SE Zonestat');
+
+  DOMAIN:
+    foreach
+      my $u ('http://www.' . $domain . '/', 'https://www.' . $domain . '/')
+    {
+        my $https;
+        my $ip;
+        my $ssl;
+        my $res;
+        my $robots;
+
+        if ($u =~ m|^http://www\.([^/]+)|) {
+            $https = 0;
+        } elsif ($u =~ m|^https://www\.([^/]+)|) {
+            $https = 1;
+        } else {
+            print STDERR "Failed to parse: $u\n";
+            next;
+        }
+
+        $ssl = _https_test('www.' . $domain) if $https;
+
+        if ($https and (!defined($ssl) or (!$ssl->can('peer_certificate')))) {
+
+            # We have an HTTPS URL, but can't establish an SSL connection. Skip.
+            next DOMAIN;
+        }
+
+        $res    = $ua->get($u);
+        $robots = check_robots_txt($u);
+
+        my $rcount = scalar($res->redirects);
+        my $rurls = join ' ', map { $_->base } $res->redirects;
+        $rurls .= ' ' . $res->base;
+
+        # Don't try to deal with anything but HTTP.
+        next DOMAIN
+          unless ($res->base->scheme eq 'http'
+            or $res->base->scheme eq 'https');
+
+        my ($tld) = $res->base->host =~ m|\.([-_0-9a-z]+)(:\d+)?$|i;
+
+        if ($res->header('Client-Peer')) {
+
+            # Works with LWP 5.836
+            # Not guaranteed to work with later versions!
+            $ip = $res->header('Client-Peer');
+            $ip =~ s/:\d+$//;
+        }
+
+        my $issuer;
+
+        if (my $s = $res->header('Server')) {
+            if ($https and $ssl) {
+                $issuer = $ssl->peer_certificate('issuer');
+            }
+
+            foreach my $r (keys %server_regexps) {
+                if ($s =~ $r) {
+                    my ($type, $encoding) =
+                      content_type_from_header($res->header('Content-Type'));
+                    $res{ $https ? 'https' : 'http' } = {
+                        type          => $server_regexps{$r},
+                        version       => $1,
+                        raw_type      => $s,
+                        https         => $https,
+                        issuer        => $issuer,
+                        raw_response  => freeze($res),
+                        url           => $u,
+                        response_code => $res->code,
+                        content_type  => $type,
+                        charset       => $encoding,
+                        content_length =>
+                          scalar($res->header('Content-Length')),
+                        redirect_count => $rcount,
+                        redirect_urls  => $rurls,
+                        ending_tld     => $tld,
+                        robots_txt     => $robots,
+                        ip             => $ip,
+                    };
+
+                    next DOMAIN;
+                }
+            }
+            my ($type, $encoding) =
+              content_type_from_header($res->header('Content-Type'));
+            $res{ $https ? 'https' : 'http' } = {
+                type           => 'Unknown',
+                raw_type       => $s,
+                raw_response   => freeze($res),
+                url            => $u,
+                response_code  => $res->code,
+                content_type   => $type,
+                charset        => $encoding,
+                content_length => scalar($res->header('Content-Length')),
+                redirect_count => $rcount,
+                redirect_urls  => $rurls,
+                ending_tld     => $tld,
+                robots_txt     => $robots,
+                ip             => $ip,
+            };
+        }
+    }
+
+    return \%res;
 }
 
 sub geoip {
@@ -238,6 +384,55 @@ sub get_webservers {
     }
 
     return \@res;
+}
+
+sub _https_test {
+    my ($host) = @_;
+
+    my $s = IO::Socket::INET->new(PeerAddr => $host, PeerPort => 443);
+
+    if (!defined($s)) {
+        return;
+    }
+
+    eval {
+        $SIG{ALRM} = sub { die "timeout\n" };
+        alarm(5);
+        IO::Socket::SSL->start_SSL($s);
+        alarm(0);
+    };
+    if ($@) {
+        die unless $@ eq "timeout\n";
+        return;
+    }
+
+    return $s;
+}
+
+sub check_robots_txt {
+    my ($url) = @_;
+
+    return !!get($url . 'robots.txt');
+}
+
+sub content_type_from_header {
+    my @data = @_;
+    my ($type, $encoding);
+
+    foreach my $h (@data) {
+        my ($t, $e) = $h =~ m|^(\w+/\w+)(?:;\s*charset\s*=\s*(\S+))?|;
+        unless ($type) {
+            $type = $t;
+        }
+        unless ($encoding) {
+            $encoding = $e;
+        }
+        unless ($type or $encoding) {
+            print STDERR "Failed to parse Content-Type header: $h\n";
+        }
+
+    }
+    return ($type, $encoding);
 }
 
 1;
