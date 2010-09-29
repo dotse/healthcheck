@@ -4,11 +4,12 @@ use 5.008008;
 use strict;
 use warnings;
 
-use DBI;
+use Try::Tiny;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 my $source_id_string  = q[Zonestat];
 my $source_id_contact = q[calle@init.se];
+my $run_id;
 
 sub new {
     my $class = shift;
@@ -27,72 +28,37 @@ sub cget {
     return $self->{parent}->cget(@_);
 }
 
-sub dbh {
+sub db {
     my $self = shift;
 
-    return $self->parent->dbh;
-}
-
-sub schema {
-    my $self = shift;
-
-    return $self->parent->schema;
-}
-
-sub dbx {
-    my $self = shift;
-    my ($table) = @_;
-
-    return $self->parent->dbx($table);
-}
-
-sub chi {
-    my $self = shift;
-
-    return $self->parent->chi;
-}
-
-sub source_id {
-    my $self = shift;
-
-    if (!defined($self->parent->{source_id})) {
-        my $dbh = $self->dbh;
-
-        $dbh->do(q[INSERT IGNORE INTO source (name, contact) VALUES (?,?)],
-            undef, $source_id_string, $source_id_contact);
-        $self->parent->{source_id} = (
-            (
-                $dbh->selectrow_array(
-                    q[SELECT id FROM source WHERE name = ?], undef,
-                    $source_id_string
-                )
-            )[0]
-        );
-    }
-    return $self->parent->{source_id};
-}
-
-sub set_run_id {
-    my $self = shift;
-
-    $self->parent->{run_id} = $_[0];
+    return $self->parent->db(@_);
 }
 
 sub run_id {
     my $self = shift;
-
-    if (!defined($self->parent->{run_id})) {
-        my $tmp = (
-            $self->dbh->selectrow_array(
-                q[
-            SELECT MAX(source_data) FROM tests WHERE source_id = ?
-            ], undef, $self->source_id
-            )
-        )[0];
-        $self->parent->{run_id} = ++$tmp;
+    my $docid = 'testruncounter';
+    my $db = $self->db('zonestat_misc');
+    
+    if (!defined($run_id)) {
+        my $doc = $db->newDoc($docid);
+        unless($db->docExists($docid)) {
+            $db->newDoc($docid, undef, {counter => 0})->create;
+        }
+        
+        my $i = 0;
+        while (!defined($run_id) and ++$i <= 10) {
+            try {
+                $doc->retrieve;
+                $doc->data->{counter} = $doc->data->{counter} + 1;
+                $doc->update;
+                $run_id = $doc->data->{counter};
+            }
+        }
+        
+        croak "Failed to get new testrun id" unless defined($run_id);
     }
 
-    return $self->parent->{run_id};
+    return $run_id;
 }
 
 1;
