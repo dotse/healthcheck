@@ -239,6 +239,8 @@ sub webinfo {
           content_type_from_header($res->header('Content-Type'));
         $res{ $https ? 'https' : 'http' } = {
             type           => 'Unknown',
+            version        => undef,
+            https          => $https,
             raw_type       => $res->header('Server'),
             url            => $u,
             response_code  => $res->code,
@@ -295,6 +297,22 @@ sub geoip {
                 name      => $mx->{name},
               };
         }
+    }
+    
+    foreach my $ws (@{ $hostref->{webservers}}) {
+        my $g = $geoip->record_by_addr($ws->{address});
+        next unless defined($g);
+        push @res,
+          {
+            address   => $ws->{address},
+            type      => 'webserver',
+            country   => $g->country_name,
+            code      => $g->country_code,
+            city      => $g->city,
+            longitude => $g->longitude,
+            latitude  => $g->latitude,
+            name      => $ws->{name},
+          };
     }
 
     return \@res;
