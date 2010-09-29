@@ -135,19 +135,26 @@ sub update_asn_table_from_ripe {
     );
     seek $fh, 0, 0;
 
-    my $db = $self->dbx('Asdata');
+    my $db = $self->db('zonestat-asdata');
     $db->delete;
+    $db->create;
     my ($asn, $asname, $asdescr) = (undef, '', '');
     my $gz = IO::Uncompress::Gunzip->new($fh);
+    my @tmp;
+    my $i = 0;
     while (my $line = $gz->getline) {
         if ($line =~ /^aut-num:\s+AS(\w+)/) {
             if (defined($asn)) {
                 chomp($asdescr);
-                $db->create(
-                    { asn => $asn, asname => $asname, descr => $asdescr });
+                push @tmp,
+                    $db->newDoc($asn, undef, { asn => $asn, asname => $asname, descr => $asdescr });
                 $asn     = undef;
                 $asname  = '';
                 $asdescr = '';
+                if (++$i%10000==0) {
+                    $db->bulkStore(\@tmp);
+                    @tmp = ();
+                }
             }
             $asn = $1;
         } elsif ($line =~ /^as-name:\s+([^#\n]+)$/) {
