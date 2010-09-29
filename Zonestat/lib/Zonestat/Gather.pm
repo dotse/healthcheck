@@ -13,6 +13,8 @@ our $VERSION = '0.02';
 our $debug   = 0;
 STDOUT->autoflush(1) if $debug;
 
+=head1
+
 sub enqueue_domainset {
     my $self = shift;
     my $ds   = shift;
@@ -34,8 +36,6 @@ sub enqueue_domainset {
         $ds->id
     );
 }
-
-=head1
 
 sub rescan_unknown_servers {
     my $self = shift;
@@ -61,7 +61,6 @@ sub rescan_unknown_servers {
     }
 }
 
-=cut
 
 sub lookup_asn_from_results {
     my ($ip, $tr, $domain) = @_;
@@ -177,6 +176,8 @@ sub kaminsky_check {
 
     return "UNKNOWN";
 }
+
+=cut
 
 1;
 __END__
