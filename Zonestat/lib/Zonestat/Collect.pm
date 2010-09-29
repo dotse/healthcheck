@@ -40,6 +40,8 @@ use POSIX qw[strftime :signal_h];
 my $debug = 0;
 my $dns   = DNSCheck->new->dns;
 
+our $VERSION = '0.1';
+
 our %server_regexps = (
     qr|^Apache/?(\S+)?|                   => 'Apache',
     qr|^Microsoft-IIS/(\S+)|              => 'Microsoft IIS',
