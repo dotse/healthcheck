@@ -13,6 +13,7 @@ use Zonestat::Prepare;
 use Zonestat::Gather;
 use Zonestat::Present;
 use Zonestat::User;
+use Zonestat::Collect;
 
 use Module::Find;
 use CHI;
@@ -31,6 +32,7 @@ sub new {
     $self->{prepare} = Zonestat::Prepare->new($self);
     $self->{gather}  = Zonestat::Gather->new($self);
     $self->{present} = Zonestat::Present->new($self);
+    $self->{collect} = Zonestat::Collect->new($self);
 
     $self->register_plugins;
 
@@ -94,6 +96,11 @@ sub cget {
     my $self = shift;
 
     return $self->{conf}->get(@_);
+}
+
+sub collect {
+    my $self = shift;
+    return $self->{collect};
 }
 
 sub prepare {

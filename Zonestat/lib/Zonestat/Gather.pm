@@ -54,23 +54,6 @@ our %server_regexps = (
     qr|^Mongrel (\S+)|                         => 'Mongrel',
 );
 
-sub run_with_timeout {
-    my ($cref, $timeout) = @_;
-    my $res = '';
-
-    my $mask      = POSIX::SigSet->new(SIGALRM);
-    my $action    = POSIX::SigAction->new(sub { die "timeout\n" }, $mask);
-    my $oldaction = POSIX::SigAction->new;
-    sigaction(SIGALRM, $action, $oldaction);
-    eval {
-        alarm($timeout);
-        $res = $cref->();
-        alarm(0);
-    };
-    sigaction(SIGALRM, $oldaction);
-    return $res;
-}
-
 sub enqueue_domainset {
     my $self = shift;
     my $ds   = shift;
@@ -301,6 +284,7 @@ sub get_http_server_data {
         }
 
         if ($res->header('Client-Peer')) {
+
             # Works with LWP 5.836
             # Not guaranteed to work with later versions!
             $ip = $res->header('Client-Peer');
@@ -325,7 +309,7 @@ sub get_http_server_data {
                             raw_type      => $s,
                             https         => $https,
                             issuer        => $issuer,
-                            raw_response  => {raw_response => $res},
+                            raw_response  => { raw_response => $res },
                             testrun_id    => $tr->id,
                             url           => $u,
                             response_code => $res->code,
@@ -350,7 +334,7 @@ sub get_http_server_data {
                 {
                     type           => 'Unknown',
                     raw_type       => $s,
-                    raw_response   => {raw_response => $res},
+                    raw_response   => { raw_response => $res },
                     testrun_id     => $tr->id,
                     url            => $u,
                     response_code  => $res->code,

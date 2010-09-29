@@ -102,7 +102,8 @@ sub create_random_set {
     my $rd =
       $self->dbx('Dsgroup')->find({ name => 'Random' })->add_to_domainsets({});
     croak 'Failed to create new domainset in Random group' unless $rd;
-    my $domains = $ds->search_related('glue',{})->search_related('domain',
+    my $domains = $ds->search_related('glue', {})->search_related(
+        'domain',
         {},
         {
             order_by => \'rand()',
