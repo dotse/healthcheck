@@ -5,9 +5,10 @@ use strict;
 use warnings;
 
 use Config;
+use CouchDB::Client;
+use Carp;
 
 use Zonestat::Config;
-use Zonestat::DBI;
 use Zonestat::Common;
 use Zonestat::Prepare;
 use Zonestat::Gather;
@@ -16,9 +17,8 @@ use Zonestat::User;
 use Zonestat::Collect;
 
 use Module::Find;
-use CHI;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 sub new {
     my $class = shift;
@@ -52,42 +52,7 @@ sub register_plugins {
     $self->{plugins} = [@plugins];
 
     foreach my $mod (@plugins) {
-        my $dbinfo = $mod->table_info;
-
-        my $dbh = $self->dbh;
-        foreach my $name (keys %$dbinfo) {
-            eval {
-                my $sql = sprintf q[SELECT count(%s) FROM %s],
-                  (keys %{ $dbinfo->{$name} })[0], $name;
-                $dbh->do($sql);
-            };
-            my $error = $@;
-            if ($error =~ m|Table '[^']+' doesn't exist|) {
-                my $sql = sprintf 'CREATE TABLE `%s` (', $name;
-                $sql .= join ', ',
-                  map { '`' . $_ . '` ' . $dbinfo->{$name}{$_} }
-                  keys %{ $dbinfo->{$name} };
-                $sql .=
-', id serial primary key, run_id bigint(20) unsigned not null, domain_id int(10) unsigned not null';
-                $sql .=
-", CONSTRAINT `${name}_domain` FOREIGN KEY (`domain_id`) REFERENCES `domains` (`id`) ON DELETE CASCADE";
-                $sql .=
-", CONSTRAINT `${name}_testrun` FOREIGN KEY (`run_id`) REFERENCES `testruns` (`id`) ON DELETE CASCADE";
-                $sql .= ') ENGINE=InnoDB DEFAULT CHARSET=utf8';
-                eval { $dbh->do($sql); };
-                if ($@) {
-                    die "Failed to create table: $error\n";
-                    exit(1);
-                } else {
-                    print "Created $name.\n";
-                }
-            } elsif ($error) {
-                die "Database error: $error\n";
-            }
-        }
-
-        $mod->register_dbix($self);
-        print STDERR "$mod registered.\n";
+        # Do something useful here
     }
 
 }
@@ -133,59 +98,37 @@ sub user {
 sub dbconfig {
     my $self = shift;
 
-    return $self->{conf}->db;
+    return $self->{conf}->get('couchdb');
 }
 
-sub dbh {
+sub dbconn {
     my $self = shift;
-
-    return $self->{dbh} if (defined($self->{dbh}) and $self->{dbh}->ping);
-
-    my $dbh =
-      DBI->connect($self->dbconfig,
-        { RaiseError => 1, AutoCommit => 1, PrintError => 0 });
-    die "Failed to connect to database: " . $DBI::errstr . "\n"
-      unless defined($dbh);
-    $self->{dbh} = $dbh;
-    return $dbh;
-}
-
-sub chi {
-    my $self = shift;
-
-    $self->{chi} = CHI->new(
-        driver       => 'DBI',
-        dbh          => $self->dbh,
-        namespace    => __PACKAGE__,
-        on_set_error => 'die',
-        on_get_error => 'die',
-        create_table => 1,
-        expires_at   => 1899557035,    # 12 March 2030
-    ) unless defined($self->{chi});
-
-    $DBIx::Class::ResultSourceHandle::thaw_schema = $self->schema;
-
-    return $self->{chi};
-}
-
-sub schema {
-    my $self = shift;
-
-    $self->{schema} = Zonestat::DBI->connect($self->dbconfig)
-      unless defined($self->{schema});
-
-    return $self->{schema};
-}
-
-sub dbx {
-    my $self = shift;
-    my ($table) = @_;
-
-    if (defined($table)) {
-        return $self->schema->resultset($table);
-    } else {
-        return $self->schema;
+    
+    unless ($self->{dbconn} and $self->{dbconn}->testConnection) {
+        my $conn = CouchDB::Client->new(uri => $self->dbconfig->{url});
+        $conn->testConnection or croak "Failed to get connection to database."
+        $self->{dbconn} = $conn;
     }
+    
+    return $self->{dbconn};
+}
+
+sub db {
+    my $self = shift;
+    my $name = shift;
+
+    croak "Database must have a name" unless $name;
+
+    unless ($self->{db}{$name}) {
+        my $db = $self->dbconn->newDB($name);
+        unless($db->conn->dbExist($name)) {
+            croak "$name is not a valid database name" unless $db->validName($name);
+            $db->create;
+        }
+        $self->{db}{$name} = $db;
+    }
+    
+    return $self->{db}{$name};
 }
 
 1;
