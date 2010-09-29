@@ -1,5 +1,21 @@
 package Zonestat::Collect;
 
+=head1 NAME
+
+Zonestat::Collect - Module that collects data about a domain and returns it as a reference to a nested hash.
+
+=head1 SYNOPSIS
+
+ my $href = Zonestat->new->collect->for_domain("example.org")
+ 
+=head1 DESCRIPTION
+
+The hashref returned from the C<for_domain> method contains a number of sections. They look as follows.
+
+=over
+ 
+=cut 
+
 use 5.008008;
 use strict;
 use warnings;
@@ -66,17 +82,184 @@ sub for_domain {
     );
 
     $dc->zone->test($domain);
+
+=item dnscheck
+
+Under this key is a cleaned-up version of the exported log output from
+L<DNSCheck>. It's a reference to a list containing references to hashes for
+log entries. Each hash has the keys C<timestamp>, C<level>, C<tag> and
+C<args>. The first three are simply the respective values from DNSCheck, the
+last is a reference to a list with the arguments for the tag.
+
+=cut
+
     $res{dnscheck} = dnscheck_log_cleanup($dc->logger->export);
 
     my %hosts = extract_hosts($domain, $res{dnscheck});
     $hosts{webservers} = get_webservers($domain);
+
+=item sslscan_mail
+
+This is the same as the previous, except that instead of a single hash it's a
+reference to a list of such hashes, one for each MX record for the domain in
+question.
+
+=cut
+
     $res{sslscan_mail} = $self->sslscan_mail($hosts{mailservers});
+
+=item sslscan_web
+
+This is a reference to a hash that is a literal translation of the XML output
+from the L<sslscan> program ran with the gathered domain's "www." name at port
+443. The hash is created by feeding the XML to L<XML::Simple>.
+
+=cut
+
     $res{sslscan_web}  = $self->sslscan_web($domain);
 
+=item pageanalyze
+
+This is a reference to a hash with two keys, C<http> and C<https>. They
+contain the results from running L<pageanalyzer> at the domain's "www." name
+with the respective protocols. The results are hashes with a literal
+translation of the output from L<pageanalyzer>'s JSON mode.
+
+=cut
+
     $res{pageanalyze} = $self->pageanalyze($domain);
+    
+=item webinfo
+
+Like the previous key, this is a reference to a hash with C<http> and C<https>
+keys. Each of those are also references to hashes, with the following keys.
+
+=over
+
+=item type
+
+A short string describing the webserver software, detected by running a set of
+regexps on the HTTP response Server header field. If none of the regexps
+matched, this field will be C<Unknown> and the following one undefined.
+
+=item version
+
+The version of the webserver software, also extracted from the Server header field.
+
+=item raw_type
+
+The unprocessed content of the Server header field.
+
+=item https
+
+A boolean value indicating if the information was gathered over HTTPS or not.
+
+=item url
+
+The URL the information was gathered from.
+
+=item response_code
+
+The HTTP response code received.
+
+=item content_type
+
+The MIME type the server claimed the content is.
+
+=item charset
+
+If the content was of a type with a sub-specified character encoding, this is
+the name of the encoding. Note that this is nothing but what the server
+claimed, and need not be anything resembling the name of a proper character
+encoding!
+
+=item content_length
+
+The value of the C<Content-Length> header field. 
+
+=item redirect_count
+
+The number of times the HTTP library followed redirects before it finally got
+a response.
+
+=item redirect_urls
+
+A list of the URLs in the chain of redirects.
+
+=item ending_tld
+
+The top-level domain of the host part in the URL of the final step of the
+redirect chain.
+
+=item robots_txt
+
+A boolean value indicting if this server returned something for the path
+C</robots.txt>.
+
+=item ip
+
+The IP address that the content was finally fetched from, if that information
+was recorded by the L<LWP::UserAgent> object in a form this code understands.
+This may not work with future versions of L<LWP>.
+
+=item issuer
+
+The issuer field of the server SSL certificate, for HTTPS connections.
+
+=back
+
+=cut
+
     $res{webinfo}     = $self->webinfo($domain);
 
+=item geoip
+
+This is a reference to a list of hashes, each giving GeoIP information about a
+particular server. The hashes have the following keys.
+
+=over
+
+=item address
+
+The IP address that was looked up.
+
+=item type
+
+The type of the server. Can be one of C<nameserver>, C<mailserver> or C<webserver>.
+
+=item country
+
+The name of the country.
+
+=item code
+
+The two-letter ISO code for the country.
+
+=item city
+
+The name of the city.
+
+=item longitude
+
+The longitude of the IP address' location.
+
+=item latitude
+
+Its latitude.
+
+=item name
+
+The server's name.
+
+=back
+
+=cut
+
     $res{geoip} = $self->geoip(\%hosts);
+
+=back
+
+=cut
 
     return \%res;
 }
