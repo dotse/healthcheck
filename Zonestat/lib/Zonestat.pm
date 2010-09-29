@@ -106,7 +106,7 @@ sub dbconn {
     
     unless ($self->{dbconn} and $self->{dbconn}->testConnection) {
         my $conn = CouchDB::Client->new(uri => $self->dbconfig->{url});
-        $conn->testConnection or croak "Failed to get connection to database."
+        $conn->testConnection or croak "Failed to get connection to database.";
         $self->{dbconn} = $conn;
     }
     
@@ -121,8 +121,7 @@ sub db {
 
     unless ($self->{db}{$name}) {
         my $db = $self->dbconn->newDB($name);
-        unless($db->conn->dbExist($name)) {
-            croak "$name is not a valid database name" unless $db->validName($name);
+        unless($self->dbconn->dbExists($name)) {
             $db->create;
         }
         $self->{db}{$name} = $db;

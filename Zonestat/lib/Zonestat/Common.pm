@@ -5,6 +5,7 @@ use strict;
 use warnings;
 
 use Try::Tiny;
+use Carp;
 
 our $VERSION = '0.02';
 my $source_id_string  = q[Zonestat];
@@ -37,7 +38,7 @@ sub db {
 sub run_id {
     my $self = shift;
     my $docid = 'testruncounter';
-    my $db = $self->db('zonestat_misc');
+    my $db = $self->db('zonestat-misc');
     
     if (!defined($run_id)) {
         my $doc = $db->newDoc($docid);
