@@ -14,12 +14,12 @@ use Catalyst::Runtime 5.80;
 #                 directory
 
 use parent qw/Catalyst/;
-use Catalyst qw/-Debug
+use Catalyst qw/
   ConfigLoader
   Static::Simple
 
   Session
-  Session::Store::FastMmap
+  Session::Store::File
   Session::State::Cookie
 
   /;

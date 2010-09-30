@@ -18,6 +18,7 @@ requires (qw[
             Catalyst::Plugin::Session
             Catalyst::Plugin::Session::Store::FastMmap
             Catalyst::Plugin::Session::State::Cookie
+	    Catalyst::Model::DBIC::Schema
             
             Catalyst::Plugin::Authentication
             
