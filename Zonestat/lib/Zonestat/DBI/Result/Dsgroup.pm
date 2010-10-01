@@ -26,4 +26,17 @@ sub active_set {
     )->single;
 }
 
+sub new_content {
+    my $self  = shift;
+    my @names = @_;
+
+    my $new_ds    = $self->add_to_domainsets({});
+    my $domain_rs = $self->result_source->schema->resultset('Domains');
+    my @domains   = $domain_rs->search({ domain => { -in => \@names } });
+
+    foreach my $d (@domains) {
+        $new_ds->add_to_glue({ domain_id => $d->id });
+    }
+}
+
 1;
