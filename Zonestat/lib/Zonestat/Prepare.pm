@@ -53,6 +53,8 @@ sub fetch_zone {
 sub db_import_zone {
     my $self = shift;
 
+    die "Not yet migrated to CouchDB";
+
     my $dbh = $self->dbh;
     my $dsg = $self->dbx('Dsgroup')->find_or_create({ name => '.se' });
     my $ds  = $dsg->create_related('domainsets', {});
@@ -166,6 +168,7 @@ sub update_asn_table_from_ripe {
             # print "[$line]\n";
         }
     }
+    $db->bulkStore(\@tmp);
     unlink $fname or die $!;
 }
 
