@@ -16,7 +16,7 @@ requires 'Config::General'; # This should reflect the config file format you've 
 requires 'Zonestat';
 requires (qw[
             Catalyst::Plugin::Session
-            Catalyst::Plugin::Session::Store::FastMmap
+            Catalyst::Plugin::Session::Store::File
             Catalyst::Plugin::Session::State::Cookie
 	    Catalyst::Model::DBIC::Schema
             
