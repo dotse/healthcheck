@@ -34,3 +34,10 @@ considerable time to recalculate. </p>
 <form method="POST" action="[% c.uri_for('',dset.id,'rebuild') %]">
     <input type="submit" value="Rebuild">
 </form>
+
+<h2>Reload set content from file</h2>
+<form action="[% c.uri_for_action('/domainset/reload',[dset.id]) %]" method="post" enctype="multipart/form-data">
+    <label for="userfile">Data file (one domain name per line, only existing domains):</label>
+    <input name="userfile" type="file" class="button">
+    <input type="submit" value="Reload">
+</form>

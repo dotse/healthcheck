@@ -94,6 +94,24 @@ sub rebuild : Chained('index') : Args(0) : PathPart('rebuild') {
         $c->uri_for_action('/domainset/first', [$c->stash->{dset}->id]));
 }
 
+sub reload :Chained('index') :Args(0) :PathPart('reload') {
+    my ($self, $c) = @_;
+    my $upload = $c->request->upload('userfile')
+        or die "No upload";
+        
+    my $fh = $upload->fh;
+    my @res;
+    while (my $line = <$fh>) {
+        chomp($line);
+        next if $line =~ /^\s*$/;
+        push @res, $line;
+    }
+    
+    $c->stash->{dset}->dsgroup->new_content(@res);
+    $c->res->redirect(
+        $c->uri_for_action('/domainset/first', [$c->stash->{dset}->dsgroup->active_set->id]));
+}
+
 =head1 AUTHOR
 
 Calle Dybedahl
