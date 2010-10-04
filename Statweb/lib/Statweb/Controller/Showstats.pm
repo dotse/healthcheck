@@ -6,7 +6,7 @@ use parent 'Catalyst::Controller';
 
 use Data::Dumper;
 use Time::HiRes qw[time];
-use List::Util qw[max];
+use List::Util qw[max reduce];
 
 =head1 NAME
 
@@ -304,9 +304,12 @@ sub dnscheck : Local : Args(0) {
 
     # "Message band" tables.
     my %band;
+    my %band_total;
     foreach my $level (qw[CRITICAL ERROR WARNING]) {
         foreach my $tr (@trs) {
-            $band{$level}{ $tr->id } = [$p->message_bands($tr, $level)];
+            my @tmp = $p->message_bands($tr, $level);
+            $band{$level}{ $tr->id } = \@tmp;
+            $band_total{$level}{ $tr->id } = reduce {$a+$b} @tmp;
         }
     }
 
@@ -333,6 +336,7 @@ sub dnscheck : Local : Args(0) {
             trs          => \@trs,
             descriptions => \%descriptions,
             band         => \%band,
+            band_total   => \%band_total,
             severity     => \%severity,
             sizes        => \%sizes,
         }

@@ -78,7 +78,7 @@
                     <th>[% tr.domainset.name %]<br>[% tr.name %]</th>
                 [% FOREACH n IN band.$level.${tr.id} -%]
                     <td class="numeric">
-                        [% n -%]
+                        [% 100*(n / (band_total.$level.${tr.id})) FILTER format('%0.1f%%') %] ([% n -%])
                     </td>
                 [% END -%]
                 </tr>
