@@ -7,7 +7,7 @@ use Zonestat;
 
 my $zs = Zonestat->new;
 
-my $trs = $zs->dbx('Testrun');
+my $trs = $zs->dbx('Testrun')->search({}, {order_by => {-desc => 'id'}});
 my $pr  = $zs->present;
 
 $| = 1;
