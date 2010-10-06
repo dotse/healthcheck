@@ -1,0 +1,19 @@
+body {
+     font-family:arial, verdana, helvetica, sans-serif;
+     font-size:14px;
+     cursor:default;
+     background-color:#FFFFFF
+}
+form {
+       width:548px;
+       border-left:1px dotted #000000;
+       border-right:1px dotted #000000;
+       border-top:1px dotted #000000;
+       border-bottom:1px dotted #000000;
+       background:#EEEEEE;
+       padding-top:10px;
+       padding-left:10px;
+       font-size:10px;
+       position: absolute; 
+       bottom: 10px;
+}
