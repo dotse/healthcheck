@@ -59,7 +59,7 @@ sub db_import_zone {
 
     open my $fh, '<', $self->cget(qw[zone datafile])
       or die "Failed to open zone file: $!\n";
-      
+
     my @tmp;
     my $txtdata;
     while (defined(my $line = <$fh>)) {
@@ -68,11 +68,11 @@ sub db_import_zone {
         next if $line =~ /^\s*;/;    # Skip comment lines
         my ($name, $ttl, $class, $type, $data) = split(/\s+/, $line, 5);
         $name =~ s/\.$//;
-        
+
         if ($type eq 'NS') {
             push @tmp, $db->newDoc($name, undef);
         }
-        
+
         if ($type eq 'TXT' and $name eq 'se' and $data =~ m|EPOCH (\d+)|) {
             $txtdata = $1;
         }
@@ -141,11 +141,12 @@ sub update_asn_table_from_ripe {
             if (defined($asn)) {
                 chomp($asdescr);
                 push @tmp,
-                    $db->newDoc($asn, undef, { asn => $asn, asname => $asname, descr => $asdescr });
+                  $db->newDoc($asn, undef,
+                    { asn => $asn, asname => $asname, descr => $asdescr });
                 $asn     = undef;
                 $asname  = '';
                 $asdescr = '';
-                if (++$i%10000==0) {
+                if (++$i % 10000 == 0) {
                     $db->bulkStore(\@tmp);
                     @tmp = ();
                 }

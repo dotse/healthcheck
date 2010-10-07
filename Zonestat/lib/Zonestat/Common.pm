@@ -36,16 +36,16 @@ sub db {
 }
 
 sub run_id {
-    my $self = shift;
+    my $self  = shift;
     my $docid = 'testruncounter';
-    my $db = $self->db('zonestat-misc');
-    
+    my $db    = $self->db('zonestat-misc');
+
     if (!defined($run_id)) {
         my $doc = $db->newDoc($docid);
-        unless($db->docExists($docid)) {
-            $db->newDoc($docid, undef, {counter => 0})->create;
+        unless ($db->docExists($docid)) {
+            $db->newDoc($docid, undef, { counter => 0 })->create;
         }
-        
+
         my $i = 0;
         while (!defined($run_id) and ++$i <= 10) {
             try {
@@ -55,7 +55,7 @@ sub run_id {
                 $run_id = $doc->data->{counter};
             }
         }
-        
+
         croak "Failed to get new testrun id" unless defined($run_id);
     }
 

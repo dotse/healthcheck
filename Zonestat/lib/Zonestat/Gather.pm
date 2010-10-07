@@ -6,7 +6,6 @@ use warnings;
 
 use base 'Zonestat::Common';
 
-
 use Carp;
 
 our $VERSION = '0.02';

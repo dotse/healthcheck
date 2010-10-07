@@ -52,6 +52,7 @@ sub register_plugins {
     $self->{plugins} = [@plugins];
 
     foreach my $mod (@plugins) {
+
         # Do something useful here
     }
 
@@ -103,13 +104,13 @@ sub dbconfig {
 
 sub dbconn {
     my $self = shift;
-    
+
     unless ($self->{dbconn} and $self->{dbconn}->testConnection) {
         my $conn = CouchDB::Client->new(uri => $self->dbconfig->{url});
         $conn->testConnection or croak "Failed to get connection to database.";
         $self->{dbconn} = $conn;
     }
-    
+
     return $self->{dbconn};
 }
 
@@ -121,12 +122,12 @@ sub db {
 
     unless ($self->{db}{$name}) {
         my $db = $self->dbconn->newDB($name);
-        unless($self->dbconn->dbExists($name)) {
+        unless ($self->dbconn->dbExists($name)) {
             $db->create;
         }
         $self->{db}{$name} = $db;
     }
-    
+
     return $self->{db}{$name};
 }
 

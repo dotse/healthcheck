@@ -121,7 +121,7 @@ quality of the scanned SSL server.
 
 =cut
 
-    $res{sslscan_web}  = $self->sslscan_web($domain);
+    $res{sslscan_web} = $self->sslscan_web($domain);
 
 =item pageanalyze
 
@@ -133,7 +133,7 @@ translation of the output from L<pageanalyzer>'s JSON mode.
 =cut
 
     $res{pageanalyze} = $self->pageanalyze($domain);
-    
+
 =item webinfo
 
 Like the previous key, this is a reference to a hash with C<http> and C<https>
@@ -215,7 +215,7 @@ The issuer field of the server SSL certificate, for HTTPS connections.
 
 =cut
 
-    $res{webinfo}     = $self->webinfo($domain);
+    $res{webinfo} = $self->webinfo($domain);
 
 =item geoip
 
@@ -279,11 +279,12 @@ sub sslscan_mail {
 
     my $cmd = "$scan --starttls --xml=stdout --quiet ";
     foreach my $server (@$hosts) {
-        my $tmp = XMLin(run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600));
+        my $tmp =
+          XMLin(run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600));
         push @res,
           {
-            name => $server->{name},
-            data => $tmp,
+            name       => $server->{name},
+            data       => $tmp,
             evaluation => sslscan_evaluate($tmp),
           };
     }
@@ -301,8 +302,8 @@ sub sslscan_web {
     return \%res unless -x $scan;
 
     my $cmd = "$scan --xml=stdout --quiet ";
-    $res{name} = $name;
-    $res{data} = XMLin(run_with_timeout(sub { qx[$cmd . $name] }, 600));
+    $res{name}       = $name;
+    $res{data}       = XMLin(run_with_timeout(sub { qx[$cmd . $name] }, 600));
     $res{evaluation} = sslscan_evaluate($res{data});
 
     return \%res;
@@ -488,8 +489,8 @@ sub geoip {
               };
         }
     }
-    
-    foreach my $ws (@{ $hostref->{webservers}}) {
+
+    foreach my $ws (@{ $hostref->{webservers} }) {
         my $g = $geoip->record_by_addr($ws->{address});
         next unless defined($g);
         push @res,
@@ -647,7 +648,7 @@ sub sslscan_evaluate {
     my $data = shift;
     $data = $data->{ssltest};
     my %result;
-    
+
     # Check renegotiation status.
     if ($data->{renegotiation}{secure} and $data->{renegotiation}{supported}) {
         $result{renegotiation} = 'secure';
@@ -656,39 +657,44 @@ sub sslscan_evaluate {
     } else {
         $result{renegotiation} = 'none';
     }
-    
+
     my @default = ();
-    if (defined($data->{defaultcipher}) and ref($data->{defaultcipher}) eq 'ARRAY') {
-        @default = @{$data->{defaultcipher}};
-    } elsif (defined($data->{defaultcipher}) and ref($data->{defaultcipher}) eq 'HASH') {
+    if (defined($data->{defaultcipher})
+        and ref($data->{defaultcipher}) eq 'ARRAY')
+    {
+        @default = @{ $data->{defaultcipher} };
+    } elsif (defined($data->{defaultcipher})
+        and ref($data->{defaultcipher}) eq 'HASH')
+    {
         @default = ($data->{defaultcipher});
     }
-    
+
     # Check support for HTTPS
     $result{https_support} = (@default > 0);
-    
+
     # Check support for SSL versions
-    $result{sslv2} = !!(grep {$_->{sslversion} eq 'SSLv2'} @default);
-    $result{sslv3} = !!(grep {$_->{sslversion} eq 'SSLv3'} @default);
-    $result{tlsv1} = !!(grep {$_->{sslversion} eq 'TLSv1'} @default);
-    
+    $result{sslv2} = !!(grep { $_->{sslversion} eq 'SSLv2' } @default);
+    $result{sslv3} = !!(grep { $_->{sslversion} eq 'SSLv3' } @default);
+    $result{tlsv1} = !!(grep { $_->{sslversion} eq 'TLSv1' } @default);
+
     # We're going to traverse this list a few times.
     my @cipher;
     if (defined($data->{cipher}) and ref($data->{cipher}) eq 'ARRAY') {
-        @cipher = @{$data->{cipher}};
+        @cipher = @{ $data->{cipher} };
     } elsif (defined($data->{cipher}) and ref($data->{cipher}) eq 'HASH') {
         @cipher = ($data->{cipher});
     }
-    @cipher = grep {$_->{status} eq 'accepted'} @cipher;
-    
+    @cipher = grep { $_->{status} eq 'accepted' } @cipher;
+
     # Is authentication without key permitted?
-    $result{no_key_auth} = !!(grep {$_->{au} eq 'None'} @cipher);
-    
-    $result{no_encryption} = !!(grep {$_->{bits} == 0} @cipher);
-    $result{weak_encryption} = !!(grep {$_->{bits} < 128} @cipher);
-    $result{medium_encryption} = !!(grep {$_->{bits} >= 128 and $_->{bits} < 256} @cipher);
-    $result{strong_encryption} = !!(grep {$_->{bits} >= 256} @cipher);
-    
+    $result{no_key_auth} = !!(grep { $_->{au} eq 'None' } @cipher);
+
+    $result{no_encryption}   = !!(grep { $_->{bits} == 0 } @cipher);
+    $result{weak_encryption} = !!(grep { $_->{bits} < 128 } @cipher);
+    $result{medium_encryption} =
+      !!(grep { $_->{bits} >= 128 and $_->{bits} < 256 } @cipher);
+    $result{strong_encryption} = !!(grep { $_->{bits} >= 256 } @cipher);
+
     return \%result;
 }
 
