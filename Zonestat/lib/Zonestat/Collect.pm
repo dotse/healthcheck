@@ -100,7 +100,7 @@ last is a reference to a list with the arguments for the tag.
 
 =item sslscan_mail
 
-This is the same as the previous, except that instead of a single hash it's a
+This is the same as the following, except that instead of a single hash it's a
 reference to a list of such hashes, one for each MX record for the domain in
 question.
 
@@ -110,9 +110,12 @@ question.
 
 =item sslscan_web
 
-This is a reference to a hash that is a literal translation of the XML output
-from the L<sslscan> program ran with the gathered domain's "www." name at port
-443. The hash is created by feeding the XML to L<XML::Simple>.
+This is a reference to a hash with three keys. The first is C<name>, and holds
+the DNS name for the scanned server. The second is C<data> and holds a hash
+that is a literal translation of the XML output from the L<sslscan> program
+ran with the gathered domain's "www." name at port 443. The third key is
+C<evaluation>, and is a hash with a brief evaluation of the cryptographic
+quality of the scanned SSL server.
 
 =cut
 
@@ -274,11 +277,12 @@ sub sslscan_mail {
 
     my $cmd = "$scan --starttls --xml=stdout --quiet ";
     foreach my $server (@$hosts) {
+        my $tmp = XMLin(run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600));
         push @res,
           {
             name => $server->{name},
-            data =>
-              XMLin(run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600))
+            data => $tmp,
+            evaluation => sslscan_evaluate($tmp),
           };
     }
 
@@ -297,6 +301,7 @@ sub sslscan_web {
     my $cmd = "$scan --xml=stdout --quiet ";
     $res{name} = $name;
     $res{data} = XMLin(run_with_timeout(sub { qx[$cmd . $name] }, 600));
+    $res{evaluation} = sslscan_evaluate($res{data});
 
     return \%res;
 }
@@ -633,6 +638,42 @@ sub content_type_from_header {
 
     }
     return ($type, $encoding);
+}
+
+sub sslscan_evaluate {
+    no warnings 'uninitialized';
+    my $data = shift;
+    my %result;
+    
+    # Check renegotiation status.
+    if ($data->{renegotiation}{secure} and $data->{renegotiation}{supported}) {
+        $result{renegotiation} = 'secure';
+    } elsif ($data->{renegotiation}{supported}) {
+        $result{renegotiation} = 'insecure';
+    } else {
+        $result{renegotiation} = 'none';
+    }
+    
+    # Check support for HTTPS
+    $result{https_support} = (defined($data->{defaultcipher}) and @{$data->{defaultcipher}} > 0);
+    
+    # Check support for SSL versions
+    $result{sslv2} = !!(grep {$_->{sslversion} eq 'SSLv2'} @{$data->{defaultcipher}});
+    $result{sslv3} = !!(grep {$_->{sslversion} eq 'SSLv3'} @{$data->{defaultcipher}});
+    $result{tlsv1} = !!(grep {$_->{sslversion} eq 'TLSv1'} @{$data->{defaultcipher}});
+    
+    # We're going to traverse this list a few times.
+    my @cipher = grep {$_->{status} eq 'accepted'} @{$data->{cipher}};
+    
+    # Is authentication without key permitted?
+    $result{no_key_auth} = !!(grep {$_->{au} eq 'None'} @cipher);
+    
+    $result{no_encryption} = !!(grep {$_->{bits} == 0} @cipher);
+    $result{weak_encryption} = !!(grep {$_->{bits} < 128} @cipher);
+    $result{medium_encryption} = !!(grep {$_->{bits} >= 128 and $_->{bits} < 256} @cipher);
+    $result{strong_encryption} = !!(grep {$_->{bits} >= 256} @cipher);
+    
+    return \%result;
 }
 
 1;
