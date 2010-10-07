@@ -53,47 +53,39 @@ sub fetch_zone {
 sub db_import_zone {
     my $self = shift;
 
-    die "Not yet migrated to CouchDB";
-
-    my $dbh = $self->dbh;
-    my $dsg = $self->dbx('Dsgroup')->find_or_create({ name => '.se' });
-    my $ds  = $dsg->create_related('domainsets', {});
+    my $db = $self->db('zonestat-zone');
+    $db->delete;
+    $db->create;
 
     open my $fh, '<', $self->cget(qw[zone datafile])
       or die "Failed to open zone file: $!\n";
-    $dbh->begin_work;
-    $dbh->do(q[delete from zone]);
-    my $sth = $dbh->prepare(
-        q[insert into zone (name,ttl,class,type,data) values (?,?,?,?,?)]);
+      
+    my @tmp;
+    my $txtdata;
     while (defined(my $line = <$fh>)) {
         chomp($line);
         next if $line =~ /^\s*$/;
         next if $line =~ /^\s*;/;    # Skip comment lines
         my ($name, $ttl, $class, $type, $data) = split(/\s+/, $line, 5);
-        $sth->execute($name, $ttl, $class, $type, $data);
-    }
-    $dbh->commit;
-    $dbh->begin_work;
-    foreach my $dname (
-        map { $_->[0] } @{
-            $dbh->selectall_arrayref(
-                q[select distinct name from zone where type = 'NS'])
+        $name =~ s/\.$//;
+        
+        if ($type eq 'NS') {
+            push @tmp, $db->newDoc($name, undef);
         }
-      )
-    {
-        $dname =~ s/\.$//;
-        $dbh->do(
-q[INSERT INTO domains (domain) VALUES (?) ON DUPLICATE KEY UPDATE last_import = now()],
-            undef, $dname
-        );
-        my $id =
-          $dbh->selectall_arrayref(q[SELECT id FROM domains WHERE domain = ?],
-            undef, $dname);
-        $dbh->do(
-            q[INSERT INTO domain_set_glue (domain_id, set_id) VALUES (?,?)],
-            undef, $id->[0][0], $ds->id);
+        
+        if ($type eq 'TXT' and $name eq 'se' and $data =~ m|EPOCH (\d+)|) {
+            $txtdata = $1;
+        }
+
+        if (@tmp > 10000) {
+            $db->bulkStore(\@tmp);
+            @tmp = ();
+        }
     }
-    $dbh->commit;
+    $db->bulkStore(\@tmp);
+    my $doc = $db->newDoc('se', undef)->retrieve;
+    $doc->data->{time_t} = $txtdata;
+    $doc->update;
 }
 
 sub create_random_set {
