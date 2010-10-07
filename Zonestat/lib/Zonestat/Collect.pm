@@ -645,6 +645,7 @@ sub content_type_from_header {
 sub sslscan_evaluate {
     no warnings 'uninitialized';
     my $data = shift;
+    $data = $data->{ssltest};
     my %result;
     
     # Check renegotiation status.
@@ -656,13 +657,20 @@ sub sslscan_evaluate {
         $result{renegotiation} = 'none';
     }
     
+    my @default = ();
+    if (defined($data->{defaultcipher}) and ref($data->{defaultcipher}) eq 'ARRAY') {
+        @default = @{$data->{defaultcipher}};
+    } elsif (defined($data->{defaultcipher}) and ref($data->{defaultcipher}) eq 'HASH') {
+        @default = ($data->{defaultcipher});
+    }
+    
     # Check support for HTTPS
-    $result{https_support} = (defined($data->{defaultcipher}) and @{$data->{defaultcipher}} > 0);
+    $result{https_support} = (@default > 0);
     
     # Check support for SSL versions
-    $result{sslv2} = !!(grep {$_->{sslversion} eq 'SSLv2'} @{$data->{defaultcipher}});
-    $result{sslv3} = !!(grep {$_->{sslversion} eq 'SSLv3'} @{$data->{defaultcipher}});
-    $result{tlsv1} = !!(grep {$_->{sslversion} eq 'TLSv1'} @{$data->{defaultcipher}});
+    $result{sslv2} = !!(grep {$_->{sslversion} eq 'SSLv2'} @default);
+    $result{sslv3} = !!(grep {$_->{sslversion} eq 'SSLv3'} @default);
+    $result{tlsv1} = !!(grep {$_->{sslversion} eq 'TLSv1'} @default);
     
     # We're going to traverse this list a few times.
     my @cipher = grep {$_->{status} eq 'accepted'} @{$data->{cipher}};
