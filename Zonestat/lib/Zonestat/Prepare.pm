@@ -91,6 +91,8 @@ sub db_import_zone {
 sub create_random_set {
     my $self = shift;
 
+    die "Not ported.";
+
     my $ds = $self->dbx('Dsgroup')->find({ name => '.se' })->active_set;
     croak 'Failed to find dsgroup .se' unless $ds;
     my $rd =
