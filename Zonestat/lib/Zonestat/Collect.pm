@@ -671,7 +671,13 @@ sub sslscan_evaluate {
     $result{tlsv1} = !!(grep {$_->{sslversion} eq 'TLSv1'} @default);
     
     # We're going to traverse this list a few times.
-    my @cipher = grep {$_->{status} eq 'accepted'} @{$data->{cipher}};
+    my @cipher;
+    if (defined($data->{cipher}) and ref($data->{cipher}) eq 'ARRAY') {
+        @cipher = @{$data->{cipher}};
+    } elsif (defined($data->{cipher}) and ref($data->{cipher}) eq 'HASH') {
+        @cipher = ($data->{cipher});
+    }
+    @cipher = grep {$_->{status} eq 'accepted'} @cipher;
     
     # Is authentication without key permitted?
     $result{no_key_auth} = !!(grep {$_->{au} eq 'None'} @cipher);
