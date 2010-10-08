@@ -39,7 +39,9 @@ use POSIX qw[strftime :signal_h];
 use Carp;
 
 my $debug = 0;
-my $dns   = DNSCheck->new->dns;
+my $dc    = DNSCheck->new;
+my $dns   = $dc->dns;
+my $asn   = $dc->asn;
 
 our $VERSION = '0.1';
 
@@ -245,6 +247,10 @@ particular server. The hashes have the following keys.
 
 The IP address that was looked up.
 
+=item asn
+
+A list of ASN numbers in which the address above is announced.
+
 =item type
 
 The type of the server. Can be one of C<nameserver>, C<mailserver> or C<webserver>.
@@ -336,16 +342,19 @@ sub smtp_info_for_address {
 
     my $starttls = 0;
     my $banner;
+    my $ip;
 
     my $smtp = Net::SMTP->new($addr);
     if (defined($smtp)) {
         $starttls = 1 if $smtp->message =~ m|STARTTLS|;
-        $banner = $smtp->banner;
+        $banner   = $smtp->banner;
+        $ip       = $smtp->peerhost;
     }
 
     return {
         starttls => $starttls,
         banner   => $banner,
+        ip       => $ip,
     };
 }
 
@@ -543,6 +552,7 @@ sub geoip {
         push @res,
           {
             address   => $ns->{address},
+            asn       => $asn->lookup($ns->{address}),
             type      => 'nameserver',
             country   => $g->country_name,
             code      => $g->country_code,
@@ -560,6 +570,7 @@ sub geoip {
             push @res,
               {
                 address   => $addr,
+                asn       => $asn->lookup($addr),
                 type      => 'mailserver',
                 country   => $g->country_name,
                 code      => $g->country_code,
@@ -577,6 +588,7 @@ sub geoip {
         push @res,
           {
             address   => $ws->{address},
+            asn       => $asn->lookup($ws->{address}),
             type      => 'webserver',
             country   => $g->country_name,
             code      => $g->country_code,
@@ -621,6 +633,7 @@ sub extract_hosts {
     my $domain = shift;
     my $dcref  = shift;
     my %res;
+    my %asn;
 
     foreach my $r (@$dcref) {
         if ($r->{tag} eq 'DNS:NAMESERVER_FOUND') {
@@ -629,7 +642,8 @@ sub extract_hosts {
               {
                 domain  => $r->{args}[0],
                 name    => $r->{args}[2],
-                address => $r->{args}[3]
+                address => $r->{args}[3],
+                asn     => $asn->lookup($r->{args}[3]),
               };
         } elsif ($r->{tag} eq 'DNS:FIND_MX_RESULT') {
             foreach my $s (split(/,/, $r->{args}[1])) {
