@@ -12,7 +12,7 @@ our $VERSION = '0.02';
 our $debug   = 0;
 STDOUT->autoflush(1) if $debug;
 
-=head1
+=head1 Code left over from old world
 
 sub enqueue_domainset {
     my $self = shift;
@@ -35,32 +35,6 @@ sub enqueue_domainset {
         $ds->id
     );
 }
-
-sub rescan_unknown_servers {
-    my $self = shift;
-    my $db = $self->dbx('Webserver')->search({ type => 'Unknown' });
-
-  DOMAIN:
-    while (my $row = $db->next) {
-        my $str = $row->raw_type;
-        foreach my $r (keys %server_regexps) {
-            if ($str =~ $r) {
-                print "Updating to "
-                  . $server_regexps{$r} . ": "
-                  . $row->raw_response . "\n"
-                  if $debug;
-                $row->update(
-                    {
-                        type    => $server_regexps{$r},
-                        version => $1
-                    }
-                );
-            }
-        }
-    }
-}
-
-
 
 =cut
 
