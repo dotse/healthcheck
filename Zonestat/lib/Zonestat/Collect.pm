@@ -36,6 +36,7 @@ use LWP::Simple;
 use LWP::UserAgent;
 use HTTP::Request;
 use POSIX qw[strftime :signal_h];
+use Carp;
 
 my $debug = 0;
 my $dns   = DNSCheck->new->dns;
@@ -100,15 +101,31 @@ last is a reference to a list with the arguments for the tag.
     my %hosts = extract_hosts($domain, $res{dnscheck});
     $hosts{webservers} = get_webservers($domain);
 
-=item sslscan_mail
+=item dkim
 
-This is the same as the following, except that instead of a single hash it's a
-reference to a list of such hashes, one for each MX record for the domain in
-question.
+Under this key is a hash with three keys. The first is C<dkim>, which holds
+data from the domain's _adsp._domainkey resource records, if one exists. The
+second is C<spf_real>, which holds data from the domain's SPF record, if one
+exists. And the final one is C<spf_transitionary>, which is the contents of an
+SPF-formatted TXT record, if one exists.
 
 =cut
 
-    $res{sslscan_mail} = $self->sslscan_mail($hosts{mailservers});
+    $res{dkim} = $self->dkim_data($domain);
+
+=item mailservers
+
+This is a list of hashes, each one holding data for a server pointed to by an
+MX record for the domain. In these hashes are keys C<name> with the DNS name
+for it, C<banner> with the SMTP banner message it gave and C<starttls> which
+has the value 1 if the server announced STARTTLS capability and 0 otherwise.
+If C<starttls> is true, it also has the keys C<sslscan> holding the results
+from an sslscan run on the server (see entry below for format of that data)
+and a key C<evaluation> with a brief evaluation of that data.
+
+=cut
+
+    $res{mailservers} = $self->mailserver_gather($hosts{mailservers});
 
 =item sslscan_web
 
@@ -269,7 +286,70 @@ The server's name.
     return \%res;
 }
 
-sub sslscan_mail {
+sub dkim_data {
+    my $self   = shift;
+    my $domain = shift;
+
+    my $adsp;
+    my $spf_spf;
+    my $spf_txt;
+
+    # DKIM/ADSP
+    my $packet =
+      $dns->query_resolver('_adsp._domainkey.' . $domain, 'IN', 'TXT');
+
+    if (defined($packet) and $packet->header->ancount > 0) {
+        my $rr = ($packet->answer)[0];
+        if ($rr->type eq 'TXT') {
+            $adsp = $rr->txtdata;
+        }
+    }
+
+    # SPF, "real" kind
+    $packet = $dns->query_resolver($domain, 'IN', 'SPF');
+    if (defined($packet) and $packet->header->ancount > 0) {
+        my $rr = (grep { $_->type eq 'SPF' } $packet->answer)[0];
+        if ($rr) {
+            $spf_spf = $rr->txtdata;
+        }
+    }
+
+    # SPF, transitionary kind
+    $packet = $dns->query_resolver($domain, 'IN', 'TXT');
+    if (defined($packet) and $packet->header->ancount > 0) {
+        my $rr = (grep { $_->type eq 'TXT' } $packet->answer)[0];
+        if ($rr and $rr->txtdata =~ /^v=spf/) {
+            $spf_txt = $rr->txtdata;
+        }
+    }
+
+    return {
+        adsp              => $adsp,
+        spf_real          => $spf_spf,
+        spf_transitionary => $spf_txt,
+    };
+}
+
+sub smtp_info_for_address {
+    my $self = shift;
+    my $addr = shift;
+
+    my $starttls = 0;
+    my $banner;
+
+    my $smtp = Net::SMTP->new($addr);
+    if (defined($smtp)) {
+        $starttls = 1 if $smtp->message =~ m|STARTTLS|;
+        $banner = $smtp->banner;
+    }
+
+    return {
+        starttls => $starttls,
+        banner   => $banner,
+    };
+}
+
+sub mailserver_gather {
     my $self  = shift;
     my $hosts = shift;
     my @res   = ();
@@ -279,14 +359,15 @@ sub sslscan_mail {
 
     my $cmd = "$scan --starttls --xml=stdout --quiet ";
     foreach my $server (@$hosts) {
-        my $tmp =
-          XMLin(run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600));
-        push @res,
-          {
-            name       => $server->{name},
-            data       => $tmp,
-            evaluation => sslscan_evaluate($tmp),
-          };
+        my $tmp = $self->smtp_info_for_address($server->{name});
+        $tmp->{name} = $server->{name};
+        if ($tmp->{starttls}) {
+            my $sslscan =
+              XMLin(run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600));
+            $tmp->{sslscan}    = $sslscan;
+            $tmp->{evaluation} = sslscan_evaluate($sslscan);
+        }
+        push @res, $tmp;
     }
 
     return \@res;
