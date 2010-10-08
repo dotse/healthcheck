@@ -7,43 +7,74 @@ use warnings;
 use base 'Zonestat::Common';
 
 use Carp;
+use Try::Tiny;
 
 our $VERSION = '0.02';
 our $debug   = 0;
 STDOUT->autoflush(1) if $debug;
 
 sub enqueue_domainset {
-    my $self = shift;
+    my $self     = shift;
     my $set_name = shift;
-    
+
     die "Unimplemented.";
 }
 
 sub single_domain {
-    my $self = shift;
+    my $self   = shift;
     my $domain = shift;
-    
-    my $db = $self->db('zonestat');
+
+    my $db   = $self->db('zonestat');
     my $data = $self->parent->collect->for_domain($domain);
     $data->{domain} = $domain;
-    
+
     return $db->newDoc(undef, undef, $data)->create;
 }
 
 sub put_in_queue {
-    my $self = shift;
+    my $self    = shift;
     my (@qrefs) = @_;
-    my $db = $self->db('zonestat-queue');
-    
+    my $db      = $self->db('zonestat-queue');
+
     foreach my $ref (@qrefs) {
-        unless ($ref->{domain} and defined($ref->{priority}) and $ref->{priority} > 0) {
-            carp "Invalid domain and/or priority: " . $ref->{domain} . '/' . $ref->{priority};
+        unless ($ref->{domain}
+            and defined($ref->{priority})
+            and $ref->{priority} > 0)
+        {
+            carp "Invalid domain and/or priority: "
+              . $ref->{domain} . '/'
+              . $ref->{priority};
             return;
         }
-        
+
         $db->newDoc(undef, undef, $ref)->create;
     }
-    
+}
+
+sub get_from_queue {
+    my $self = shift;
+    my $limit = shift || 10;
+    my @res;
+    my $db   = $self->db('zonestat-queue');
+    my $ddoc = $db->newDesignDoc('_design/queues');
+    $ddoc->retrieve;
+
+    my $query = $ddoc->queryView('fetch', limit => $limit);
+    foreach my $d (@{ $query->{rows} }) {
+        my $doc = $db->newDoc($d->{id}, undef, $d);
+        $doc->retrieve;
+        $doc->data->{inprogress} = 1;
+        try {
+            $doc->update;
+            push @res, $doc->data->{domain};
+        }
+        catch {
+            print STDERR "Failed to update: " . $doc->data->{domain} . "\n"
+              if $debug;
+        };
+    }
+
+    return @res;
 }
 
 1;
