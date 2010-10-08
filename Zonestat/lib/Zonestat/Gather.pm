@@ -12,31 +12,39 @@ our $VERSION = '0.02';
 our $debug   = 0;
 STDOUT->autoflush(1) if $debug;
 
-=head1 Code left over from old world
-
 sub enqueue_domainset {
     my $self = shift;
-    my $ds   = shift;
-    my $name = shift || strftime('%g%m%d %H:%M', localtime());
-
-    my $run = $ds->add_to_testruns({ name => $name });
-    my $dbh = $self->dbh;
-
-   # We use a direct DBI call here, since not having to bring the data up from
-   # the database and then back into it again speeds things up by several orders
-   # of magnitude.
-    $dbh->do(
-        'INSERT INTO queue (domain, priority, source_id, source_data)
-         SELECT domains.domain, 4, ?, ? FROM domains, domain_set_glue
-         WHERE domain_set_glue.set_id = ? AND domains.id = domain_set_glue.domain_id',
-        undef,
-        $self->source_id,
-        $run->id,
-        $ds->id
-    );
+    my $set_name = shift;
+    
+    die "Unimplemented.";
 }
 
-=cut
+sub single_domain {
+    my $self = shift;
+    my $domain = shift;
+    
+    my $db = $self->db('zonestat');
+    my $data = $self->parent->collect->for_domain($domain);
+    $data->{domain} = $domain;
+    
+    return $db->newDoc(undef, undef, $data)->create;
+}
+
+sub put_in_queue {
+    my $self = shift;
+    my (@qrefs) = @_;
+    my $db = $self->db('zonestat-queue');
+    
+    foreach my $ref (@qrefs) {
+        unless ($ref->{domain} and defined($ref->{priority}) and $ref->{priority} > 0) {
+            carp "Invalid domain and/or priority: " . $ref->{domain} . '/' . $ref->{priority};
+            return;
+        }
+        
+        $db->newDoc(undef, undef, $ref)->create;
+    }
+    
+}
 
 1;
 __END__
