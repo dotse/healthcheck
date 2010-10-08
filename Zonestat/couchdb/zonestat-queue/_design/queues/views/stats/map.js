@@ -1,7 +1,7 @@
 function(doc){
     if(doc.inprogress) {
-        return;
+        emit('inprogress',1);
     } else {
-        emit(doc.priority, doc.domain);
+        emit(doc.priority,1);
     }
 }
