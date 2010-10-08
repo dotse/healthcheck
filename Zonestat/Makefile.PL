@@ -19,6 +19,7 @@ WriteMakefile(
         CHI => 0,
         CHI::Driver::DBI => 0,
         XML::Simple => 0,
+        CouchDB::Helper => 0,
     }, 
     ($] >= 5.005 ?     
       (ABSTRACT_FROM  => 'lib/Zonestat.pm', # retrieve abstract from module
