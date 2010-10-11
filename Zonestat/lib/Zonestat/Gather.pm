@@ -77,6 +77,20 @@ sub get_from_queue {
     return @res;
 }
 
+sub reset_inprogress {
+    my $self = shift;
+    my $db   = $self->db('zonestat-queue');
+    my $ddoc = $db->newDesignDoc('_design/queues');
+    $ddoc->retrieve;
+    my $query = $ddoc->queryView('inprogress');
+    foreach my $row (@{ $query->{rows} }) {
+        my $doc = $db->newDoc($row->{id});
+        $doc->retrieve;
+        $doc->data->{inprogress} = undef;
+        $doc->update;
+    }
+}
+
 1;
 __END__
 
