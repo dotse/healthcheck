@@ -518,23 +518,23 @@ sub webinfo {
         }
         my ($type, $encoding) =
           content_type_from_header($res->header('Content-Type'));
-        $res{ $https ? 'https' : 'http' } = {
-            type           => 'Unknown',
-            version        => undef,
-            https          => $https,
-            raw_type       => $res->header('Server'),
-            url            => $u,
-            response_code  => $res->code,
-            content_type   => $type,
-            charset        => $encoding,
-            content_length => scalar($res->header('Content-Length')),
-            redirect_count => $rcount,
-            redirect_urls  => $rurls,
-            ending_tld     => $tld,
-            robots_txt     => $robots,
-            ip             => $ip,
-            issuer         => $issuer,
-        };
+        my %tmp;
+        $tmp{type}           = 'Unknown';
+        $tmp{version}        = undef;
+        $tmp{https}          = $https;
+        $tmp{raw_type}       = $res->header('Server');
+        $tmp{url}            = $u;
+        $tmp{response_code}  = $res->code;
+        $tmp{content_type}   = $type;
+        $tmp{charset}        = $encoding;
+        $tmp{content_length} = scalar($res->header('Content-Length'));
+        $tmp{redirect_count} = $rcount;
+        $tmp{redirect_urls}  = $rurls;
+        $tmp{ending_tld}     = $tld;
+        $tmp{robots_txt}     = $robots;
+        $tmp{ip}             = $ip;
+        $tmp{issuer}         = $issuer;
+        $res{ $https ? 'https' : 'http' } = \%tmp;
     }
 
     return \%res;
