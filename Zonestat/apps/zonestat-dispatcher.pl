@@ -42,6 +42,7 @@ use Time::HiRes qw(sleep gettimeofday);
 
 use vars qw[
   %running
+  %qid
   %reaped
   %start_time
   %problem
@@ -61,6 +62,7 @@ use vars qw[
 ];
 
 %running    = ();
+%qid        = ();
 %reaped     = ();
 %start_time = ();
 %problem    = ();
@@ -147,9 +149,6 @@ sub setup {
     slog 'info', 'Reading config from %s and %s.',
       $check->config->get("configfile"), $check->config->get("siteconfigfile");
 
-    unless ($zs->dbh) {
-        die "Failed to connect to database. Exiting.\n";
-    }
     detach() unless $debug;
     open STDERR, '>>', $errfile or die "Failed to open error log: $!";
     printf STDERR "%s starting at %s\n", $0, scalar(localtime);
@@ -183,41 +182,7 @@ sub detach {
 
 # Clean up residue from earlier run(s), if any.
 sub inital_cleanup {
-    eval { $zs->dbh; };
-    if ($@) {
-        slog 'critical', 'Database not available. Exiting.';
-        exit(1);
-    }
-
-    my $queue = $zs->dbx('Queue');
-
-    $queue->search(
-        {
-            inprogress => { '!=', undef },
-            tester_pid => undef,
-        }
-    )->update({ inprogress => undef });
-
-    my $c = $queue->search(
-        {
-            inprogress => { '!=', undef },
-            tester_pid => { '!=', undef },
-        }
-    );
-    foreach my $k ($c->all) {
-        if (kill 0, $k->tester_pid) {
-
-      # The process running this test is still alive, so just remove it from the
-      # queue.
-            $k->delete;
-            slog 'info', 'Removed %s from queue', $k->domain;
-        } else {
-
-            # The process running this test has died, so reschedule it
-            $k->update({ inprogress => undef });
-            slog 'info', 'Rescheduled test for %s', $k->domain;
-        }
-    }
+    $zs->gather->reset_inprogress;
 }
 
 ################################################################
@@ -228,20 +193,20 @@ sub dispatch {
     my @entries;
 
     if (scalar keys %running < $limit) {
-        @entries = get_entries($limit - scalar keys %running);
+        @entries = $zs->gather->get_from_queue($limit - scalar keys %running);
     }
 
     if (@entries) {
         foreach my $e (@entries) {
-            unless (defined($problem{ $e->domain })
-                and $problem{ $e->domain } >= 5)
+            unless (defined($problem{ $e->{domain} })
+                and $problem{ $e->{domain} } >= 5)
             {
-                process($e->domain, $e->id, $e->source_id, $e->source_data,
-                    $e->fake_parent_glue, $e->priority);
+                process($e->{domain}, $e->{id}, $e->{source_id}, $e->{source_data},
+                    $e->{fake_parent_glue}, $e->{priority});
             } else {
                 slog 'error',
                     "Testing "
-                  . $e->domain
+                  . $e->{domain}
                   . " caused repeated abnormal termination of children. Assuming bug. Exiting.";
                 $running = 0;
             }
@@ -250,44 +215,10 @@ sub dispatch {
     return 1.0;
 }
 
-sub get_entries {
-    my ($entries_to_get) = @_;
-
-    my $queue = $zs->dbx('Queue');
-    my @entries;
-
-    eval {
-        my $max_prio =
-          $queue->search({ inprogress => undef, })->get_column('priority')->max;
-        return unless $max_prio;
-        @entries = $queue->search(
-            {
-                inprogress => undef,
-                priority   => $max_prio,
-            },
-            {
-                order_by => { -asc => 'id' },
-                rows     => $entries_to_get,
-            }
-        )->all;
-        $queue->search({ id => { in => [map { $_->id } @entries] }, })
-          ->update({ inprogress => \'NOW()' });
-    };
-    if ($@) {
-        print STDERR "DBIx::Class did not help us...\n";
-        die($@);
-    }
-
-    if (@entries) {
-        return @entries;
-    } else {
-        return;
-    }
-}
-
 sub process {
     my $domain      = shift;
     my $id          = shift;
+    # The rest for later use.
     my $source      = shift;
     my $source_data = shift;
     my $fake_glue   = shift;
@@ -297,6 +228,7 @@ sub process {
 
     if ($pid) {    # True values, so parent
         $running{$pid}    = $domain;
+        $qid{$pid} = $id;
         $start_time{$pid} = gettimeofday();
         slog 'debug', "Child process $pid has been started.";
     } elsif ($pid == 0) {    # Zero value, so child
@@ -310,92 +242,27 @@ sub process {
 sub running_in_child {
     my $domain      = shift;
     my $id          = shift;
+    # The rest will used at some later point.
     my $source      = shift;
     my $source_data = shift;
     my $fake_glue   = shift;
     my $priority    = shift;
 
-    # Reuse the old configuration, but get new everything else.
-    my $dc = DNSCheck->new({ with_config_object => $check->config });
-    my $log = $dc->logger;
-
-    setpriority(0, $$, 20 - 2 * $priority);
-
-    if (defined($fake_glue)) {
-        my @ns = split(/\s+/, $fake_glue);
-        foreach my $n (@ns) {
-            my ($name, $ip) = split(m|/|, $n);
-            $dc->add_fake_glue($domain, $name, $ip);
-        }
-    }
-
-   # On some OS:s (including Ubuntu Linux), this is visible in the process list.
+    setpriority(0, $$, 2 * $priority);
+    my $dbdoc = $zs->gather->set_active($id, $$);
     $0 = "dispatcher: gathering $domain (queue id $id)";
 
-    $zs->dbx('Queue')->find($id)->update({ tester_pid => $$ });
-    my $test = $zs->dbx('Tests')->create(
-        {
-            domain      => $domain,
-            source_id   => $source,
-            begin       => \'NOW()',
-            source_data => $source_data,
-            run_id      => $source_data
-        }
-    );
+   # On some OS:s (including Ubuntu Linux), this is visible in the process list.
 
-    slog 'debug', "$$ running test number " . $test->id . ".\n";
-    my $line = 0;
+    slog 'debug', "$$ running queue id " . $id;
 
     # These lines hide all the actual useful work.
     slog 'debug', "Running DNSCheck tests for $domain.";
-    $dc->zone->test($domain);
-    $dc->log_nameserver_times($domain);
+    $zs->gather->single_domain($domain);
 
-    my @tmp_results;
-    while (defined(my $e = $log->get_next_entry)) {
-        next if ($levels{ $e->{level} } < $levels{$savelevel});
-        push @tmp_results,
-          {
-            line             => ++$line,
-            module_id        => $e->{module_id},
-            parent_module_id => $e->{parent_module_id},
-            timestamp =>
-              strftime("%Y-%m-%d %H:%M:%S", localtime($e->{timestamp})),
-            level   => $e->{level},
-            message => $e->{tag},
-            arg0    => $e->{arg}[0],
-            arg1    => $e->{arg}[1],
-            arg2    => $e->{arg}[2],
-            arg3    => $e->{arg}[3],
-            arg4    => $e->{arg}[4],
-            arg5    => $e->{arg}[5],
-            arg6    => $e->{arg}[6],
-            arg7    => $e->{arg}[7],
-            arg8    => $e->{arg}[8],
-            arg9    => $e->{arg}[9],
-            test_id => $test->id,
-          };
-    }
-    $zs->dbx('Results')->populate(\@tmp_results);
-
-    slog 'debug', "Getting server data for $domain.";
-    $zs->gather->get_server_data($source_data, $domain);
-    $zs->gather->from_plugins($source_data, $domain);
-
-    # End of useful work
-
-    $test->update(
-        {
-            end            => \'NOW()',
-            count_critical => $log->count_critical,
-            count_error    => $log->count_error,
-            count_warning  => $log->count_warning,
-            count_notice   => $log->count_notice,
-            count_info     => $log->count_info,
-        }
-    );
-
-# Everything went well, so exit nicely (if they didn't go well, we've already died not-so-nicely).
+    # Everything went well, so exit nicely (if they didn't go well, we've already
+    # died not-so-nicely). Also, remove from database queue.
+    $dbdoc->delete;
     slog 'debug', "$$ about to exit nicely.";
     exit(0);
 }
@@ -413,10 +280,12 @@ sub monitor_children {
 
         my $domain   = $running{$pid};
         my $exitcode = $reaped{$pid};
+        my $qid = $qid{$pid};
         delete $running{$pid};
+        delete $qid{$pid};
         delete $reaped{$pid};
         delete $start_time{$pid};
-        cleanup($domain, $exitcode, $pid);
+        cleanup($domain, $exitcode, $pid, $qid);
     }
 
     if (defined($exit_timeout) and time() - $exit_timeout > 900) {
@@ -436,39 +305,18 @@ sub cleanup {
     my $domain   = shift;
     my $exitcode = shift;
     my $pid      = shift;
-    my $queue    = $zs->dbx('Queue');
-    my $tests    = $zs->dbx('Tests');
+    my $qid = shift;
 
     my $status = $exitcode >> 8;
     my $signal = $exitcode & 127;
 
     if ($status == 0) {
-
-        # Child died nicely.
-      AGAIN: eval {
-            $queue->search({ domain => $domain, tester_pid => $pid })->delete;
-        };
-        if ($@)
-        { # mysqld dumped us. Get a new handle and try again, after a little pause
-            slog 'warning',
-              "Failed to delete queue entry for $domain. Retrying.\n   $@";
-            sleep(0.25);
-            goto AGAIN;
-        }
-
+        # Child died nicely. So we don't need to do anything.
     } else {
-
         # Child blew up. Clean up.
         $problem{$domain} += 1;
         slog 'warning', "Unclean exit when testing $domain (status $status).";
-        $queue->search({ domain => $domain })->update({ inprogress => undef });
-        $tests->search(
-            {
-                begin  => { '!=', undef },
-                end    => undef,
-                domain => $domain,
-            }
-        )->delete;
+        $zs->gather->reset_queue_entry($qid);
     }
 }
 

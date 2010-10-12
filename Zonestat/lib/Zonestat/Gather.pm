@@ -66,7 +66,11 @@ sub get_from_queue {
         $doc->data->{inprogress} = 1;
         try {
             $doc->update;
-            push @res, $doc->data->{domain};
+            push @res, {
+                domain => $doc->data->{domain},
+                id => $doc->id,
+                priority => $doc->data->{priority},
+            };
         }
         catch {
             print STDERR "Failed to update: " . $doc->data->{domain} . "\n"
@@ -75,6 +79,32 @@ sub get_from_queue {
     }
 
     return @res;
+}
+
+sub set_active {
+    my $self = shift;
+    my ($id, $pid) = @_;
+    my $db = $self->db('zonestat-queue');
+    my $doc = $db->newDoc($id);
+    $doc->retrieve;
+    
+    $doc->data->{tester_pid} = $pid;
+    $doc->update;
+    
+    return $doc;
+}
+
+sub reset_queue_entry {
+    my $self = shift;
+    my $id = shift;
+    my $doc = $self->db('zonestat-queue')->newDoc($id);
+
+    $doc->retrieve;
+    $doc->data->{inprogress} = undef;
+    $doc->data->{tester_pid} = undef;
+    $doc->update;
+    
+    return $doc;
 }
 
 sub reset_inprogress {

@@ -118,7 +118,7 @@ sub db {
     my $self = shift;
     my $name = shift;
 
-    croak "Database must have a name" unless $name;
+    confess "Database must have a name" unless $name;
 
     unless ($self->{db}{$name}) {
         my $db = $self->dbconn->newDB($name);
