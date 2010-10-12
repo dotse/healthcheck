@@ -300,6 +300,7 @@ sub monitor_children {
             slog 'warning', "Child $pid timed out, killing it.";
             kill 9, $pid;
             $killed{$pid} = time;
+            $zs->gather->requeue($qid{$pid});
         }
     }
 }

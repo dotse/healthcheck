@@ -122,6 +122,20 @@ sub reset_inprogress {
     }
 }
 
+sub requeue {
+    my $self = shift;
+    my $id = shift;
+    my $doc  = $self->db('zonestat-queue')->newDoc($id);
+
+    $doc->retrieve;
+    $doc->data->{priority} += 1;
+    $doc->data->{requeued} += 1;
+    $doc->data->{inprogress} = undef;
+    $doc->update;
+    
+    return $doc;
+}
+
 1;
 __END__
 
