@@ -102,6 +102,7 @@ last is a reference to a list with the arguments for the tag.
 
     my %hosts = extract_hosts($domain, $res{dnscheck});
     $hosts{webservers} = get_webservers($domain);
+    $hosts{mailservers} = get_mailservers($domain);
 
 =item dkim
 
@@ -645,12 +646,6 @@ sub extract_hosts {
                 address => $r->{args}[3],
                 asn     => $asn->lookup($r->{args}[3]),
               };
-        } elsif ($r->{tag} eq 'DNS:FIND_MX_RESULT') {
-            foreach my $s (split(/,/, $r->{args}[1])) {
-                next unless $r->{args}[0] eq $domain;
-                push @{ $res{mailservers} },
-                  { domain => $r->{args}[0], name => $s };
-            }
         }
     }
 
@@ -672,6 +667,22 @@ sub run_with_timeout {
     };
     sigaction(SIGALRM, $oldaction);
     return $res;
+}
+
+sub get_mailservers {
+    my $domain = shift;
+    my @res;
+    
+    my $r = $dns->query_resolver($domain, 'MX', 'IN');
+    if (defined($r) and $r->header->ancount > 0) {
+        foreach my $rr ($r->answer) {
+            foreach my $addr ($dns->find_addresses($rr->exchange, 'IN')) {
+                push @res, {name => $rr->exchange, address => $addr};
+            }
+        }
+    }
+    
+    return \@res;
 }
 
 sub get_webservers {
