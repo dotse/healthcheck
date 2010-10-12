@@ -201,8 +201,9 @@ sub dispatch {
             unless (defined($problem{ $e->{domain} })
                 and $problem{ $e->{domain} } >= 5)
             {
-                process($e->{domain}, $e->{id}, $e->{source_id}, $e->{source_data},
-                    $e->{fake_parent_glue}, $e->{priority});
+                process($e->{domain}, $e->{id}, $e->{source_id},
+                    $e->{source_data}, $e->{fake_parent_glue},
+                    $e->{priority});
             } else {
                 slog 'error',
                     "Testing "
@@ -216,8 +217,9 @@ sub dispatch {
 }
 
 sub process {
-    my $domain      = shift;
-    my $id          = shift;
+    my $domain = shift;
+    my $id     = shift;
+
     # The rest for later use.
     my $source      = shift;
     my $source_data = shift;
@@ -228,7 +230,7 @@ sub process {
 
     if ($pid) {    # True values, so parent
         $running{$pid}    = $domain;
-        $qid{$pid} = $id;
+        $qid{$pid}        = $id;
         $start_time{$pid} = gettimeofday();
         slog 'debug', "Child process $pid has been started.";
     } elsif ($pid == 0) {    # Zero value, so child
@@ -240,8 +242,9 @@ sub process {
 }
 
 sub running_in_child {
-    my $domain      = shift;
-    my $id          = shift;
+    my $domain = shift;
+    my $id     = shift;
+
     # The rest will used at some later point.
     my $source      = shift;
     my $source_data = shift;
@@ -260,8 +263,8 @@ sub running_in_child {
     slog 'debug', "Running DNSCheck tests for $domain.";
     $zs->gather->single_domain($domain);
 
-    # Everything went well, so exit nicely (if they didn't go well, we've already
-    # died not-so-nicely). Also, remove from database queue.
+   # Everything went well, so exit nicely (if they didn't go well, we've already
+   # died not-so-nicely). Also, remove from database queue.
     $dbdoc->delete;
     slog 'debug', "$$ about to exit nicely.";
     exit(0);
@@ -280,7 +283,7 @@ sub monitor_children {
 
         my $domain   = $running{$pid};
         my $exitcode = $reaped{$pid};
-        my $qid = $qid{$pid};
+        my $qid      = $qid{$pid};
         delete $running{$pid};
         delete $qid{$pid};
         delete $reaped{$pid};
@@ -305,14 +308,16 @@ sub cleanup {
     my $domain   = shift;
     my $exitcode = shift;
     my $pid      = shift;
-    my $qid = shift;
+    my $qid      = shift;
 
     my $status = $exitcode >> 8;
     my $signal = $exitcode & 127;
 
     if ($status == 0) {
+
         # Child died nicely. So we don't need to do anything.
     } else {
+
         # Child blew up. Clean up.
         $problem{$domain} += 1;
         slog 'warning', "Unclean exit when testing $domain (status $status).";
