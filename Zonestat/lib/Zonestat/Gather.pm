@@ -23,10 +23,14 @@ sub enqueue_domainset {
 sub single_domain {
     my $self   = shift;
     my $domain = shift;
+    my $extra  = shift;
 
     my $db   = $self->db('zonestat');
     my $data = $self->parent->collect->for_domain($domain);
     $data->{domain} = $domain;
+    while (my ($k,$v) = each %$extra) {
+        $data->{$k} = $v unless exists($data->{$k});
+    }
 
     return $db->newDoc(undef, undef, $data)->create;
 }

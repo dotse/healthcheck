@@ -261,7 +261,10 @@ sub running_in_child {
 
     # These lines hide all the actual useful work.
     slog 'debug', "Running DNSCheck tests for $domain.";
-    $zs->gather->single_domain($domain);
+    $zs->gather->single_domain($domain, {
+        source => $source,
+        testrun => $source_data,
+    });
 
    # Everything went well, so exit nicely (if they didn't go well, we've already
    # died not-so-nicely). Also, remove from database queue.
