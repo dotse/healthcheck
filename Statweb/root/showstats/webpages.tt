@@ -5,7 +5,7 @@
     <tr>
         <th>[% title %]</th>
         [% FOREACH tr IN trs -%]
-        <th>[% names.${tr.id} %]</th>
+        <th>[% tr.domainset.dsgroup.name %] [% tr.name %]</th>
         [% END -%]
     </tr>
     [% FOREACH t IN root.${h} -%]
@@ -71,7 +71,7 @@
     [% FOREACH tr IN trs -%]
     [% p = pa.${tr.id} %]
     <tr class="[% loop.parity %]">
-        <th>[% names.${tr.id} %]</th>
+        <th>[% tr.domainset.dsgroup.name %] [% tr.name %]</th>
         <td class="numeric">[% p.load_time.average FILTER format("%0.1f") %]</td>
         <td class="numeric">[% p.load_time.stddev FILTER format("%0.1f") %]</td>
         <td class="numeric">[% p.requests.average FILTER format("%0.1f") %]</td>

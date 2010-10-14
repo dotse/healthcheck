@@ -59,7 +59,7 @@ sub name {
     if ($n ne '') {
         return $n;
     } else {
-        return $self->dsgroup->name . ' ' . $self->created_at;
+        return $self->dsgroup->name;
     }
 }
 
