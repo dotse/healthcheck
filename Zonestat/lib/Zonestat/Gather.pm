@@ -70,12 +70,9 @@ sub get_from_queue {
         $doc->data->{inprogress} = 1;
         try {
             $doc->update;
-            push @res,
-              {
-                domain   => $doc->data->{domain},
-                id       => $doc->id,
-                priority => $doc->data->{priority},
-              };
+            my $tmp = $doc->data;
+            $tmp->{id} = $doc->id;
+            push @res, $tmp;
         }
         catch {
             print STDERR "Failed to update: " . $doc->data->{domain} . "\n"
