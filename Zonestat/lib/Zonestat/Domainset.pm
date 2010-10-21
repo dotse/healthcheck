@@ -34,17 +34,12 @@ sub id {
 
 sub add {
     my $self = shift;
-    my $domain = shift;
+    my @domains = @_;
+    my $name = $self->name;
     
-    my $doc = $self->db->newDoc($self->id($domain), undef);
-    try {
-        $doc->retrieve;
-    } catch {
-        $doc->create;
-    };
-    
-    $doc->data({domain => $domain, set => $self->name});
-    $doc->update;
+    $self->db->bulkStore([
+        map {$self->db->newDoc($self->id($_), undef, {domain => $_, set => $name})} @domains
+        ]);
     
     return $self;
 }
