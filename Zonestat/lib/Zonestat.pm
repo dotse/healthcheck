@@ -15,6 +15,7 @@ use Zonestat::Gather;
 use Zonestat::Present;
 use Zonestat::User;
 use Zonestat::Collect;
+use Zonestat::Domainset;
 
 use Module::Find;
 
@@ -82,6 +83,13 @@ sub gather {
 sub present {
     my $self = shift;
     return $self->{present};
+}
+
+sub domainset {
+    my $self = shift;
+    my $name = shift;
+    
+    return Zonestat::Domainset->new($self, $name);
 }
 
 sub user {
