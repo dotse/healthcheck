@@ -101,7 +101,7 @@ last is a reference to a list with the arguments for the tag.
     $res{dnscheck} = dnscheck_log_cleanup($dc->logger->export);
 
     my %hosts = extract_hosts($domain, $res{dnscheck});
-    $hosts{webservers} = get_webservers($domain);
+    $hosts{webservers}  = get_webservers($domain);
     $hosts{mailservers} = get_mailservers($domain);
 
 =item dkim
@@ -396,6 +396,7 @@ sub sslscan_web {
     $res{name}       = $name;
     $res{data}       = XMLin(run_with_timeout(sub { qx[$cmd . $name] }, 600));
     $res{evaluation} = sslscan_evaluate($res{data});
+    $res{known_ca}   = $self->https_known_ca($domain);
 
     return \%res;
 }
@@ -672,16 +673,16 @@ sub run_with_timeout {
 sub get_mailservers {
     my $domain = shift;
     my @res;
-    
+
     my $r = $dns->query_resolver($domain, 'MX', 'IN');
     if (defined($r) and $r->header->ancount > 0) {
         foreach my $rr ($r->answer) {
             foreach my $addr ($dns->find_addresses($rr->exchange, 'IN')) {
-                push @res, {name => $rr->exchange, address => $addr};
+                push @res, { name => $rr->exchange, address => $addr };
             }
         }
     }
-    
+
     return \@res;
 }
 

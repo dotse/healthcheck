@@ -28,7 +28,7 @@ sub single_domain {
     my $db   = $self->db('zonestat');
     my $data = $self->parent->collect->for_domain($domain);
     $data->{domain} = $domain;
-    while (my ($k,$v) = each %$extra) {
+    while (my ($k, $v) = each %$extra) {
         $data->{$k} = $v unless exists($data->{$k});
     }
 
@@ -125,7 +125,7 @@ sub reset_inprogress {
 
 sub requeue {
     my $self = shift;
-    my $id = shift;
+    my $id   = shift;
     my $doc  = $self->db('zonestat-queue')->newDoc($id);
 
     $doc->retrieve;
@@ -133,7 +133,7 @@ sub requeue {
     $doc->data->{requeued} += 1;
     $doc->data->{inprogress} = undef;
     $doc->update;
-    
+
     return $doc;
 }
 
