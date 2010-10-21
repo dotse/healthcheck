@@ -805,6 +805,36 @@ sub sslscan_evaluate {
     return \%result;
 }
 
+sub https_known_ca {
+    my $self   = shift;
+    my $server = shift;
+
+    my $openssl  = $self->cget(qw[zonestat openssl]);
+    my $certfile = $self->cget(qw[zonestat cacertfile]);
+
+    unless ($openssl and $certfile) {
+        return;
+    }
+
+    unless (-x $openssl and -r $certfile) {
+        confess "$openssl not executable or $certfile not readable";
+    }
+
+    my $raw =
+qx[$openssl s_client -CAfile $certfile -connect www.$server:443 < /dev/null 2>/dev/null];
+
+    if ($raw =~ m|Verify return code: \d+ \(([^)]+)\)|) {
+        my $verdict = $1;
+        if ($verdict eq 'ok') {
+            return { ok => 1, verdict => $verdict };
+        } else {
+            return { ok => 0, verdict => $verdict };
+        }
+    } else {
+        return { ok => undef, verdict => undef };
+    }
+}
+
 # This methods is too slow to be useful, and only included here if we ever
 # want to use it for some special purpose.
 sub kaminsky_check {
