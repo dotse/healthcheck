@@ -93,7 +93,6 @@ sub enqueue {
 
     my $trdoc = $self->db('zonestat-testrun')->newDoc($testrun, undef,
         { domainset => $self->name, queued_at => time(), testrun => "" . $testrun });
-    print STDERR Dumper($trdoc);
     $trdoc->create;
 
     $self->parent->gather->put_in_queue(
