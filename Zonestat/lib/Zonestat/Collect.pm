@@ -678,6 +678,7 @@ sub get_mailservers {
     if (defined($r) and $r->header->ancount > 0) {
         foreach my $rr ($r->answer) {
             foreach my $addr ($dns->find_addresses($rr->exchange, 'IN')) {
+                next unless $rr->type eq 'MX';
                 push @res, { name => $rr->exchange, address => $addr };
             }
         }
