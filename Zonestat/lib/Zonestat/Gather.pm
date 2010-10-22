@@ -24,6 +24,7 @@ sub single_domain {
     my $self   = shift;
     my $domain = shift;
     my $extra  = shift;
+    my $id;
 
     my $db   = $self->db('zonestat');
     my $data = $self->parent->collect->for_domain($domain);
@@ -31,8 +32,12 @@ sub single_domain {
     while (my ($k, $v) = each %$extra) {
         $data->{$k} = $v unless exists($data->{$k});
     }
+    
+    if ($extra->{testrun}) {
+        $id = $extra->{testrun} . '-' . $domain;
+    }
 
-    return $db->newDoc(undef, undef, $data)->create;
+    return $db->newDoc($id, undef, $data)->create;
 }
 
 sub put_in_queue {
