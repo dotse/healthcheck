@@ -801,9 +801,10 @@ sub sslscan_evaluate {
     $result{medium_encryption} =
       !!(grep { $_->{bits} >= 128 and $_->{bits} < 256 } @cipher);
     $result{strong_encryption} = !!(grep { $_->{bits} >= 256 } @cipher);
-    
+
     # This relies on the special EV OID _not_ getting translated to a name.
-    $result{ev_cert} = !!(index($data->{certificate}{subject}, '1.3.6.1.4.1.311.60.2.1.3') >= 0);
+    $result{ev_cert} =
+      !!(index($data->{certificate}{subject}, '1.3.6.1.4.1.311.60.2.1.3') >= 0);
 
     return \%result;
 }

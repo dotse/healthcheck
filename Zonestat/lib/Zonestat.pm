@@ -88,7 +88,7 @@ sub present {
 sub domainset {
     my $self = shift;
     my $name = shift;
-    
+
     return Zonestat::Domainset->new($self, $name);
 }
 
