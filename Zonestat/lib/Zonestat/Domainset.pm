@@ -100,7 +100,7 @@ sub enqueue {
         map { { domain => $_, priority => 5, source_data => $testrun, } }
           $self->all);
 
-    return $self;
+    return $testrun;
 }
 
 1;
