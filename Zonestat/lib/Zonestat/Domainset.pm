@@ -23,8 +23,9 @@ sub name { return $_[0]->{name} }
 
 sub db {
     my $self = shift;
+    my $name = shift || 'zonestat-dset';
 
-    return $self->SUPER::db('zonestat-dset');
+    return $self->SUPER::db($name);
 }
 
 sub id {
@@ -90,7 +91,7 @@ sub enqueue {
     my $self    = shift;
     my $testrun = $self->run_id;
 
-    my $trdoc = $self->parent->db('zonestat-testrun')->newDoc($testrun, undef,
+    my $trdoc = $self->db('zonestat-testrun')->newDoc($testrun, undef,
         { domainset => $self->name, queued_at => time(), testrun => "" . $testrun });
     print STDERR Dumper($trdoc);
     $trdoc->create;
