@@ -37,6 +37,7 @@ use LWP::UserAgent;
 use HTTP::Request;
 use POSIX qw[strftime :signal_h];
 use Carp;
+use Try::Tiny;
 
 my $debug = 0;
 my $dc    = DNSCheck->new;
@@ -372,8 +373,12 @@ sub mailserver_gather {
         my $tmp = $self->smtp_info_for_address($server->{name});
         $tmp->{name} = $server->{name};
         if ($tmp->{starttls}) {
-            my $sslscan =
-              XMLin(run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600));
+            my $sslscan;
+            try {
+                $sslscan =
+                  XMLin(
+                    run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600));
+            };
             $tmp->{sslscan}    = $sslscan;
             $tmp->{evaluation} = sslscan_evaluate($sslscan);
         }
@@ -393,8 +398,10 @@ sub sslscan_web {
     return \%res unless -x $scan;
 
     my $cmd = "$scan --xml=stdout --quiet ";
-    $res{name}       = $name;
-    $res{data}       = XMLin(run_with_timeout(sub { qx[$cmd . $name] }, 600));
+    $res{name} = $name;
+    try {
+        $res{data} = XMLin(run_with_timeout(sub { qx[$cmd . $name] }, 600));
+    };
     $res{evaluation} = sslscan_evaluate($res{data});
     $res{known_ca}   = $self->https_known_ca($domain);
 

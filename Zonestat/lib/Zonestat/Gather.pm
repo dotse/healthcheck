@@ -32,7 +32,7 @@ sub single_domain {
     while (my ($k, $v) = each %$extra) {
         $data->{$k} = $v unless exists($data->{$k});
     }
-    
+
     if ($extra->{testrun}) {
         $id = $extra->{testrun} . '-' . $domain;
     }
@@ -137,9 +137,13 @@ sub requeue {
     $doc->data->{priority} += 1;
     $doc->data->{requeued} += 1;
     $doc->data->{inprogress} = undef;
-    $doc->update;
-
-    return $doc;
+    if ($doc->data->{requeued} <= 5) {
+        $doc->update;
+        return 1;
+    } else {
+        $doc->delete;
+        return;
+    }
 }
 
 1;

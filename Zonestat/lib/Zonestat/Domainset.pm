@@ -91,8 +91,14 @@ sub enqueue {
     my $self    = shift;
     my $testrun = $self->run_id;
 
-    my $trdoc = $self->db('zonestat-testrun')->newDoc($testrun, undef,
-        { domainset => $self->name, queued_at => time(), testrun => "" . $testrun });
+    my $trdoc = $self->db('zonestat-testrun')->newDoc(
+        $testrun, undef,
+        {
+            domainset => $self->name,
+            queued_at => time(),
+            testrun   => "" . $testrun
+        }
+    );
     $trdoc->create;
 
     $self->parent->gather->put_in_queue(

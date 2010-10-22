@@ -303,10 +303,13 @@ sub monitor_children {
 
     foreach my $pid (keys %start_time) {
         if ((gettimeofday() - $start_time{$pid}) > 900 and not $killed{$pid}) {
-            slog 'warning', "Child $pid timed out, killing it.";
+            slog 'warning', "Child $pid timed out, killing and requeueing it.";
             kill 9, $pid;
             $killed{$pid} = time;
-            $zs->gather->requeue($qid{$pid});
+            unless ($zs->gather->requeue($qid{$pid})) {
+                slog 'warning',
+                  "Child $pid requeued too many times. Entry ".$qid{$pid}." removed.";
+            }
         }
     }
 }
