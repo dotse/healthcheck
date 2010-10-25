@@ -427,6 +427,7 @@ sub pageanalyze {
               )
             {
                 $res{$method} = decode_json(join('', <$pa>));
+                delete $res{$method}{resources};
             }
         }
     }
