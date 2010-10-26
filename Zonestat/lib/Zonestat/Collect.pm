@@ -368,7 +368,7 @@ sub mailserver_gather {
 
     return unless -x $scan;
 
-    my $cmd = "$scan --starttls --xml=stdout --quiet ";
+    my $cmd = "$scan --starttls --xml=stdout --quiet --no-failed";
     foreach my $server (@$hosts) {
         my $tmp = $self->smtp_info_for_address($server->{name});
         $tmp->{name} = $server->{name};
@@ -397,7 +397,7 @@ sub sslscan_web {
 
     return \%res unless -x $scan;
 
-    my $cmd = "$scan --xml=stdout --quiet ";
+    my $cmd = "$scan --xml=stdout --quiet --no-failed";
     $res{name} = $name;
     try {
         $res{data} = XMLin(run_with_timeout(sub { qx[$cmd . $name] }, 600));
