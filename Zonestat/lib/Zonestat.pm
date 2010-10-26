@@ -114,7 +114,11 @@ sub dbconn {
     my $self = shift;
 
     unless ($self->{dbconn} and $self->{dbconn}->testConnection) {
-        my $conn = CouchDB::Client->new(uri => $self->dbconfig->{url});
+        my $conn = CouchDB::Client->new(
+            uri => $self->dbconfig->{url},
+            username => $self->dbconfig->{username},
+            password => $self->dbconfig->{password},
+            );
         $conn->testConnection or croak "Failed to get connection to database.";
         $self->{dbconn} = $conn;
     }
