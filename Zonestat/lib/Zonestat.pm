@@ -92,6 +92,13 @@ sub domainset {
     return Zonestat::Domainset->new($self, $name);
 }
 
+sub mkdb {
+    my $self = shift;
+    my $name = shift;
+    
+    return Zonestat::DB->new($self, $name);
+}
+
 sub user {
     my $self = shift;
     my ($name_or_id, $pwd) = @_;
