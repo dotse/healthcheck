@@ -8,17 +8,13 @@ WriteMakefile(
     PREREQ_PM         => {
         YAML => 0,
         DNSCheck => 1.00,
-        DBI => 0,
-        DBD::mysql => 0,
         HTTP::Request => 0,
-        DBIx::Class => 0.08112,
         IO::Socket::SSL => 0,
         Text::CSV_XS => 0,
         Geo::IP => 0,
         HTTP::Response => 5.824,
-        CHI => 0,
-        CHI::Driver::DBI => 0,
         XML::Simple => 0,
+        CouchDB::Client => 0,
         CouchDB::Helper => 0,
     }, 
     ($] >= 5.005 ?     

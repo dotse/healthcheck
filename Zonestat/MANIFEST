@@ -3,13 +3,7 @@ apps/zonestat-dispatcher.pl
 Changes
 db/create_tables.sql
 db/modify_tables.sql
-examples/build_cache.pl
 examples/couchdb.pl
-examples/dbuse.pl
-examples/error_report.pl
-examples/fill_in_redirects.pl
-examples/fill_in_spf.pl
-examples/http_conf_fragment
 examples/import_zone.pl
 lib/Zonestat.pm
 lib/Zonestat/Common.pm
