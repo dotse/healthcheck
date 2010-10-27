@@ -18,5 +18,5 @@ function(doc){
         }
     }
     
-    emit(max, 1);
+    emit([doc.testrun, max], 1);
 }
