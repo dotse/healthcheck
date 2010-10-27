@@ -26,7 +26,6 @@ sub db {
     return $self->SUPER::db($name);
 }
 
-use Data::Dumper;
 sub initialize {
     my $self = shift;
     my $ddocs = $self->db->listDesignDocs;
