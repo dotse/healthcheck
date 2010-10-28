@@ -14,43 +14,6 @@ our $VERSION = '0.01';
 
 my $locale = LoadFile $Config{siteprefix} . '/share/dnscheck/locale/en.yaml';
 
-sub build_cache_for_testrun {
-    my $self = shift;
-    my $tr   = shift;
-
-    if ($self->dbx('Queue')->search({ source_data => $tr->id })->count > 0) {
-        return;    # Don't process testruns that haven't finished running.
-    }
-
-    foreach my $t (qw[charset content_type response_code type]) {
-        $self->webservers_by_field($t, 0, $tr);
-        $self->webservers_by_field($t, 1, $tr);
-    }
-    $self->tests_with_max_severity($tr);
-    foreach my $f (qw[DNS HTTP SMTP]) {
-        $self->top_foo_servers($f, $tr);
-    }
-    $self->nameservers_per_asn(0, $tr);
-    $self->nameservers_per_asn(1, $tr);
-    $self->ipv6_percentage_for_testrun($tr);
-    $self->multihome_percentage_for_testrun($tr, 0);
-    $self->multihome_percentage_for_testrun($tr, 1);
-    $self->dnssec_percentage_for_testrun($tr);
-    $self->recursing_percentage_for_testrun($tr);
-    $self->adsp_percentage_for_testrun($tr);
-    $self->spf_percentage_for_testrun($tr);
-    $self->starttls_percentage_for_testrun($tr);
-    $self->nameserver_count($tr, 0);
-    $self->nameserver_count($tr, 1);
-    $self->mailservers_in_sweden($tr, 0);
-    $self->mailservers_in_sweden($tr, 1);
-
-    foreach my $l (qw[CRITICAL ERROR WARNING]) {
-        $self->message_bands($tr, $l);
-        $self->number_of_domains_with_message($l, $tr);
-    }
-}
-
 sub total_tested_domains {
     my $self = shift;
     my $tr   = shift;
@@ -216,62 +179,18 @@ sub all_dnscheck_tests {
 sub all_domainsets {
     my $self = shift;
 
-    my $s = $self->dbx('Domainset');
-    return $s->search({}, { order_by => ['name'] });
+    my $dbp = $self->dbproxy('zonestat-dset');
+    return map {$_->{key}} @{$dbp->util_set(group => 'true')->{rows}};
 }
 
 sub tests_with_max_severity {
     my $self = shift;
-    my @ds   = @_;
-
-    my %res;
-
-    foreach my $ds (@ds) {
-        my $key = 'tests_with_max_severity ' . $ds->id;
-        unless ($self->chi->is_valid($key)) {
-            my %tmp;
-            $tmp{critical} =
-              $ds->search_related('tests', { count_critical => { '>', 0 } })
-              ->count;
-            $tmp{error} =
-              $ds->search_related('tests',
-                { count_critical => 0, count_error => { '>', 0 } })->count;
-            $tmp{warning} = $ds->search_related(
-                'tests',
-                {
-                    count_critical => 0,
-                    count_error    => 0,
-                    count_warning  => { '>', 0 }
-                }
-            )->count;
-            $tmp{notice} = $ds->search_related(
-                'tests',
-                {
-                    count_critical => 0,
-                    count_error    => 0,
-                    count_warning  => 0,
-                    count_notice   => { '>', 0 }
-                }
-            )->count;
-            $tmp{info} = $ds->search_related(
-                'tests',
-                {
-                    count_critical => 0,
-                    count_error    => 0,
-                    count_warning  => 0,
-                    count_notice   => 0,
-                    count_info     => { '>', 0 }
-                }
-            )->count;
-            $self->chi->set($key, \%tmp);
-        }
-        my %tmp = %{ $self->chi->get($key) };
-        foreach my $l (keys %tmp) {
-            $res{$l}{ $ds->id } = $tmp{$l};
-        }
-    }
-
-    return %res;
+    my $testrun = shift;
+    
+    my $dbp = $self->dbproxy('zonestat');
+    my $res = $dbp->check_maxseverity(startkey => [''.$testrun, 'A'], endkey => [''.$testrun, 'Z'], group => 'true')->{rows};
+    
+    return map {$_->{key}[1] => $_->{value}} @$res;
 }
 
 sub domainset_being_tested {

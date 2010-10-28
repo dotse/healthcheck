@@ -35,6 +35,12 @@ sub db {
     return $self->parent->db(@_);
 }
 
+sub dbproxy {
+    my $self = shift;
+
+    return $self->parent->dbproxy(@_);
+}
+
 sub run_id {
     my $self  = shift;
     my $docid = 'testruncounter';
