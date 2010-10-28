@@ -308,7 +308,9 @@ sub monitor_children {
             $killed{$pid} = time;
             unless ($zs->gather->requeue($qid{$pid})) {
                 slog 'warning',
-                  "Child $pid requeued too many times. Entry ".$qid{$pid}." removed.";
+                    "Child $pid requeued too many times. Entry "
+                  . $qid{$pid}
+                  . " removed.";
             }
         }
     }

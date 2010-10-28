@@ -96,7 +96,7 @@ sub domainset {
 sub dbproxy {
     my $self = shift;
     my $name = shift;
-    
+
     return Zonestat::DB->new($self, $name);
 }
 
@@ -123,10 +123,10 @@ sub dbconn {
 
     unless ($self->{dbconn} and $self->{dbconn}->testConnection) {
         my $conn = CouchDB::Client->new(
-            uri => $self->dbconfig->{url},
+            uri      => $self->dbconfig->{url},
             username => $self->dbconfig->{username},
             password => $self->dbconfig->{password},
-            );
+        );
         $conn->testConnection or croak "Failed to get connection to database.";
         $self->{dbconn} = $conn;
     }
