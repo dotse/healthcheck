@@ -13,8 +13,7 @@ foreach my $db (@{ $dbc->listDBs }) {
         foreach my $view ($ddoc->listViews) {
             printf(
                 "%s%s/%s/_view/%s\n",
-                $dbc->{uri},
-                $db->dbInfo->{db_name},
+                $dbc->{uri}, $db->dbInfo->{db_name},
                 $ddoc->id, $view
             );
             $ddoc->queryView($view);
