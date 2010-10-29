@@ -13,7 +13,9 @@ function stats(values, rereduce, scale) {
     var stdDeviation=0.0;
     var count=0;
     var total=0.0;
-    var sqrTotal=0.0;
+    var sqrTotal=0.0
+    var max=-Infinity;
+    var min=Infinity;
     
     if(scale == null) {
         scale = 1;
@@ -26,6 +28,12 @@ function stats(values, rereduce, scale) {
             var kb = values[i] / scale;
             total = total + kb;
             sqrTotal = sqrTotal + (kb * kb);
+            if(kb > max) {
+                max = kb;
+            }
+            if(kb < min) {
+                min = kb;
+            }
         }
         count = values.length;
     }
@@ -36,6 +44,12 @@ function stats(values, rereduce, scale) {
             count = count + values[i].count;
             total = total + values[i].total;
             sqrTotal = sqrTotal + values[i].sqrTotal;
+            if(values[i].max > max) {
+                max = values[i].max;
+            }
+            if(values[i].min < min) {
+                min = values[i].min;
+            }
         }
     }
 
@@ -45,5 +59,6 @@ function stats(values, rereduce, scale) {
     // the reduce result. It contains enough information to be rereduced
     // with other reduce results.
     return {"stdDeviation":stdDeviation,"count":count,
-    "total":total,"sqrTotal":sqrTotal, "average": (total/count)};
+    "total":total,"sqrTotal":sqrTotal, "average": (total/count),
+    "max": max, "min":min };
 }
