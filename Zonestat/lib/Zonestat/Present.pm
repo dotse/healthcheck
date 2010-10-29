@@ -180,17 +180,21 @@ sub all_domainsets {
     my $self = shift;
 
     my $dbp = $self->dbproxy('zonestat-dset');
-    return map {$_->{key}} @{$dbp->util_set(group => 'true')->{rows}};
+    return map { $_->{key} } @{ $dbp->util_set(group => 'true')->{rows} };
 }
 
 sub tests_with_max_severity {
-    my $self = shift;
+    my $self    = shift;
     my $testrun = shift;
-    
+
     my $dbp = $self->dbproxy('zonestat');
-    my $res = $dbp->check_maxseverity(startkey => [''.$testrun, 'A'], endkey => [''.$testrun, 'Z'], group => 'true')->{rows};
-    
-    return map {$_->{key}[1] => $_->{value}} @$res;
+    my $res = $dbp->check_maxseverity(
+        startkey => ['' . $testrun, 'A'],
+        endkey   => ['' . $testrun, 'Z'],
+        group    => 'true'
+    )->{rows};
+
+    return map { $_->{key}[1] => $_->{value} } @$res;
 }
 
 sub domainset_being_tested {
@@ -526,83 +530,20 @@ sub lookup_desc {
 }
 
 sub pageanalyzer_summary {
-    no warnings 'uninitialized';
+    my $self = shift;
+    my @tr   = @_;
+    my %res;
 
-    my $self      = shift;
-    my ($tr)      = @_;
-    my $cache_key = 'pageanalyzer_summary ' . $tr->id;
+    foreach my $tr (@tr) {
+        my $res = $self->dbproxy('zonestat')->pageanalyze_summary(
+            group    => 'true',
+            startkey => ['' . $tr, 'A'],
+            endkey   => ['' . $tr, 'z']
+        )->{rows};
 
-    unless ($self->chi->is_valid($cache_key)) {
-        my $pa =
-          $tr->search_related('webservers', {})
-          ->search_related('pageanalysis',  {});
-
-        my $par = $pa->search_related(
-            'result_rows',
-            {},
-            {
-                select => [
-                    'resource_type',
-                    { sum   => 'result_rows.file_size', -as => 'size' },
-                    { sum   => 'result_rows.load_time', -as => 'time' },
-                    { count => '*',                     -as => 'count' },
-                ],
-                as       => ['type', 'size', 'time', 'count'],
-                group_by => 'resource_type'
-            }
-        );
-
-        my $res = {
-            load_time => {
-                average => $pa->get_column('load_time')->func('avg') / 1000,
-                stddev  => $pa->get_column('load_time')->func('stddev') / 1000,
-            },
-            requests => {
-                average => $pa->get_column('requests')->func('avg'),
-                stddev  => $pa->get_column('requests')->func('stddev'),
-            },
-            external => {
-                average => $pa->get_column('external_resources')->func('avg'),
-                stddev => $pa->get_column('external_resources')->func('stddev'),
-            },
-            rx_bytes => {
-                average => $pa->get_column('rx_bytes')->func('avg'),
-                stddev  => $pa->get_column('rx_bytes')->func('stddev'),
-            },
-            compression => {
-                average => $pa->get_column('average_compression')->func('avg'),
-                stddev =>
-                  $pa->get_column('average_compression')->func('stddev'),
-            },
-            effective_compression => {
-                average =>
-                  $pa->get_column('effective_compression')->func('avg'),
-                stddev =>
-                  $pa->get_column('effective_compression')->func('stddev'),
-            },
-            compressed_resources => {
-                average => $pa->get_column('compressed_resources')->func('avg'),
-                stddev =>
-                  $pa->get_column('compressed_resources')->func('stddev'),
-            },
-        };
-        foreach my $t ($par->all) {
-            $res->{time}{ $t->get_column('type') }  = $t->get_column('time');
-            $res->{size}{ $t->get_column('type') }  = $t->get_column('size');
-            $res->{count}{ $t->get_column('type') } = $t->get_column('count');
-        }
-        $res->{size}{total} =
-          $pa->search_related('result_rows', {})->get_column('file_size')
-          ->func('sum');
-        $res->{time}{total} =
-          $pa->search_related('result_rows', {})->get_column('load_time')
-          ->func('sum');
-        $res->{count}{total} = $pa->search_related('result_rows', {})->count;
-
-        $self->chi->set($cache_key, $res);
+        $res{$tr} = { map { $_->{key}[1] => $_->{value} } @{$res} };
     }
-
-    return $self->chi->get($cache_key);
+    return %res;
 }
 
 1;
