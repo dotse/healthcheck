@@ -1,27 +1,49 @@
 function(keys, values, rereduce) {
-    var res = {
-        "total_bytes": 0,
-        "count": 0,
-        "external_resources": 0,
-        "compressed_resources": 0,
-        "average_compression_ratio_percent": 0,
-        "total_requests": 0,
-        "total_time": 0,
+    return {
+        "total_bytes": stats(values.map(function(e){return e.total_bytes;}), rereduce, 1024),
+        "total_time": stats(values.map(function(e){return e.total_time}), rereduce),
+        "total_requests": stats(values.map(function(e){return e.total_requests}), rereduce),
+        "external_resources": stats(values.map(function(e){return e.external_resources}), rereduce),
+        
     };
+}
+
+function stats(values, rereduce, scale) {
+    // This computes the standard deviation of the mapped results
+    var stdDeviation=0.0;
+    var count=0;
+    var total=0.0;
+    var sqrTotal=0.0;
     
-    values.forEach(function(e){
-        res.total_bytes += e.total_bytes;
-        res.external_resources += e.external_resources;
-        res.compressed_resources += e.compressed_resources;
-        res.average_compression_ratio_percent += e.average_compression_ratio_percent;
-        res.total_requests += e.total_requests;
-        res.total_time += e.total_time;
-        if(e.count) {
-            res.count += e.count;
-        } else {
-            res.count += 1;
+    if(scale == null) {
+        scale = 1;
+    }
+
+    if (!rereduce) {
+        // This is the reduce phase, we are reducing over emitted values from
+        // the map functions.
+        for(var i in values) {
+            var kb = values[i] / scale;
+            total = total + kb;
+            sqrTotal = sqrTotal + (kb * kb);
         }
-    });
-    
-    return res;
+        count = values.length;
+    }
+    else {
+        // This is the rereduce phase, we are re-reducing previosuly
+        // reduced values.
+        for(var i in values) {
+            count = count + values[i].count;
+            total = total + values[i].total;
+            sqrTotal = sqrTotal + values[i].sqrTotal;
+        }
+    }
+
+    var variance =  (sqrTotal - ((total * total)/count)) / count;
+    stdDeviation = Math.sqrt(variance);
+
+    // the reduce result. It contains enough information to be rereduced
+    // with other reduce results.
+    return {"stdDeviation":stdDeviation,"count":count,
+    "total":total,"sqrTotal":sqrTotal, "average": (total/count)};
 }
