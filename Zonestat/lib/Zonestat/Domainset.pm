@@ -72,7 +72,7 @@ sub all {
     $ddoc->retrieve;
     return
       map { $_->{value} }
-      @{ $ddoc->queryView('set', key => $self->name)->{rows} };
+      @{ $ddoc->queryView('set', key => $self->name, reduce => 'false')->{rows} };
 }
 
 sub clear {
