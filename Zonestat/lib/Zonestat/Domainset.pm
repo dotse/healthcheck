@@ -96,7 +96,7 @@ sub enqueue {
         {
             domainset => $self->name,
             queued_at => time(),
-            testrun   => "" . $testrun
+            testrun   => $testrun
         }
     );
     $trdoc->create;
