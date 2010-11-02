@@ -505,21 +505,18 @@ sub mailservers_in_sweden {
 
 sub message_bands {
     my $self = shift;
-    my ($tr, $level) = @_;
-    my $cache_key = 'message_bands ' . $tr->id . ' ' . $level;
+    my @tr   = @_;
+    my %res;
 
-    unless ($self->chi->is_valid($cache_key)) {
-        my $key = lc('count_' . $level);
-
-        my $r0 = $tr->search_related('tests', { $key => 0 })->count;
-        my $r1 = $tr->search_related('tests', { $key => 1 })->count;
-        my $r2 = $tr->search_related('tests', { $key => 2 })->count;
-        my $rn = $tr->search_related('tests', { $key => { '>=', 3 } })->count;
-
-        $self->chi->set($cache_key, [$r0, $r1, $r2, $rn]);
+    foreach my $tr (@tr) {
+        my $res = $self->dbproxy('zonestat')->check_bands(
+            group => 'true',
+            key   => "$tr",
+        )->{rows};
+        $res{$tr} = { map { $_->{key} => $_->{value} } @{$res} };
     }
 
-    return @{ $self->chi->get($cache_key) };
+    return %res;
 }
 
 sub lookup_desc {
