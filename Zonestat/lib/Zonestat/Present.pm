@@ -18,19 +18,9 @@ sub total_tested_domains {
     my $self = shift;
     my $tr   = shift;
 
-    if (defined($tr)) {
-        $tr = $tr->tests;
-    } else {
-        $tr = $self->dbx('Tests');
-    }
+    my $res = $self->dbproxy('zonestat')->test_count(key => $tr);
 
-    return $tr->search(
-        {},
-        {
-            columns  => ['domain'],
-            distinct => 1
-        }
-    )->count;
+    return $res->{rows}[0]{value};
 }
 
 sub lame_delegated_domains {
