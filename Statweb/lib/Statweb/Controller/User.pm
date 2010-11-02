@@ -27,7 +27,7 @@ sub login : Local : Arg(0) {
     my $password = $c->request->params->{password};
 
     if (defined($username) and defined($password)) {
-        if (my $user = Zonestat->new->user($username, $password)) {
+        if (my $user = Zonestat->new->user->login($username, $password)) {
             $c->session->{user_id} = $user->id;
             $c->res->redirect('/');
             return 1;
