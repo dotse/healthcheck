@@ -104,12 +104,7 @@ sub user {
     my $self = shift;
     my ($name_or_id, $pwd) = @_;
 
-    my $user = Zonestat::User->new($self);
-    if (defined($pwd)) {
-        return $user->login($name_or_id, $pwd);
-    } else {
-        return $user->by_id($name_or_id);
-    }
+    return Zonestat::User->new($self);
 }
 
 sub dbconfig {
