@@ -46,30 +46,14 @@ sub number_of_domains_with_message {
     my @trs   = @_;
     my %res;
 
+    my $dbp = $self->dbproxy('zonestat');
     foreach my $tr (@trs) {
-        my $key = 'number_of_domains_with_message ' . $level . ' ' . $tr->id;
-        unless ($self->chi->is_valid($key)) {
-            my %tmp;
-            my $mr = $tr->search_related('tests', {})->search_related(
-                'results',
-                { level    => $level },
-                { group_by => ['message'] }
-            );
-            while (my $m = $mr->next) {
-                $tmp{ $m->message } =
-                  $tr->search_related('tests', {})->search_related(
-                    'results',
-                    { message  => $m->message },
-                    { group_by => ['test_id'] }
-                  )->count;
-            }
-            $self->chi->set($key, \%tmp);
-        }
-        my %tmp = %{ $self->chi->get($key) };
-        foreach my $m (keys %tmp) {
-            $res{$m}{ $tr->id } = $tmp{$m};
-        }
-
+        my $tmp = $dbp->check_withmsg(
+            group    => 1,
+            startkey => [$tr, $level, 'A'],
+            endkey   => [$tr, $level, 'z'],
+        );
+        $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
 
     return %res;
