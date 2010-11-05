@@ -744,7 +744,7 @@ sub content_type_from_header {
     my ($type, $encoding);
 
     foreach my $h (@data) {
-        my ($t, $e) = $h =~ m|^(\w+/\w+)(?:;\s*charset\s*=\s*(\S+))?|;
+        my ($t, $e) = $h =~ m|^([^/]+/[-\w]+)(?:;\s*charset\s*=\s*(\S+))?|;
         unless ($type) {
             $type = $t;
         }
@@ -756,6 +756,12 @@ sub content_type_from_header {
         }
 
     }
+    
+    if($encoding) {
+        $encoding = lc($encoding);
+        $encoding =~ s/^utf[^-]/utf-/;
+    }
+    
     return ($type, $encoding);
 }
 
