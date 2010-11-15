@@ -23,21 +23,6 @@ sub total_tested_domains {
     return $res->{rows}[0]{value};
 }
 
-sub lame_delegated_domains {
-    my $self = shift;
-    my ($ds) = @_;
-
-    if (defined($ds)) {
-        $ds = $ds->tests->search_related('results', {});
-    } else {
-        $ds = $self->dbx('Results');
-    }
-    return $ds->search(
-        { 'message' => 'NAMESERVER:NOT_AUTH' },
-        { 'columns' => [qw(test_id)], 'distinct' => 1 }
-    )->count;
-}
-
 ### FIXME: Special table for DNSSEC problems.
 
 sub number_of_domains_with_message {
