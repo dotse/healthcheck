@@ -163,53 +163,40 @@ sub domainset_being_tested {
 
 sub top_foo_servers {
     my $self   = shift;
-    my $kind   = uc(shift);
+    my $kind   = lc(shift);
     my $tr     = shift;
     my $number = shift || 25;
-
-    my $key = 'top_foo_servers ' . $kind . ' ' . $tr->id . ' ' . $number;
-
-    unless ($self->chi->is_valid($key)) {
-        $self->chi->set(
-            $key,
-            [
-                $self->dbx('Server')->search(
-                    { kind => $kind, run_id => $tr->id },
-                    {
-                        select => [
-                            qw[ip latitude longitude country code city asn],
-                            { count => '*' }
-                        ],
-                        as => [
-                            qw[ip latitude longitude country code city asn],
-                            'count'
-                        ],
-                        group_by =>
-                          [qw[ip latitude longitude country code city asn]],
-                        order_by => ['count(*) DESC'],
-                        rows     => $number
-                    }
-                  )->all
-            ]
-        );
+    my @res;
+    
+    my $dbp = $self->dbproxy('zonestat');
+    my $endkind = $kind;
+    $endkind++;
+    my $tmp = $dbp->server_data(
+        group_level => 9,
+        startkey => [$tr, $kind],
+        endkey => [$tr, $endkind],
+    );
+    
+    foreach my $e (@{$tmp->{rows}}) {
+        push @res, [$e->{value}, @{$e->{key}}[2..8] ]
     }
-
-    return @{ $self->chi->get($key) };
+    
+    return((sort {$b->[0] <=> $a->[0]} @res)[0..$number-1]);
 }
 
 sub top_dns_servers {
     my $self = shift;
-    return $self->top_foo_servers('DNS', @_);
+    return $self->top_foo_servers('nameserver', @_);
 }
 
 sub top_http_servers {
     my $self = shift;
-    return $self->top_foo_servers('HTTP', @_);
+    return $self->top_foo_servers('webserver', @_);
 }
 
 sub top_smtp_servers {
     my $self = shift;
-    return $self->top_foo_servers('SMTP', @_);
+    return $self->top_foo_servers('mailserver', @_);
 }
 
 sub nameservers_per_asn {
