@@ -122,39 +122,14 @@ sub webservers_by_charset {
 
 sub unknown_server_strings {
     my $self = shift;
-    my @ds   = @_;
-    my %res;
-
-    foreach my $ds (@ds) {
-        $res{ $ds->id } = [
-            map { $_->raw_type } $ds->search_related(
-                'webservers',
-                { type => 'Unknown' },
-                {
-                    columns  => ['raw_type'],
-                    distinct => 1,
-                    order_by => ['raw_type']
-                }
-              )->all
-        ];
-    }
-
-    return %res;
+    
+    die "Not ported.";
 }
 
 sub all_dnscheck_tests {
     my $self = shift;
-    my $ds   = shift;
-
-    my $s;
-
-    if (defined($ds)) {
-        $s = $ds->tests;
-    } else {
-        $s = $self->dbx('Tests');
-    }
-
-    return $s->search({}, { order_by => ['domain'] });
+    
+    die "Not ported.";
 }
 
 sub all_domainsets {
