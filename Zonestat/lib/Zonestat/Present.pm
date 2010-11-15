@@ -61,56 +61,78 @@ sub number_of_domains_with_message {
 
 sub number_of_servers_with_software {
     my $self = shift;
-    return $self->webservers_by_field('type', @_);
-}
-
-sub webservers_by_field {
-    my $self = shift;
-    my ($field, $https, @tr) = @_;
+    my ($https, @tr) = @_;
     my %res;
-
-    foreach my $s (@tr) {
-        my $key =
-          'webservers_per_field ' . $field . ' ' . $s->id . ' ' . $https;
-        unless ($self->chi->is_valid($key)) {
-            $self->chi->set(
-                $key,
-                [
-                    $s->search_related(
-                        'webservers',
-                        { https => ($https ? 1 : 0) },
-                        {
-                            select   => [$field, { count => '*' }],
-                            as       => [$field, 'count'],
-                            group_by => [$field],
-                            order_by => ['count(*) DESC'],
-                        }
-                      )->all
-                ]
-            );
-        }
-        foreach my $row (@{ $self->chi->get($key) }) {
-            $res{ lc($row->get_column($field)) }{ $s->id } =
-              $row->get_column('count');
-        }
+    my $protocol = $https?'https':'http';
+    
+    my $dbp = $self->dbproxy('zonestat');
+    foreach my $tr (@tr) {
+        my $tmp = $dbp->web_servertype(
+            group => 1,
+            startkey => [$tr, $protocol, undef],
+            endkey => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+        );
+        $res{$tr} = { map {$_->{key}[2] => $_->{value} } @{$tmp->{rows} } };
     }
-
+    
     return %res;
 }
 
 sub webservers_by_responsecode {
     my $self = shift;
-    return $self->webservers_by_field('response_code', @_);
+    my ($https, @tr) = @_;
+    my %res;
+    my $protocol = $https?'https':'http';
+    
+    my $dbp = $self->dbproxy('zonestat');
+    foreach my $tr (@tr) {
+        my $tmp = $dbp->web_response(
+            group => 1,
+            startkey => [$tr, $protocol, undef],
+            endkey => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+        );
+        $res{$tr} = { map {$_->{key}[2] => $_->{value} } @{$tmp->{rows} } };
+    }
+    
+    return %res;
 }
 
 sub webservers_by_contenttype {
     my $self = shift;
-    return $self->webservers_by_field('content_type', @_);
+    my ($https, @tr) = @_;
+    my %res;
+    my $protocol = $https?'https':'http';
+    
+    my $dbp = $self->dbproxy('zonestat');
+    foreach my $tr (@tr) {
+        my $tmp = $dbp->web_contenttype(
+            group => 1,
+            startkey => [$tr, $protocol, undef],
+            endkey => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+        );
+        $res{$tr} = { map {$_->{key}[2] => $_->{value} } @{$tmp->{rows} } };
+    }
+    
+    return %res;
 }
 
 sub webservers_by_charset {
     my $self = shift;
-    return $self->webservers_by_field('charset', @_);
+    my ($https, @tr) = @_;
+    my %res;
+    my $protocol = $https?'https':'http';
+    
+    my $dbp = $self->dbproxy('zonestat');
+    foreach my $tr (@tr) {
+        my $tmp = $dbp->web_charset(
+            group => 1,
+            startkey => [$tr, $protocol, undef],
+            endkey => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+        );
+        $res{$tr} = { map {$_->{key}[2] => $_->{value} } @{$tmp->{rows} } };
+    }
+    
+    return %res;
 }
 
 sub unknown_server_strings {

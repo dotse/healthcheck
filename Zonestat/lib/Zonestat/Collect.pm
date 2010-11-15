@@ -510,7 +510,7 @@ sub webinfo {
                         https         => $https,
                         issuer        => $issuer,
                         url           => $u,
-                        response_code => $res->code,
+                        response_code => (''.$res->code),
                         content_type  => $type,
                         charset       => $encoding,
                         content_length =>
