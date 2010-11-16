@@ -38,6 +38,7 @@ use HTTP::Request;
 use POSIX qw[strftime :signal_h];
 use Carp;
 use Try::Tiny;
+use Net::IP;
 
 my $debug = 0;
 my $dc    = DNSCheck->new;
@@ -559,9 +560,13 @@ sub geoip {
     foreach my $ns (@{ $hostref->{nameservers} }) {
         my $g = $geoip->record_by_addr($ns->{address});
         next unless defined($g);
+        my $ip = Net::IP->new($ns->{address});
+        my $ipversion;
+        $ipversion = $ip->version if defined($ip);
         push @res,
           {
             address   => $ns->{address},
+            ipversion => $ipversion,
             asn       => $asn->lookup($ns->{address}),
             type      => 'nameserver',
             country   => $g->country_name,
@@ -577,9 +582,13 @@ sub geoip {
         foreach my $addr ($dns->find_addresses($mx->{name}, 'IN')) {
             my $g = $geoip->record_by_addr($addr);
             next unless defined($g);
+            my $ip = Net::IP->new($addr);
+            my $ipversion;
+            $ipversion = $ip->version if defined($ip);
             push @res,
               {
                 address   => $addr,
+                ipversion => $ipversion,
                 asn       => $asn->lookup($addr),
                 type      => 'mailserver',
                 country   => $g->country_name,
@@ -595,9 +604,13 @@ sub geoip {
     foreach my $ws (@{ $hostref->{webservers} }) {
         my $g = $geoip->record_by_addr($ws->{address});
         next unless defined($g);
+        my $ip = Net::IP->new($ws->{address});
+        my $ipversion;
+        $ipversion = $ip->version if defined($ip);
         push @res,
           {
             address   => $ws->{address},
+            ipversion => $ipversion,
             asn       => $asn->lookup($ws->{address}),
             type      => 'webserver',
             country   => $g->country_name,
