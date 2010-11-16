@@ -511,7 +511,7 @@ sub webinfo {
                         https         => $https,
                         issuer        => $issuer,
                         url           => $u,
-                        response_code => (''.$res->code),
+                        response_code => ('' . $res->code),
                         content_type  => $type,
                         charset       => $encoding,
                         content_length =>
@@ -769,12 +769,12 @@ sub content_type_from_header {
         }
 
     }
-    
-    if($encoding) {
+
+    if ($encoding) {
         $encoding = lc($encoding);
         $encoding =~ s/^utf[^-]/utf-/;
     }
-    
+
     return ($type, $encoding);
 }
 

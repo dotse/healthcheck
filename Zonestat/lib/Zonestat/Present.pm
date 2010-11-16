@@ -48,18 +48,18 @@ sub number_of_servers_with_software {
     my $self = shift;
     my ($https, @tr) = @_;
     my %res;
-    my $protocol = $https?'https':'http';
-    
+    my $protocol = $https ? 'https' : 'http';
+
     my $dbp = $self->dbproxy('zonestat');
     foreach my $tr (@tr) {
         my $tmp = $dbp->web_servertype(
-            group => 1,
+            group    => 1,
             startkey => [$tr, $protocol, undef],
-            endkey => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+            endkey   => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
         );
-        $res{$tr} = { map {$_->{key}[2] => $_->{value} } @{$tmp->{rows} } };
+        $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
-    
+
     return %res;
 }
 
@@ -67,18 +67,18 @@ sub webservers_by_responsecode {
     my $self = shift;
     my ($https, @tr) = @_;
     my %res;
-    my $protocol = $https?'https':'http';
-    
+    my $protocol = $https ? 'https' : 'http';
+
     my $dbp = $self->dbproxy('zonestat');
     foreach my $tr (@tr) {
         my $tmp = $dbp->web_response(
-            group => 1,
+            group    => 1,
             startkey => [$tr, $protocol, undef],
-            endkey => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+            endkey   => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
         );
-        $res{$tr} = { map {$_->{key}[2] => $_->{value} } @{$tmp->{rows} } };
+        $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
-    
+
     return %res;
 }
 
@@ -86,18 +86,18 @@ sub webservers_by_contenttype {
     my $self = shift;
     my ($https, @tr) = @_;
     my %res;
-    my $protocol = $https?'https':'http';
-    
+    my $protocol = $https ? 'https' : 'http';
+
     my $dbp = $self->dbproxy('zonestat');
     foreach my $tr (@tr) {
         my $tmp = $dbp->web_contenttype(
-            group => 1,
+            group    => 1,
             startkey => [$tr, $protocol, undef],
-            endkey => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+            endkey   => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
         );
-        $res{$tr} = { map {$_->{key}[2] => $_->{value} } @{$tmp->{rows} } };
+        $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
-    
+
     return %res;
 }
 
@@ -105,30 +105,30 @@ sub webservers_by_charset {
     my $self = shift;
     my ($https, @tr) = @_;
     my %res;
-    my $protocol = $https?'https':'http';
-    
+    my $protocol = $https ? 'https' : 'http';
+
     my $dbp = $self->dbproxy('zonestat');
     foreach my $tr (@tr) {
         my $tmp = $dbp->web_charset(
-            group => 1,
+            group    => 1,
             startkey => [$tr, $protocol, undef],
-            endkey => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+            endkey   => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
         );
-        $res{$tr} = { map {$_->{key}[2] => $_->{value} } @{$tmp->{rows} } };
+        $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
-    
+
     return %res;
 }
 
 sub unknown_server_strings {
     my $self = shift;
-    
+
     die "Not ported.";
 }
 
 sub all_dnscheck_tests {
     my $self = shift;
-    
+
     die "Not ported.";
 }
 
@@ -167,21 +167,21 @@ sub top_foo_servers {
     my $tr     = shift;
     my $number = shift || 25;
     my @res;
-    
-    my $dbp = $self->dbproxy('zonestat');
+
+    my $dbp     = $self->dbproxy('zonestat');
     my $endkind = $kind;
     $endkind++;
     my $tmp = $dbp->server_data(
         group_level => 9,
-        startkey => [$tr, $kind],
-        endkey => [$tr, $endkind],
+        startkey    => [$tr, $kind],
+        endkey      => [$tr, $endkind],
     );
-    
-    foreach my $e (@{$tmp->{rows}}) {
-        push @res, [$e->{value}, @{$e->{key}}[2..8] ]
+
+    foreach my $e (@{ $tmp->{rows} }) {
+        push @res, [$e->{value}, @{ $e->{key} }[2 .. 8]];
     }
-    
-    return((sort {$b->[0] <=> $a->[0]} @res)[0..$number-1]);
+
+    return ((sort { $b->[0] <=> $a->[0] } @res)[0 .. $number - 1]);
 }
 
 sub top_dns_servers {
