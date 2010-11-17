@@ -141,15 +141,15 @@ sub requeue {
         $doc->update;
         return 1;
     } else {
-        $doc->delete;
         if ($doc->data->{source_data}) {
             my $newdoc =
               $self->db('zonestat')
               ->newDoc($doc->data->{source_data} . '-' . $doc->data->{domain});
             $newdoc->data->{failed}  = 1;
             $newdoc->data->{domain}  = $doc->data->{domain};
-            $newdoc->data->{testrun} = $doc->data->{source_data};
+            $newdoc->data->{testrun} = 0 + $doc->data->{source_data};
             $newdoc->create;
+            $doc->delete;
         }
         return;
     }
