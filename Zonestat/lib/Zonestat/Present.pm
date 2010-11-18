@@ -157,8 +157,7 @@ sub domainset_being_tested {
     my $self = shift;
     my $ds   = shift;
 
-    return (
-        $ds->testruns->search_related('tests', { end => undef })->count > 0);
+    die "Not ported.";
 }
 
 sub top_foo_servers {
@@ -201,36 +200,17 @@ sub top_smtp_servers {
 
 sub nameservers_per_asn {
     my $self = shift;
-    my $ipv6 = shift;
     my @tr   = @_;
     my %res;
 
+    my $dbp = $self->dbproxy('zonestat');
     foreach my $t (@tr) {
-        my $key = 'nameservers_per_asn ' . $t->id . ' ' . $ipv6;
-        unless ($self->chi->is_valid($key)) {
-            $self->chi->set(
-                $key,
-                [
-                    $self->dbx('Server')->search(
-                        {
-                            kind   => 'DNS',
-                            run_id => $t->id,
-                            ipv6   => $ipv6,
-                            asn    => { '!=', undef }
-                        },
-                        {
-                            select   => [qw[asn], { count => '*' }],
-                            as       => [qw[asn], 'count'],
-                            group_by => [qw[asn]],
-                            order_by => ['count(*) DESC'],
-                        }
-                      )->all
-                ]
-            );
-        }
-        foreach my $r (@{ $self->chi->get($key) }) {
-            $res{ $r->asn }{ $t->id } = $r->get_column('count');
-        }
+        my $tmp = $dbp->server_ns_per_asn(
+            group => 1,
+            startkey => [$t],
+            endkey => [$t + 1],
+        );
+        $res{$t} = {map {$_->{key}[1] => $_->{value}} @{$tmp->{rows}}};
     }
 
     return %res;
