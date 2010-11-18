@@ -558,68 +558,113 @@ sub geoip {
     my @res     = ();
 
     foreach my $ns (@{ $hostref->{nameservers} }) {
-        my $g = $geoip->record_by_addr($ns->{address});
-        next unless defined($g);
+        my $g  = $geoip->record_by_addr($ns->{address});
         my $ip = Net::IP->new($ns->{address});
         my $ipversion;
         $ipversion = $ip->version if defined($ip);
-        push @res,
-          {
-            address   => $ns->{address},
-            ipversion => $ipversion,
-            asn       => $asn->lookup($ns->{address}),
-            type      => 'nameserver',
-            country   => $g->country_name,
-            code      => $g->country_code,
-            city      => $g->city,
-            longitude => $g->longitude,
-            latitude  => $g->latitude,
-            name      => $ns->{name},
-          };
-    }
-
-    foreach my $mx (@{ $hostref->{mailservers} }) {
-        foreach my $addr ($dns->find_addresses($mx->{name}, 'IN')) {
-            my $g = $geoip->record_by_addr($addr);
-            next unless defined($g);
-            my $ip = Net::IP->new($addr);
-            my $ipversion;
-            $ipversion = $ip->version if defined($ip);
+        if ($g) {
             push @res,
               {
-                address   => $addr,
+                address   => $ns->{address},
                 ipversion => $ipversion,
-                asn       => $asn->lookup($addr),
-                type      => 'mailserver',
+                asn       => $asn->lookup($ns->{address}),
+                type      => 'nameserver',
                 country   => $g->country_name,
                 code      => $g->country_code,
                 city      => $g->city,
                 longitude => $g->longitude,
                 latitude  => $g->latitude,
-                name      => $mx->{name},
+                name      => $ns->{name},
+              };
+        } else {
+            push @res,
+              {
+                address   => $ns->{address},
+                ipversion => $ipversion,
+                asn       => $asn->lookup($ns->{address}),
+                type      => 'nameserver',
+                country   => undef,
+                code      => undef,
+                city      => undef,
+                longitude => undef,
+                latitude  => undef,
+                name      => $ns->{name},
               };
         }
     }
 
+    foreach my $mx (@{ $hostref->{mailservers} }) {
+        foreach my $addr ($dns->find_addresses($mx->{name}, 'IN')) {
+            my $g  = $geoip->record_by_addr($addr);
+            my $ip = Net::IP->new($addr);
+            my $ipversion;
+            $ipversion = $ip->version if defined($ip);
+            if ($g) {
+                push @res,
+                  {
+                    address   => $addr,
+                    ipversion => $ipversion,
+                    asn       => $asn->lookup($addr),
+                    type      => 'mailserver',
+                    country   => $g->country_name,
+                    code      => $g->country_code,
+                    city      => $g->city,
+                    longitude => $g->longitude,
+                    latitude  => $g->latitude,
+                    name      => $mx->{name},
+                  };
+            } else {
+                push @res,
+                  {
+                    address   => $addr,
+                    ipversion => $ipversion,
+                    asn       => $asn->lookup($addr),
+                    type      => 'mailserver',
+                    country   => undef,
+                    code      => undef,
+                    city      => undef,
+                    longitude => undef,
+                    latitude  => undef,
+                    name      => $mx->{name},
+                  };
+            }
+        }
+    }
+
     foreach my $ws (@{ $hostref->{webservers} }) {
-        my $g = $geoip->record_by_addr($ws->{address});
-        next unless defined($g);
+        my $g  = $geoip->record_by_addr($ws->{address});
         my $ip = Net::IP->new($ws->{address});
         my $ipversion;
         $ipversion = $ip->version if defined($ip);
-        push @res,
-          {
-            address   => $ws->{address},
-            ipversion => $ipversion,
-            asn       => $asn->lookup($ws->{address}),
-            type      => 'webserver',
-            country   => $g->country_name,
-            code      => $g->country_code,
-            city      => $g->city,
-            longitude => $g->longitude,
-            latitude  => $g->latitude,
-            name      => $ws->{name},
-          };
+        if ($g) {
+            push @res,
+              {
+                address   => $ws->{address},
+                ipversion => $ipversion,
+                asn       => $asn->lookup($ws->{address}),
+                type      => 'webserver',
+                country   => $g->country_name,
+                code      => $g->country_code,
+                city      => $g->city,
+                longitude => $g->longitude,
+                latitude  => $g->latitude,
+                name      => $ws->{name},
+              };
+        } else {
+            push @res,
+              {
+                address   => $ws->{address},
+                ipversion => $ipversion,
+                asn       => $asn->lookup($ws->{address}),
+                type      => 'webserver',
+                country   => undef,
+                code      => undef,
+                city      => undef,
+                longitude => undef,
+                latitude  => undef,
+                name      => $ws->{name},
+              };
+        }
     }
 
     return \@res;

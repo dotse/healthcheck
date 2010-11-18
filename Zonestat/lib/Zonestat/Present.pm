@@ -206,11 +206,11 @@ sub nameservers_per_asn {
     my $dbp = $self->dbproxy('zonestat');
     foreach my $t (@tr) {
         my $tmp = $dbp->server_ns_per_asn(
-            group => 1,
+            group    => 1,
             startkey => [$t],
-            endkey => [$t + 1],
+            endkey   => [$t + 1],
         );
-        $res{$t} = {map {$_->{key}[1] => $_->{value}} @{$tmp->{rows}}};
+        $res{$t} = { map { $_->{key}[1] => $_->{value} } @{ $tmp->{rows} } };
     }
 
     return %res;
