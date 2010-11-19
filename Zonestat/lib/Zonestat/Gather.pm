@@ -132,8 +132,24 @@ sub requeue {
     my $self = shift;
     my $id   = shift;
     my $doc  = $self->db('zonestat-queue')->newDoc($id);
+    my $count;
+    my $continue = 1;
+    my $delay = 1;
 
-    $doc->retrieve;
+    while ($continue) {
+        try {
+            $doc->retrieve;
+            $continue = undef;
+        }
+        catch {
+            $count++;
+            if($count > 5) {
+                die "Failed to requeue $id";
+            }
+            sleep $delay;
+            $delay *= 2;
+        };
+    }
     $doc->data->{priority} += 1;
     $doc->data->{requeued} += 1;
     $doc->data->{inprogress} = undef;
