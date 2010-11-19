@@ -13,9 +13,9 @@ function(doc){
         if(v6 == null) {
             return;
         } else if(v6) {
-            emit(doc.testrun, 1);
+            emit(doc.testrun, [1, 1]);
         } else {
-            emit(doc.testrun, 0);
+            emit(doc.testrun, [0, 1]);
         }
     }
 }

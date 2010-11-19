@@ -219,17 +219,15 @@ sub nameservers_per_asn {
 sub ipv6_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $key  = "ipv6_percentage_for_testrun " . $tr->id;
-
-    unless ($self->chi->is_valid($key)) {
-        my $all = $tr->domainset->domains->count;
-        my $v6 =
-          $tr->search_related('servers', { ipv6 => 1 })
-          ->search_related('domain', {}, { group_by => ['domain'] })->count;
-
-        $self->chi->set($key, [100 * ($v6 / $all), $v6]);
+    my ($total, $count);
+    
+    my $dbp = $self->dbproxy('zonestat');
+    my $tmp = $dbp->server_ipv6_capable(group => 1, key => $tr)->{rows};
+    if($tmp) {
+        ($count, $total) = @{$tmp->[0]{value}};
     }
-    return @{ $self->chi->get($key) };
+    
+    return (($count/$total), $total); # Percentage, number of v6-domains
 }
 
 sub multihome_percentage_for_testrun {
