@@ -253,116 +253,76 @@ sub multihome_percentage_for_testrun {
 sub dnssec_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $key  = "dnssec_percentage_for_testrun " . $tr->id;
-
-    unless ($self->chi->is_valid($key)) {
-        my $all = $tr->tests->count;
-        if ($all > 0) {
-            my $ds =
-              $tr->search_related('tests', {})
-              ->search_related('results', { message => 'DNSSEC:DS_FOUND' })
-              ->count;
-
-            $self->chi->set($key, [100 * ($ds / $all), $ds]);
-        } else {
-            $self->chi->set($key, [qw[N/A N/A]]);
-        }
+    my $dbp = $self->dbproxy('zonestat');
+    my $tmp = $dbp->server_dnssec_capable(group => 1, key => $tr)->{rows}[0]{value};
+    
+    unless($tmp){
+        return (undef, undef);
     }
-    return @{ $self->chi->get($key) };
+    
+    my ($count, $total) = @$tmp;
+    
+    return (100*($count/$total), $total);
 }
 
 sub recursing_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $key  = "recursing_percentage_for_testrun " . $tr->id;
-
-    unless ($self->chi->is_valid($key)) {
-        my $all = $tr->tests->count;
-        if ($all > 0) {
-            my $ds = $tr->search_related('tests', {})->search_related(
-                'results',
-                { message  => 'NAMESERVER:RECURSIVE' },
-                { group_by => ['test_id'] }
-            )->count;
-
-            $self->chi->set($key, [100 * ($ds / $all), $ds]);
-        } else {
-            $self->chi->set($key, [qw[N/A N/A]]);
-        }
+    my $dbp = $self->dbproxy('zonestat');
+    my $tmp = $dbp->server_recursing(group => 1, key => $tr)->{rows}[0]{value};
+    
+    unless($tmp){
+        return (undef, undef);
     }
-    return @{ $self->chi->get($key) };
+    
+    my ($count, $total) = @$tmp;
+    
+    return (100*($count/$total), $total);
 }
 
 sub adsp_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $key  = "adsp_percentage_for_testrun " . $tr->id;
-
-    unless ($self->chi->is_valid($key)) {
-        my $all = $tr->tests->count;
-        if ($all > 0) {
-            my $adsp = $self->dbx('Mailserver')->search(
-                {
-                    run_id => $tr->id,
-                    adsp   => { '!=', undef }
-                },
-                { group_by => ['domain_id'] }
-            )->count;
-
-            $self->chi->set($key, [100 * ($adsp / $all), $adsp]);
-        } else {
-            $self->chi->set($key, [qw[N/A N/A]]);
-        }
+    my $dbp = $self->dbproxy('zonestat');
+    my $tmp = $dbp->server_adsp(group => 1, key => $tr)->{rows}[0]{value};
+    
+    unless($tmp){
+        return (undef, undef);
     }
-    return @{ $self->chi->get($key) };
+    
+    my ($count, $total) = @$tmp;
+    
+    return (100*($count/$total), $total);
 }
 
 sub spf_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $key  = 'spf_percentage_for_testrun ' . $tr->id;
-
-    unless ($self->chi->is_valid($key)) {
-        my $all = $tr->tests->count;
-        if ($all > 0) {
-            my $adsp = $self->dbx('Mailserver')->search(
-                {
-                    run_id => $tr->id,
-                    '-or'  => {
-                        spf_spf => { '!=', undef },
-                        spf_txt => { '!=', undef }
-                    }
-                },
-                { group_by => ['domain_id'] }
-            )->count;
-
-            $self->chi->set($key, [100 * ($adsp / $all), $adsp]);
-        } else {
-            $self->chi->set($key, [qw[N/A N/A]]);
-        }
+    my $dbp = $self->dbproxy('zonestat');
+    my $tmp = $dbp->server_spf(group => 1, key => $tr)->{rows}[0]{value};
+    
+    unless($tmp){
+        return (undef, undef);
     }
-    return @{ $self->chi->get($key) };
+    
+    my ($count, $total) = @$tmp;
+    
+    return (100*($count/$total), $total);
 }
 
 sub starttls_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $key  = 'starttls_percentage_for_testrun ' . $tr->id;
-
-    unless ($self->chi->is_valid($key)) {
-        my $all = $tr->tests->count;
-        if ($all > 0) {
-            my $starttls = $self->dbx('Mailserver')->search(
-                { run_id   => $tr->id, starttls => 1 },
-                { group_by => ['domain_id'] }
-            )->count;
-
-            $self->chi->set($key, [100 * ($starttls / $all), $starttls]);
-        } else {
-            $self->chi->set($key, [qw[N/A N/A]]);
-        }
+    my $dbp = $self->dbproxy('zonestat');
+    my $tmp = $dbp->server_starttls(group => 1, key => $tr)->{rows}[0]{value};
+    
+    unless($tmp){
+        return (undef, undef);
     }
-    return @{ $self->chi->get($key) };
+    
+    my ($count, $total) = @$tmp;
+    
+    return (100*($count/$total), $total);
 }
 
 sub nameserver_count {
