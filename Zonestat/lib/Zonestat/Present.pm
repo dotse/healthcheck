@@ -329,21 +329,18 @@ sub nameserver_count {
     my $self = shift;
     my ($tr, $ipv6) = @_;
     my $dbp = $self->dbproxy('zonestat');
-    my $tmp = $dbp->server_ns_count(group => 1, key => $tr)->{rows}[0]{value};
+    my $tmp = $dbp->server_ns_count(
+        group => 1,
+        startkey => [$tr, $ipv6?"6":"4"],
+        endkey => [$tr, $ipv6?"7":"5"]
+        )->{rows};
     
-    die "Broken: counted unique keys is very hard for a MapReduce system.";
-    
+    warn "Warning: This method is horribly inefficient, and should not be used";
     unless($tmp) {
         return (undef, undef);
     }
     
-    my ($v6count, $v4count, $domains) = @$tmp;
-    
-    if($ipv6) {
-        return $v6count;
-    } else {
-        return $v4count;
-    }
+    return scalar @$tmp;
 }
 
 sub mailservers_in_sweden {
