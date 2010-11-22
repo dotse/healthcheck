@@ -328,53 +328,41 @@ sub starttls_percentage_for_testrun {
 sub nameserver_count {
     my $self = shift;
     my ($tr, $ipv6) = @_;
-    my $key = 'nameserver_count ' . $tr->id . ' ' . $ipv6;
-
-    unless ($self->chi->is_valid($key)) {
-        my $divider = $ipv6 ? '%:%' : '%.%';
-
-        $self->chi->set(
-            $key,
-            $tr->search_related('tests', {})->search_related(
-                'results',
-                {
-                    message => 'DNS:NAMESERVER_FOUND',
-                    arg0    => {
-                        '!=' => '',
-                        '='  => \'domain',
-                    },
-                    arg3 => { -like => [$divider] },
-                },
-                {
-                    columns  => [qw(arg3)],
-                    distinct => 1
-                }
-              )->count
-        );
+    my $dbp = $self->dbproxy('zonestat');
+    my $tmp = $dbp->server_ns_count(group => 1, key => $tr)->{rows}[0]{value};
+    
+    die "Broken: counted unique keys is very hard for a MapReduce system.";
+    
+    unless($tmp) {
+        return (undef, undef);
     }
-    return $self->chi->get($key);
+    
+    my ($v6count, $v4count, $domains) = @$tmp;
+    
+    if($ipv6) {
+        return $v6count;
+    } else {
+        return $v4count;
+    }
 }
 
 sub mailservers_in_sweden {
     my $self = shift;
     my ($tr, $ipv6) = @_;
-    my $key = 'mailservers_in_sweden ' . $tr->id . ' ' . $ipv6;
-
-    unless ($self->chi->is_valid($key)) {
-        my $ms =
-          $tr->search_related('servers', { kind => 'SMTP', ipv6 => $ipv6 })
-          ->count;
-        my $se =
-          $tr->search_related('servers',
-            { kind => 'SMTP', ipv6 => $ipv6, code => 'SE' })->count;
-
-        if ($ms > 0) {
-            $self->chi->set($key, [100 * ($se / $ms), $se]);
-        } else {
-            $self->chi->set($key, ['N/A', 'N/A']);
-        }
+    my $dbp = $self->dbproxy('zonestat');
+    my $tmp = $dbp->server_mx_in_sweden(group => 1, key => $tr)->{rows}[0]{value};
+    
+    unless($tmp) {
+        return (undef, undef);
     }
-    return @{ $self->chi->get($key) };
+    
+    my ($v6count, $v4count, $total) = @$tmp;
+    
+    if($ipv6) {
+        return $v6count;
+    } else {
+        return $v4count;
+    }
 }
 
 sub message_bands {

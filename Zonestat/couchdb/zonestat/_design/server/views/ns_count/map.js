@@ -5,14 +5,8 @@ function(doc){
     if(doc.geoip){
         for each (e in doc.geoip){
             if(e.type == "nameserver") {
-                if(e.ipversion == "4") {
-                    v4ns += 1;
-                } else if (e.ipversion == "6") {
-                    v6ns += 1;
-                }
+                emit([doc.testrun, e.ipversion, e.address], 1);
             }
-        }
-        
-        emit(doc.testrun, [v6ns, v4ns, 1]);
+        }    
     }
 }
