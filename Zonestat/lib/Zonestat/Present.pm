@@ -233,28 +233,21 @@ sub ipv6_percentage_for_testrun {
 sub multihome_percentage_for_testrun {
     my $self = shift;
     my ($tr, $ipv6) = @_;
-    my $key = "multihome_percentage_for_testrun " . $tr->id . " $ipv6";
-
-    unless ($self->chi->is_valid($key)) {
-        my $message;
-        if ($ipv6) {
-            $message = 'CONNECTIVITY:V6_ASN_COUNT_OK';
+    my $dbp = $self->dbproxy('zonestat');
+    my $tmp = $dbp->server_multihomed(group => 1, key => $tr)->{rows}[0]{value};
+    my ($percentage, $total);
+    
+    if($tmp) {
+        my ($v6, $v4);
+        ($v6, $v4, $total) = @{$tmp};
+        if($ipv6) {
+            $percentage = $v6/$total;
         } else {
-            $message = 'CONNECTIVITY:ASN_COUNT_OK';
-        }
-
-        my $all = $tr->tests->count;
-        if ($all > 0) {
-            my $ok =
-              $tr->search_related('tests', {})
-              ->search_related('results', { message => $message })->count;
-
-            $self->chi->set($key, [100 * ($ok / $all), $ok]);
-        } else {
-            $self->chi->set($key, [qw[N/A N/A]]);
+            $percentage = $v4/$total;
         }
     }
-    return @{ $self->chi->get($key) };
+
+    return (100*$percentage, $total);
 }
 
 sub dnssec_percentage_for_testrun {
