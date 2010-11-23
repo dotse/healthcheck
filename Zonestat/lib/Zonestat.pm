@@ -16,6 +16,7 @@ use Zonestat::Present;
 use Zonestat::User;
 use Zonestat::Collect;
 use Zonestat::Domainset;
+use Zonestat::Testrun;
 use Zonestat::DB;
 
 use Module::Find;
@@ -91,6 +92,13 @@ sub domainset {
     my $name = shift;
 
     return Zonestat::Domainset->new($self, $name);
+}
+
+sub testrun {
+    my $self = shift;
+    my $id = shift;
+
+    return Zonestat::Testrun->new($self, $id);
 }
 
 sub dbproxy {
