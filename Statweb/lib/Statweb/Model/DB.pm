@@ -1,39 +1,27 @@
 package Statweb::Model::DB;
 
-use strict;
-use warnings;
+use Moose;
+use namespace::autoclean;
 
-use base qw/Catalyst::Model::DBIC::Schema/;
+extends 'Catalyst::Model';
 
 use Zonestat;
+use Data::Dumper;
 
-my ($connect, $user, $pwd) = Zonestat->new->dbconfig;
-
-__PACKAGE__->config(
-    schema_class => 'Zonestat::DBI',
-    connect_info => [
-        $connect, $user,
-        $pwd, { AutoCommit => 1, RaiseError => 1, PrintError => 0 }
-    ],
+has 'zs' => (
+    is => 'ro',
+    isa => 'Zonestat',
+    lazy_build => 1,
+    handles => {
+        db => 'db',
+        dbp => 'dbproxy',
+        present => 'present',
+        gather => 'gather',
+    },
 );
 
-=head1 NAME
-
-Statweb::Model::DB - Catalyst Model
-
-=head1 DESCRIPTION
-
-Catalyst Model.
-
-=head1 AUTHOR
-
-Calle Dybedahl
-
-=head1 LICENSE
-
-This library is free software. You can redistribute it and/or modify
-it under the same terms as Perl itself.
-
-=cut
+sub _build_zs {
+    return Zonestat->new;
+}
 
 1;
