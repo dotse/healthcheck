@@ -91,27 +91,13 @@ sub db_import_zone {
 sub create_random_set {
     my $self = shift;
 
-    die "Not ported.";
-
-    my $ds = $self->dbx('Dsgroup')->find({ name => '.se' })->active_set;
-    croak 'Failed to find dsgroup .se' unless $ds;
-    my $rd =
-      $self->dbx('Dsgroup')->find({ name => 'Random' })->add_to_domainsets({});
-    croak 'Failed to create new domainset in Random group' unless $rd;
-    my $domains = $ds->search_related('glue', {})->search_related(
-        'domain',
-        {},
-        {
-            order_by => \'rand()',
-            rows     => 10000,
-        }
-    );
-
-    while (my $d = $domains->next) {
-        $rd->add_to_domains($d);
-    }
-
-    return $rd;
+    my $dbp = $self->dbproxy('zonestat-zone');
+    my @domains = map {$_->{id}} @{$dbp->select_random->{rows}};
+    my $dset = $self->parent->domainset('random');
+    $dset->clear;
+    $dset->add(@domains);
+    
+    return $dset;
 }
 
 sub update_asn_table_from_ripe {
