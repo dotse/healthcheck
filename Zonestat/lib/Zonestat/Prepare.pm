@@ -54,8 +54,14 @@ sub db_import_zone {
     my $self = shift;
 
     my $db = $self->db('zonestat-zone');
+    my $designdocs = $db->listDesignDocs;
+    map {$_->retrieve} @$designdocs;
     $db->delete;
     $db->create;
+    foreach my $d (@$designdocs) {
+        $d->{rev} = undef;
+        $d->create;
+    }
 
     open my $fh, '<', $self->cget(qw[zone datafile])
       or die "Failed to open zone file: $!\n";
