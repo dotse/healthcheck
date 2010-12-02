@@ -96,7 +96,7 @@ sub domainset {
 
 sub testrun {
     my $self = shift;
-    my $id = shift;
+    my $id   = shift;
 
     return Zonestat::Testrun->new($self, $id);
 }

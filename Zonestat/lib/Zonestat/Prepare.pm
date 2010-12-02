@@ -53,9 +53,15 @@ sub fetch_zone {
 sub db_import_zone {
     my $self = shift;
 
-    my $db = $self->db('zonestat-zone');
+    my $db         = $self->db('zonestat-zone');
+    my $designdocs = $db->listDesignDocs;
+    map { $_->retrieve } @$designdocs;
     $db->delete;
     $db->create;
+    foreach my $d (@$designdocs) {
+        $d->{rev} = undef;
+        $d->create;
+    }
 
     open my $fh, '<', $self->cget(qw[zone datafile])
       or die "Failed to open zone file: $!\n";
@@ -91,12 +97,12 @@ sub db_import_zone {
 sub create_random_set {
     my $self = shift;
 
-    my $dbp = $self->dbproxy('zonestat-zone');
-    my @domains = map {$_->{id}} @{$dbp->select_random->{rows}};
-    my $dset = $self->parent->domainset('random');
+    my $dbp     = $self->dbproxy('zonestat-zone');
+    my @domains = map { $_->{id} } @{ $dbp->select_random->{rows} };
+    my $dset    = $self->parent->domainset('random');
     $dset->clear;
     $dset->add(@domains);
-    
+
     return $dset;
 }
 
