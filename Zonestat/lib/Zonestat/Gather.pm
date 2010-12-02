@@ -134,7 +134,7 @@ sub requeue {
     my $doc  = $self->db('zonestat-queue')->newDoc($id);
     my $count;
     my $continue = 1;
-    my $delay = 1;
+    my $delay    = 1;
 
     while ($continue) {
         try {
@@ -143,7 +143,7 @@ sub requeue {
         }
         catch {
             $count++;
-            if($count > 5) {
+            if ($count > 5) {
                 die "Failed to requeue $id";
             }
             sleep $delay;
