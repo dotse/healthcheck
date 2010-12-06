@@ -417,6 +417,9 @@ sub pageanalyze {
     my %res    = ();
 
     if ($padir and $python and -d $padir and -x $python) {
+        open my $stderr_save, '>&', *STDERR;
+        close STDERR;
+        open STDERR, '>', "/tmp/dispatcher/stderr.$$";
         foreach my $method (qw[http https]) {
             if (
                 open my $pa, '-|',
@@ -427,10 +430,14 @@ sub pageanalyze {
                 "$method://www.$domain/"
               )
             {
-                $res{$method} = decode_json(join('', <$pa>));
-                delete $res{$method}{resources};
+                my $pa_result = join('', <$pa>);
+                if ($pa_result) {
+                    $res{$method} = decode_json($pa_result);
+                    delete $res{$method}{resources};
+                }
             }
         }
+        open STDERR, '>&', $stderr_save;
     }
 
     return \%res;

@@ -252,6 +252,7 @@ sub running_in_child {
     my $priority    = shift;
 
     setpriority(0, $$, 2 * $priority);
+    setpgrp(0, 0);
     my $dbdoc = $zs->gather->set_active($id, $$);
     $0 = "dispatcher: gathering $domain (queue id $id)";
 
@@ -304,7 +305,11 @@ sub monitor_children {
     foreach my $pid (keys %start_time) {
         if ((gettimeofday() - $start_time{$pid}) > 900 and not $killed{$pid}) {
             slog 'warning', "Child $pid timed out, killing and requeueing it.";
-            kill 9, $pid;
+
+            # Using negative signal numbers sends to process groups.
+            kill -15, $pid;
+            sleep 0.1;
+            kill -9, $pid;
             $killed{$pid} = time;
             unless ($zs->gather->requeue($qid{$pid})) {
                 slog 'warning',
@@ -332,7 +337,8 @@ sub cleanup {
 
         # Child blew up. Clean up.
         $problem{$domain} += 1;
-        slog 'warning', "Unclean exit when testing $domain (status $status).";
+        slog 'warning',
+          "Unclean exit when testing $domain (pid $pid, status $status).";
         $zs->gather->reset_queue_entry($qid);
     }
 }
