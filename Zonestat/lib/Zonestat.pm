@@ -18,7 +18,7 @@ use Zonestat::Collect;
 use Module::Find;
 use CHI;
 
-our $VERSION = '0.02';
+our $VERSION = '1.0';
 
 sub new {
     my $class = shift;
