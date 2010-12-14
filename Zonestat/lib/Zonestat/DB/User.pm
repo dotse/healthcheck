@@ -1,4 +1,4 @@
-package Zonestat::User;
+package Zonestat::DB::User;
 
 use 5.008008;
 use strict;

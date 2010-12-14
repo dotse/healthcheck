@@ -1,4 +1,4 @@
-package Zonestat::Domainset;
+package Zonestat::DB::Domainset;
 
 use strict;
 use warnings;

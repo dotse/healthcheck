@@ -1,4 +1,4 @@
-package Zonestat::Testrun;
+package Zonestat::DB::Testrun;
 
 use strict;
 use warnings;

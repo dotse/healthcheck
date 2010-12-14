@@ -13,10 +13,10 @@ use Zonestat::Common;
 use Zonestat::Prepare;
 use Zonestat::Gather;
 use Zonestat::Present;
-use Zonestat::User;
+use Zonestat::DB::User;
 use Zonestat::Collect;
-use Zonestat::Domainset;
-use Zonestat::Testrun;
+use Zonestat::DB::Domainset;
+use Zonestat::DB::Testrun;
 use Zonestat::DB;
 
 use Module::Find;
@@ -91,14 +91,14 @@ sub domainset {
     my $self = shift;
     my $name = shift;
 
-    return Zonestat::Domainset->new($self, $name);
+    return Zonestat::DB::Domainset->new($self, $name);
 }
 
 sub testrun {
     my $self = shift;
     my $id   = shift;
 
-    return Zonestat::Testrun->new($self, $id);
+    return Zonestat::DB::Testrun->new($self, $id);
 }
 
 sub dbproxy {
@@ -112,7 +112,7 @@ sub user {
     my $self = shift;
     my ($name_or_id, $pwd) = @_;
 
-    return Zonestat::User->new($self);
+    return Zonestat::DB::User->new($self);
 }
 
 sub dbconfig {
