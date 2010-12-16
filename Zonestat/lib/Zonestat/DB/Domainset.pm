@@ -94,6 +94,15 @@ sub clear {
     return $self;
 }
 
+sub testruns {
+    my $self = shift;
+    
+    my $dbp = $self->dbproxy('zonestat-testrun');
+    my $res = $dbp->info_dsets(reduce => 'false', key => $self->name);
+    
+    return map {$_->{id}} @{$res->{rows}};
+}
+
 sub enqueue {
     my $self    = shift;
     my $testrun = $self->run_id;
