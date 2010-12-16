@@ -3,21 +3,12 @@ package Zonestat::DB::Domainset;
 use strict;
 use warnings;
 
-use base 'Zonestat::Common';
+use base 'Zonestat::DB::Common';
 
 use Digest::SHA1 qw[sha1_hex];
 use Try::Tiny;
 
 use Data::Dumper;
-
-sub new {
-    my $class  = shift;
-    my $parent = shift;
-    my $self   = $class->SUPER::new($parent);
-    $self->{name} = shift;
-
-    return $self;
-}
 
 sub name { return $_[0]->{name} }
 

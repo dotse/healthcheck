@@ -18,6 +18,7 @@ use Zonestat::Collect;
 use Zonestat::DB::Domainset;
 use Zonestat::DB::Testrun;
 use Zonestat::DB;
+use Zonestat::DB::Queue;
 
 use Module::Find;
 
@@ -99,6 +100,11 @@ sub testrun {
     my $id   = shift;
 
     return Zonestat::DB::Testrun->new($self, $id);
+}
+
+sub queue {
+    my $self = shift;
+    return Zonestat::DB::Queue->new($self);
 }
 
 sub dbproxy {

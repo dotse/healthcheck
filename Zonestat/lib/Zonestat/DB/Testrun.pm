@@ -3,21 +3,9 @@ package Zonestat::DB::Testrun;
 use strict;
 use warnings;
 
-use base 'Zonestat::Common';
+use base 'Zonestat::DB::Common';
 
 use POSIX qw[strftime];
-
-sub new {
-    my $class  = shift;
-    my $parent = shift;
-    my $self   = $class->SUPER::new($parent);
-    $self->{id} = shift;
-    $self->fetch;
-
-    return $self;
-}
-
-sub id { return $_[0]->{id} }
 
 sub fetch {
     my $self = shift;
@@ -28,12 +16,6 @@ sub fetch {
     $self->{doc} = $doc;
 
     return $self;
-}
-
-sub data {
-    my $self = shift;
-
-    return $self->{doc}->data;
 }
 
 sub domainset {
