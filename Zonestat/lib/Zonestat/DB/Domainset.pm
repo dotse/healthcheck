@@ -8,7 +8,22 @@ use base 'Zonestat::DB::Common';
 use Digest::SHA1 qw[sha1_hex];
 use Try::Tiny;
 
-use Data::Dumper;
+sub all_sets {
+    my $self = shift;
+    my $dbp = $self->dbproxy('zonestat-dset');
+    
+    return map {__PACKAGE__->new($self->parent, $_)} map {$_->{key}} @{$dbp->util_set(group => 1)->{rows}};
+}
+
+sub new {
+    my $class  = shift;
+    my $parent = shift;
+    my $self   = $class->SUPER::new($parent);
+    $self->{name} = shift;
+
+    return $self;
+}
+
 
 sub name { return $_[0]->{name} }
 
