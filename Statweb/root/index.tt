@@ -10,16 +10,16 @@
         <td>
             <table>
                 <tr>
-                    <th><a href="[% c.uri_for('/domainset', d.active_set.id) %]">[% d.name %]</a></th>
+                    <th><a href="[% c.uri_for('/domainset', d.id) %]">[% d.name %]</a></th>
                 </tr>
                 <tr>
                     <th class="commands">
-                        <a href="[% c.uri_for('/enqueue', d.active_set.id) %]">(start gathering)</a>
+                        <a href="[% c.uri_for('/enqueue', d.id) %]">(start gathering)</a>
                     </th>
                 </tr>
                 <tr>
                     <td>
-                    [% IF d.testruns.size > 0 -%]
+                    [% IF d.testruns > 0 -%]
                     <ul class="testrunlist">
                         [% FOREACH tr IN d.testruns -%]
                         [% IF c.session.testruns.${tr.id} == 1 -%]
@@ -27,7 +27,7 @@
                         [% ELSE -%]
                         <li class="unselected">
                         [% END -%]
-                            <a href="[% c.uri_for('/testrun', tr.id) %]">[% tr.name %]</a>, [% PERL -%] print $stash->get('tr')->tests->count; [% END -%] tests.
+                            <a href="[% c.uri_for('/testrun', tr.id) %]">[% tr.name %]</a>, [% tr.test_count -%] tests.
                             <a href="[% c.uri_for('/toggletestrun', tr.id) %]">(toggle)</a>
                         </li>
                         [% END -%]

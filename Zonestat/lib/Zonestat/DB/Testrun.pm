@@ -32,4 +32,17 @@ sub name {
     return $dset . ' ' . strftime('%Y-%m-%d %H:%M', localtime($time_t));
 }
 
+sub test_count {
+    my $self = shift;
+
+    my $dbp = $self->dbproxy('zonestat');
+    my $res = $dbp->test_count(group => 1, key => $self->data->{testrun});
+
+    if($res->{rows}[0]) {
+        return $res->{rows}[0]{value};
+    } else {
+        return 0;
+    }
+}
+
 1;

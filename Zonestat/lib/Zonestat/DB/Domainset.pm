@@ -25,7 +25,7 @@ sub new {
 }
 
 
-sub name { return $_[0]->{name} }
+sub name { return ($_[0]->{name} || '') }
 
 sub db {
     my $self = shift;
@@ -100,7 +100,7 @@ sub testruns {
     my $dbp = $self->dbproxy('zonestat-testrun');
     my $res = $dbp->info_dsets(reduce => 'false', key => $self->name);
     
-    return map {$_->{id}} @{$res->{rows}};
+    return map {$self->parent->testrun($_)} map {$_->{id}} @{$res->{rows}};
 }
 
 sub enqueue {
