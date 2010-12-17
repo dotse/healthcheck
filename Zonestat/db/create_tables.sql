@@ -1,4 +1,4 @@
-/*! SET FOREIGN_KEY_CHECKS=0 */
+/*! SET FOREIGN_KEY_CHECKS=0 */;
 
 CREATE TABLE IF NOT EXISTS `zone` (
         `name` varchar(255) NOT NULL,
