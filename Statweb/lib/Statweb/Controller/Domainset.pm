@@ -25,6 +25,13 @@ sub index : Chained('/') : CaptureArgs(1) : PathPart('domainset') {
     my ($self, $c, $id) = @_;
     my $ds = $c->model('DB::Domainset')->find($id);
 
+    unless($ds) {
+        $c->res->status(404);
+        $c->res->body('No such domainset.');
+        $c->detach;
+        return;
+    }
+
     $c->stash(
         {
             dset     => $ds,
