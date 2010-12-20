@@ -12,6 +12,7 @@ CREATE TABLE IF NOT EXISTS `domainset` (
     `id` serial primary key,
     `name` varchar(255) not null,
     `dsgroup_id` bigint(20) unsigned not null,
+    `created_at` timestamp DEFAULT CURRENT_TIMESTAMP,
     INDEX domainset_name (name)
     ) ENGINE=InnoDB DEFAULT CHARSET=UTF8;
 

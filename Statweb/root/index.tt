@@ -46,7 +46,7 @@
 </table>
 
 <h2>Create a new domainset</h2>
-<form action="[% c.uri_for('/create_domainset') %]" method="post" enctype="multipart/form-data">
+<form action="[% c.uri_for('/domainset/new_set') %]" method="post" enctype="multipart/form-data">
     <label for="name">Name:</label><input type="text" name="name" />
     <label for="userfile">Data file (optional):</label><input name="userfile" type="file" class="button">
     <input type="submit" value="Create">

@@ -33,6 +33,31 @@ sub index : Chained('/') : CaptureArgs(1) : PathPart('domainset') {
     );
 }
 
+sub new_set :Local {
+    my ($self, $c) = @_;
+    my $name = $c->req->params->{name};
+    
+    my $dgroup = $c->model('DB::Dsgroup')->create({name => $name});
+    my $dset = $dgroup->add_to_domainsets({});
+    
+    my $upload = $c->request->upload('userfile');
+    
+    if($upload) {
+        my $fh = $upload->fh;
+        my @res;
+        while (my $line = <$fh>) {
+            chomp($line);
+            next if $line =~ /^\s*$/;
+            push @res, $line;
+        }
+
+        $dset->dsgroup->new_content(@res);
+    }
+    
+    $c->res->redirect(
+        $c->uri_for_action('/domainset/first', [$dgroup->active_set->id]));
+}
+
 sub first : Chained('index') : Args(0) : PathPart('') {
     my ($self, $c) = @_;
 
