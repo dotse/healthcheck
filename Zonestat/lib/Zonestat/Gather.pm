@@ -162,7 +162,7 @@ sub pageanalyze {
     my @report4;
     my @report5;
 
-    if (chdir($padir)) {
+    if ($padir and $python and -x $python and chdir($padir)) {
         if (open my $pa,
             '-|', $python, '-Wi::DeprecationWarning', 'pageanalyzer.py',
             $ws->url)
@@ -519,7 +519,8 @@ sub collect_geoip_information_for_server {
 sub collect_server_information {
     my $self = shift;
     my ($trid, $domainid, $ip, $kind, $asn) = @_;
-    my $geoip  = Geo::IP->open($self->cget(qw[daemon geoip]));
+    my $geoip = Geo::IP->open($self->cget(qw[daemon geoip]))
+      or die "Failed to open GeoIP Cíty database";
     my $server = $self->dbx('Server');
     my $ipv6   = 0;
 
