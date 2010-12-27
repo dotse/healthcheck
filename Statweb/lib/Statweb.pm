@@ -23,7 +23,7 @@ use Catalyst qw/
   Session::State::Cookie
 
   /;
-our $VERSION = '1.0';
+our $VERSION = '1.0.1';
 use 5.008;
 
 # Configure the application.
