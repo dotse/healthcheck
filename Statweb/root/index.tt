@@ -19,7 +19,7 @@
                 </tr>
                 <tr>
                     <td>
-                    [% IF d.testruns.length > 0 -%]
+                    [% IF d.testruns -%]
                     <ul class="testrunlist">
                         [% FOREACH tr IN d.testruns -%]
                         [% IF c.session.testruns.${tr.id} == 1 -%]
