@@ -200,6 +200,14 @@ sub csv_webpages_software_http :Local :Args(0) {
     $c->res->body(format_csv($c->stash->{data}{software}{http}));
 }
 
+sub csv_webpages_software_https :Local :Args(0) {
+    my ($self, $c) = @_;
+    
+    $c->forward('webpages_software');
+    $c->res->content_type('text/csv');
+    $c->res->body(format_csv($c->stash->{data}{software}{https}));
+}
+
 sub webpages_response : Private {
     my ($self, $c) = @_;
     my @trs = @{ $c->stash->{trs} };
@@ -209,6 +217,22 @@ sub webpages_response : Private {
         http  => _reshuffle(\@trs, $p->webservers_by_responsecode(0, @trs)),
         https => _reshuffle(\@trs, $p->webservers_by_responsecode(1, @trs)),
     };
+}
+
+sub csv_webpages_response_http :Local :Args(0) {
+    my ($self, $c) = @_;
+    
+    $c->forward('webpages_response');
+    $c->res->content_type('text/csv');
+    $c->res->body(format_csv($c->stash->{data}{response}{http}));
+}
+
+sub csv_webpages_response_https :Local :Args(0) {
+    my ($self, $c) = @_;
+    
+    $c->forward('webpages_response');
+    $c->res->content_type('text/csv');
+    $c->res->body(format_csv($c->stash->{data}{response}{https}));
 }
 
 sub webpages_content : Private {
@@ -222,6 +246,22 @@ sub webpages_content : Private {
     };
 }
 
+sub csv_webpages_content_http :Local :Args(0) {
+    my ($self, $c) = @_;
+    
+    $c->forward('webpages_content');
+    $c->res->content_type('text/csv');
+    $c->res->body(format_csv($c->stash->{data}{content}{http}));
+}
+
+sub csv_webpages_content_https :Local :Args(0) {
+    my ($self, $c) = @_;
+    
+    $c->forward('webpages_content');
+    $c->res->content_type('text/csv');
+    $c->res->body(format_csv($c->stash->{data}{content}{https}));
+}
+
 sub webpages_charset : Private {
     my ($self, $c) = @_;
     my @trs = @{ $c->stash->{trs} };
@@ -231,6 +271,22 @@ sub webpages_charset : Private {
         http  => _reshuffle(\@trs, $p->webservers_by_charset(0, @trs)),
         https => _reshuffle(\@trs, $p->webservers_by_charset(1, @trs)),
     };
+}
+
+sub csv_webpages_charset_http :Local :Args(0) {
+    my ($self, $c) = @_;
+    
+    $c->forward('webpages_charset');
+    $c->res->content_type('text/csv');
+    $c->res->body(format_csv($c->stash->{data}{charset}{http}));
+}
+
+sub csv_webpages_charset_https :Local :Args(0) {
+    my ($self, $c) = @_;
+    
+    $c->forward('webpages_charset');
+    $c->res->content_type('text/csv');
+    $c->res->body(format_csv($c->stash->{data}{charset}{https}));
 }
 
 sub webpages_pageanalyzer : Private {

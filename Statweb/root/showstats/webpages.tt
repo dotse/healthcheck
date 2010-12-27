@@ -153,22 +153,22 @@
 [% PROCESS table title=titles.software root=data.software h='http' csvaction='/showstats/csv_webpages_software_http' -%]
 
 <h2>Webserver software (https)</h2>
-[% PROCESS table title=titles.software root=data.software h='https' csvaction='/csv/webserver_software_https' -%]
+[% PROCESS table title=titles.software root=data.software h='https' csvaction='/showstats/csv_webpages_software_https' -%]
 
 <h2>Webserver response codes</h2>
-[% PROCESS table title=titles.response root=data.response h='http' csvaction='/csv/webserver_response_http' -%]
+[% PROCESS table title=titles.response root=data.response h='http' csvaction='/showstats/csv_webpages_response_http' -%]
 
 <h2>Webserver response codes (https)</h2>
-[% PROCESS table title=titles.response root=data.response h='https' csvaction='/csv/webserver_response_https' -%]
+[% PROCESS table title=titles.response root=data.response h='https' csvaction='/showstats/csv_webpages_response_https' -%]
 
 <h2>Webserver content types</h2>
-[% PROCESS table title=titles.content root=data.content h='http' csvaction='/csv/webserver_content_http' -%]
+[% PROCESS table title=titles.content root=data.content h='http' csvaction='/showstats/csv_webpages_content_http' -%]
 
 <h2>Webserver content types (https)</h2>
-[% PROCESS table title=titles.content root=data.content h='https' csvaction='/csv/webserver_content_https' -%]
+[% PROCESS table title=titles.content root=data.content h='https' csvaction='/showstats/csv_webpages_content_https' -%]
 
 <h2>Webserver character encodings</h2>
-[% PROCESS table title=titles.charset root=data.charset h='http' csvaction='/csv/webserver_charset_http' -%]
+[% PROCESS table title=titles.charset root=data.charset h='http' csvaction='/showstats/csv_webpages_charset_http' -%]
 
 <h2>Webserver character encodings (https)</h2>
-[% PROCESS table title=titles.charset root=data.charset h='https' csvaction='/csv/webserver_charset_https' -%]
+[% PROCESS table title=titles.charset root=data.charset h='https' csvaction='/showstats/csv_webpages_charset_https' -%]
