@@ -166,6 +166,20 @@ sub default : Path : Args(0) {
     );
 }
 
+sub format_csv {
+    my $data = shift;
+    my $csv = Text::CSV_XS->new;
+    my $body = '';
+    
+    foreach my $row (@$data) {
+        $csv->combine(@$row);
+        $body .= $csv->string;
+        $body .= "\n";
+    }
+    
+    return $body;
+}
+
 sub webpages_software : Private {
     my ($self, $c) = @_;
     my @trs = @{ $c->stash->{trs} };
@@ -176,6 +190,14 @@ sub webpages_software : Private {
         https =>
           _reshuffle(\@trs, $p->number_of_servers_with_software(1, @trs)),
     };
+}
+
+sub csv_webpages_software_http :Local :Args(0) {
+    my ($self, $c) = @_;
+    
+    $c->forward('webpages_software');
+    $c->res->content_type('text/csv');
+    $c->res->body(format_csv($c->stash->{data}{software}{http}));
 }
 
 sub webpages_response : Private {

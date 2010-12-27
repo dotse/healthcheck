@@ -150,7 +150,7 @@
 
 </p>
 
-[% PROCESS table title=titles.software root=data.software h='http' csvaction='/csv/webserver_software_http' -%]
+[% PROCESS table title=titles.software root=data.software h='http' csvaction='/showstats/csv_webpages_software_http' -%]
 
 <h2>Webserver software (https)</h2>
 [% PROCESS table title=titles.software root=data.software h='https' csvaction='/csv/webserver_software_https' -%]
