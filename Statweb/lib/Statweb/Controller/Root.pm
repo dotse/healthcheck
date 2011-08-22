@@ -27,10 +27,11 @@ Statweb::Controller::Root - Root Controller for Statweb
 
 =cut
 
+use Data::Dumper;
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
 
-    $c->stash({ dset => [$c->model('DB::Dsgroup')->all] });
+    $c->stash({ dset => [$c->model('DB')->dset->all_sets] });
 }
 
 sub default : Path {
@@ -70,15 +71,15 @@ sub left_bar : Private {
 
     my @runs =
       grep { $_ }
-      map  { $c->model('DB::Testrun')->find($_) }
+      map  { $c->model('DB')->testrun->new($_) }
       keys %{ $c->session->{testruns} };
-    my %sets = map { $_->set_id => 1 } @runs;
+    my %sets = map { $_->{set} => 1 } @runs;
 
     $c->stash(
         {
             selected_run_count => scalar(@runs),
             selected_set_count => scalar(keys %sets),
-            queue_length       => $c->model('DB::Queue')->count,
+            queue_length       => $c->model('DB')->queue->length,
         }
     );
 }

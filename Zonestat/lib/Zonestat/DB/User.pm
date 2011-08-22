@@ -1,10 +1,10 @@
-package Zonestat::User;
+package Zonestat::DB::User;
 
 use 5.008008;
 use strict;
 use warnings;
 
-use base 'Zonestat::Common';
+use base 'Zonestat::DB::Common';
 use Digest::SHA1 'sha1_hex';
 use Try::Tiny;
 use Carp;

@@ -154,7 +154,23 @@ sub requeue {
     $doc->data->{requeued} += 1;
     $doc->data->{inprogress} = undef;
     if ($doc->data->{requeued} <= 5) {
-        $doc->update;
+        $delay    = 1;
+        $count    = 0;
+        $continue = 1;
+        while ($continue) {
+            try {
+                $doc->update;
+                $continue = undef;
+            }
+            catch {
+                $count++;
+                if ($count > 5) {
+                    die "Failed to requeue $id";
+                }
+                sleep $delay;
+                $delay *= 2;
+            };
+        }
         return 1;
     } else {
         if ($doc->data->{source_data}) {

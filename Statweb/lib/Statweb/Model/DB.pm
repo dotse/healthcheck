@@ -14,9 +14,12 @@ has 'zs' => (
     lazy_build => 1,
     handles => {
         db => 'db',
-        dbp => 'dbproxy',
         present => 'present',
         gather => 'gather',
+        dset => 'domainset',
+        user => 'user',
+        testrun => 'testrun',
+        queue => 'queue',
     },
 );
 

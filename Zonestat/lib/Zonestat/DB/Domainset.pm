@@ -1,14 +1,19 @@
-package Zonestat::Domainset;
+package Zonestat::DB::Domainset;
 
 use strict;
 use warnings;
 
-use base 'Zonestat::Common';
+use base 'Zonestat::DB::Common';
 
 use Digest::SHA1 qw[sha1_hex];
 use Try::Tiny;
 
-use Data::Dumper;
+sub all_sets {
+    my $self = shift;
+    my $dbp = $self->dbproxy('zonestat-dset');
+    
+    return map {__PACKAGE__->new($self->parent, $_)} map {$_->{key}} @{$dbp->util_set(group => 1)->{rows}};
+}
 
 sub new {
     my $class  = shift;
@@ -19,7 +24,8 @@ sub new {
     return $self;
 }
 
-sub name { return $_[0]->{name} }
+
+sub name { return ($_[0]->{name} || '') }
 
 sub db {
     my $self = shift;
@@ -86,6 +92,15 @@ sub clear {
     }
 
     return $self;
+}
+
+sub testruns {
+    my $self = shift;
+    
+    my $dbp = $self->dbproxy('zonestat-testrun');
+    my $res = $dbp->info_dsets(reduce => 'false', key => $self->name);
+    
+    return map {$self->parent->testrun($_)} map {$_->{id}} @{$res->{rows}};
 }
 
 sub enqueue {
