@@ -14,9 +14,6 @@ our $debug   = 0;
 STDOUT->autoflush(1) if $debug;
 
 sub enqueue_domainset {
-    my $self     = shift;
-    my $set_name = shift;
-
     die "Unimplemented.";
 }
 
@@ -44,6 +41,7 @@ sub put_in_queue {
     my $self    = shift;
     my (@qrefs) = @_;
     my $db      = $self->db('zonestat-queue');
+    my @tmp;
 
     foreach my $ref (@qrefs) {
         unless ($ref->{domain}
@@ -56,8 +54,10 @@ sub put_in_queue {
             return;
         }
 
-        $db->newDoc(undef, undef, $ref)->create;
+        push @tmp, $db->newDoc($ref->{domain}, undef, $ref);
     }
+    
+    $db->bulkStore(\@tmp);
 }
 
 sub get_from_queue {
