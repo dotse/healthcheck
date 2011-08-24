@@ -71,7 +71,7 @@ sub left_bar : Private {
 
     my @runs =
       grep { $_ }
-      map  { $c->model('DB')->testrun->new($_) }
+      map  { $c->model('DB')->testrun($_) }
       keys %{ $c->session->{testruns} };
     my %sets = map { $_->{set} => 1 } @runs;
 
