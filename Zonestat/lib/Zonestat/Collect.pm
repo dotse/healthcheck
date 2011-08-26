@@ -292,6 +292,7 @@ The server's name.
 
 =cut
 
+	$res{finish} = time();
     return \%res;
 }
 
