@@ -1,5 +1,8 @@
 package Zonestat::DB::Queue;
 
+use warnings;
+use strict;
+
 use base 'Zonestat::DB::Common';
 
 sub length {

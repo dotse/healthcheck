@@ -16,7 +16,9 @@ foreach my $db (@{ $dbc->listDBs }) {
                 $dbc->{uri}, $db->dbInfo->{db_name},
                 $ddoc->id, $view
             );
-            $ddoc->queryView($view);
+            eval {
+            	$ddoc->queryView($view);
+            };
         }
     }
 }
