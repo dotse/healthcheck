@@ -10,16 +10,16 @@
         <td>
             <table>
                 <tr>
-                    <th><a href="[% c.uri_for('/domainset', d.id) %]">[% d.name %]</a></th>
+                    <th><a href="[% c.uri_for('/domainset', d.name) %]">[% d.name %]</a></th>
                 </tr>
                 <tr>
                     <th class="commands">
-                        <a href="[% c.uri_for('/enqueue', d.id) %]">(start gathering)</a>
+                        <a href="[% c.uri_for('/enqueue', d.name) %]">(start gathering)</a>
                     </th>
                 </tr>
                 <tr>
                     <td>
-                    [% IF d.testruns > 0 -%]
+                    [% IF d.testruns -%]
                     <ul class="testrunlist">
                         [% FOREACH tr IN d.testruns -%]
                         [% IF c.session.testruns.${tr.id} == 1 -%]

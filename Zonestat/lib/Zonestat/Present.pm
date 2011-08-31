@@ -18,7 +18,7 @@ sub total_tested_domains {
     my $self = shift;
     my $tr   = shift;
 
-    my $res = $self->dbproxy('zonestat')->test_count(key => $tr);
+    my $res = $self->dbproxy('zonestat')->test_count(key => 0+$tr);
 
     return $res->{rows}[0]{value};
 }
@@ -172,8 +172,8 @@ sub top_foo_servers {
     $endkind++;
     my $tmp = $dbp->server_data(
         group_level => 9,
-        startkey    => [$tr, $kind],
-        endkey      => [$tr, $endkind],
+        startkey    => [0+$tr, $kind],
+        endkey      => [0+$tr, $endkind],
     );
 
     foreach my $e (@{ $tmp->{rows} }) {
@@ -207,7 +207,7 @@ sub nameservers_per_asn {
     foreach my $t (@tr) {
         my $tmp = $dbp->server_ns_per_asn(
             group    => 1,
-            startkey => [$t],
+            startkey => [$t + 0],
             endkey   => [$t + 1],
         );
         $res{$t} = { map { $_->{key}[1] => $_->{value} } @{ $tmp->{rows} } };
@@ -222,7 +222,8 @@ sub ipv6_percentage_for_testrun {
     my ($total, $count);
 
     my $dbp = $self->dbproxy('zonestat');
-    my $tmp = $dbp->server_ipv6_capable(group => 1, key => $tr)->{rows};
+    my $tmp = $dbp->server_ipv6_capable(group => 1, key => 0+$tr)->{rows};
+
     if ($tmp) {
         ($count, $total) = @{ $tmp->[0]{value} };
     }
@@ -234,7 +235,7 @@ sub multihome_percentage_for_testrun {
     my $self = shift;
     my ($tr, $ipv6) = @_;
     my $dbp = $self->dbproxy('zonestat');
-    my $tmp = $dbp->server_multihomed(group => 1, key => $tr)->{rows}[0]{value};
+    my $tmp = $dbp->server_multihomed(group => 1, key => 0+$tr)->{rows}[0]{value};
     my ($percentage, $total);
 
     if ($tmp) {
@@ -255,7 +256,7 @@ sub dnssec_percentage_for_testrun {
     my $tr   = shift;
     my $dbp  = $self->dbproxy('zonestat');
     my $tmp =
-      $dbp->server_dnssec_capable(group => 1, key => $tr)->{rows}[0]{value};
+      $dbp->server_dnssec_capable(group => 1, key => 0+$tr)->{rows}[0]{value};
 
     unless ($tmp) {
         return (undef, undef);
@@ -270,7 +271,7 @@ sub recursing_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
     my $dbp  = $self->dbproxy('zonestat');
-    my $tmp  = $dbp->server_recursing(group => 1, key => $tr)->{rows}[0]{value};
+    my $tmp  = $dbp->server_recursing(group => 1, key => 0+$tr)->{rows}[0]{value};
 
     unless ($tmp) {
         return (undef, undef);
@@ -285,7 +286,7 @@ sub adsp_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
     my $dbp  = $self->dbproxy('zonestat');
-    my $tmp  = $dbp->server_adsp(group => 1, key => $tr)->{rows}[0]{value};
+    my $tmp  = $dbp->server_adsp(group => 1, key => 0+$tr)->{rows}[0]{value};
 
     unless ($tmp) {
         return (undef, undef);
@@ -300,7 +301,7 @@ sub spf_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
     my $dbp  = $self->dbproxy('zonestat');
-    my $tmp  = $dbp->server_spf(group => 1, key => $tr)->{rows}[0]{value};
+    my $tmp  = $dbp->server_spf(group => 1, key => 0+$tr)->{rows}[0]{value};
 
     unless ($tmp) {
         return (undef, undef);
@@ -315,7 +316,7 @@ sub starttls_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
     my $dbp  = $self->dbproxy('zonestat');
-    my $tmp  = $dbp->server_starttls(group => 1, key => $tr)->{rows}[0]{value};
+    my $tmp  = $dbp->server_starttls(group => 1, key => 0+$tr)->{rows}[0]{value};
 
     unless ($tmp) {
         return (undef, undef);
@@ -332,8 +333,8 @@ sub nameserver_count {
     my $dbp = $self->dbproxy('zonestat');
     my $tmp = $dbp->server_ns_count(
         group    => 1,
-        startkey => [$tr, $ipv6 ? "6" : "4"],
-        endkey   => [$tr, $ipv6 ? "7" : "5"]
+        startkey => [0+$tr, $ipv6 ? "6" : "4"],
+        endkey   => [0+$tr, $ipv6 ? "7" : "5"]
     )->{rows};
 
     warn "Warning: This method is horribly inefficient, and should not be used";
@@ -349,7 +350,7 @@ sub mailservers_in_sweden {
     my ($tr, $ipv6) = @_;
     my $dbp = $self->dbproxy('zonestat');
     my $tmp =
-      $dbp->server_mx_in_sweden(group => 1, key => $tr)->{rows}[0]{value};
+      $dbp->server_mx_in_sweden(group => 1, key => 0+$tr)->{rows}[0]{value};
 
     unless ($tmp) {
         return (undef, undef);

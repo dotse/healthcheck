@@ -87,7 +87,6 @@ sub index : Local : Args(0) {
 sub default : Path : Args(0) {
     my ($self, $c) = @_;
 
-    my $db  = $c->model('DB::Testrun');
     my @trs = @{ $c->stash->{trs} };
     my $name;
     my %data;
@@ -99,63 +98,67 @@ sub default : Path : Args(0) {
         $name = scalar(@trs) . ' testruns';
     }
 
-    $data{names} = [map { $_->domainset->name . ' ' . $_->name } @trs];
+    $data{names} = [map { $_->domainset . ' ' . $_->name } @trs];
 
     $data{ipv6domains} =
-      [map { sprintf "%0.2f%% (%d)", $p->ipv6_percentage_for_testrun($_) }
+      [map { sprintf "%0.2f%% (%d)", $p->ipv6_percentage_for_testrun($_->id) }
           @trs];
 
     $data{ipv4as} = [
         map {
             sprintf "%0.2f%% (%d)",
-              $p->multihome_percentage_for_testrun($_, 0)
+              $p->multihome_percentage_for_testrun($_->id, 0)
           } @trs
     ];
 
     $data{ipv6as} = [
         map {
             sprintf "%0.2f%% (%d)",
-              $p->multihome_percentage_for_testrun($_, 1)
+              $p->multihome_percentage_for_testrun($_->id, 1)
           } @trs
     ];
 
     $data{dnssec} =
-      [map { sprintf "%0.2f%% (%d)", $p->dnssec_percentage_for_testrun($_) }
+      [map { sprintf "%0.2f%% (%d)", $p->dnssec_percentage_for_testrun($_->id) }
           @trs];
 
     $data{recursive} = [
-        map { sprintf "%0.2f%% (%d)", $p->recursing_percentage_for_testrun($_) }
+        map { sprintf "%0.2f%% (%d)", $p->recursing_percentage_for_testrun($_->id) }
           @trs
     ];
 
     $data{adsp} =
-      [map { sprintf "%0.2f%% (%d)", $p->adsp_percentage_for_testrun($_) }
+      [map { sprintf "%0.2f%% (%d)", $p->adsp_percentage_for_testrun($_->id) }
           @trs];
 
     $data{spf} =
-      [map { sprintf "%0.2f%% (%d)", $p->spf_percentage_for_testrun($_) } @trs];
+      [map { sprintf "%0.2f%% (%d)", $p->spf_percentage_for_testrun($_->id) } @trs];
 
     $data{starttls} =
-      [map { sprintf "%0.2f%% (%d)", $p->starttls_percentage_for_testrun($_) }
+      [map { sprintf "%0.2f%% (%d)", $p->starttls_percentage_for_testrun($_->id) }
           @trs];
 
     $data{mailv4} =
-      [map { sprintf "%0.2f%% (%d)", $p->mailservers_in_sweden($_, 0) } @trs];
+      [map { sprintf "%0.2f%% (%d)", $p->mailservers_in_sweden($_->id, 0) } @trs];
 
     $data{mailv6} =
-      [map { sprintf "%0.2f%% (%d)", $p->mailservers_in_sweden($_, 1) } @trs];
+      [map { sprintf "%0.2f%% (%d)", $p->mailservers_in_sweden($_->id, 1) } @trs];
 
-    $data{tested} = [map { $_->tests->count } @trs];
+    $data{tested} = [map { $_->test_count } @trs];
 
-    $data{distinctv4} = [map { $p->nameserver_count($_, 0) } @trs];
+    $data{distinctv4} = [map { $p->nameserver_count($_->id, 0) } @trs];
 
-    $data{distinctv6} = [map { $p->nameserver_count($_, 1) } @trs];
+    $data{distinctv6} = [map { $p->nameserver_count($_->id, 1) } @trs];
+
+=pod
 
     $data{http} =
       [map { $_->search_related('webservers', { https => 0 })->count } @trs];
 
     $data{https} =
       [map { $_->search_related('webservers', { https => 1 })->count } @trs];
+
+=cut
 
     $c->stash(
         {
@@ -441,9 +444,9 @@ sub auto : Private {
     $c->stash(
         {
             trs => [
-                sort   { $b->tests->count <=> $a->tests->count }
+                sort   { $b->test_count <=> $a->test_count }
                   grep { $_ }
-                  map  { $db->find($_) }
+                  map  { $c->model('DB')->testrun($_) }
                   keys %{ $c->session->{testruns} }
             ]
         }
