@@ -9,7 +9,7 @@ use Carp;
 sub new {
     my $class  = shift;
     my $parent = shift;
-    my $self   = $class->SUPER::new($parent);
+    my $self   = $class->SUPER::new( $parent );
     $self->{name} = shift;
 
     $self->initialize;
@@ -23,20 +23,20 @@ sub db {
     my $self = shift;
     my $name = shift || $self->name;
 
-    return $self->SUPER::db($name);
+    return $self->SUPER::db( $name );
 }
 
 sub initialize {
     my $self  = shift;
     my $ddocs = $self->db->listDesignDocs;
 
-    foreach my $ddoc (@{$ddocs}) {
+    foreach my $ddoc ( @{$ddocs} ) {
         $ddoc->retrieve;
         my $docname = $ddoc->id;
         $docname =~ s|_design/||;
-        foreach my $view ($ddoc->listViews) {
+        foreach my $view ( $ddoc->listViews ) {
             $self->{ $docname . '_' . $view } = sub {
-                return $ddoc->queryView($view, @_);
+                return $ddoc->queryView( $view, @_ );
               }
         }
     }
@@ -49,14 +49,16 @@ sub AUTOLOAD {
     my $view = $AUTOLOAD;
 
     $view =~ s|^.*:([^:]+)$|$1|;
-    if ($view eq 'DESTROY') {
+    if ( $view eq 'DESTROY' ) {
         return;
-    } elsif ($self->{$view}) {
+    }
+    elsif ( $self->{$view} ) {
 
-     # Do the call here instead of defining the called method, since we want the
-     # methods to act like they're specific to the object.
-        return $self->{$view}->(@_);
-    } else {
+        # Do the call here instead of defining the called method, since we want the
+        # methods to act like they're specific to the object.
+        return $self->{$view}->( @_ );
+    }
+    else {
         carp "No such view: $view";
     }
 }

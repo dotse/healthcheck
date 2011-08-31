@@ -29,15 +29,15 @@ sub new {
     my $class = shift;
     my $self = bless {}, $class;
 
-    unless (@_) {
-        @_ = ($Config{siteprefix} . '/share/dnscheck/site_config.yaml');
+    unless ( @_ ) {
+        @_ = ( $Config{siteprefix} . '/share/dnscheck/site_config.yaml' );
     }
 
-    $self->{conf}    = Zonestat::Config->new(@_);
-    $self->{prepare} = Zonestat::Prepare->new($self);
-    $self->{gather}  = Zonestat::Gather->new($self);
-    $self->{present} = Zonestat::Present->new($self);
-    $self->{collect} = Zonestat::Collect->new($self);
+    $self->{conf}    = Zonestat::Config->new( @_ );
+    $self->{prepare} = Zonestat::Prepare->new( $self );
+    $self->{gather}  = Zonestat::Gather->new( $self );
+    $self->{present} = Zonestat::Present->new( $self );
+    $self->{collect} = Zonestat::Collect->new( $self );
 
     $self->register_plugins;
 
@@ -56,7 +56,7 @@ sub register_plugins {
     my @plugins = useall ZonestatPlugin;
     $self->{plugins} = [@plugins];
 
-    foreach my $mod (@plugins) {
+    foreach my $mod ( @plugins ) {
 
         # Do something useful here
     }
@@ -67,7 +67,7 @@ sub register_plugins {
 sub cget {
     my $self = shift;
 
-    return $self->{conf}->get(@_);
+    return $self->{conf}->get( @_ );
 }
 
 sub collect {
@@ -94,45 +94,45 @@ sub domainset {
     my $self = shift;
     my $name = shift;
 
-    return Zonestat::DB::Domainset->new($self, $name);
+    return Zonestat::DB::Domainset->new( $self, $name );
 }
 
 sub testrun {
     my $self = shift;
     my $id   = shift;
 
-    return Zonestat::DB::Testrun->new($self, $id);
+    return Zonestat::DB::Testrun->new( $self, $id );
 }
 
 sub queue {
     my $self = shift;
-    return Zonestat::DB::Queue->new($self);
+    return Zonestat::DB::Queue->new( $self );
 }
 
 sub dbproxy {
     my $self = shift;
     my $name = shift;
 
-    return Zonestat::DB->new($self, $name);
+    return Zonestat::DB->new( $self, $name );
 }
 
 sub user {
     my $self = shift;
-    my ($name_or_id, $pwd) = @_;
+    my ( $name_or_id, $pwd ) = @_;
 
-    return Zonestat::DB::User->new($self);
+    return Zonestat::DB::User->new( $self );
 }
 
 sub dbconfig {
     my $self = shift;
 
-    return $self->{conf}->get('couchdb');
+    return $self->{conf}->get( 'couchdb' );
 }
 
 sub dbconn {
     my $self = shift;
 
-    unless ($self->{dbconn} and $self->{dbconn}->testConnection) {
+    unless ( $self->{dbconn} and $self->{dbconn}->testConnection ) {
         my $conn = CouchDB::Client->new(
             uri      => $self->dbconfig->{url},
             username => $self->dbconfig->{username},
@@ -151,9 +151,9 @@ sub db {
 
     confess "Database must have a name" unless $name;
 
-    unless ($self->{db}{$name}) {
-        my $db = $self->dbconn->newDB($name);
-        unless ($self->dbconn->dbExists($name)) {
+    unless ( $self->{db}{$name} ) {
+        my $db = $self->dbconn->newDB( $name );
+        unless ( $self->dbconn->dbExists( $name ) ) {
             $db->create;
         }
         $self->{db}{$name} = $db;

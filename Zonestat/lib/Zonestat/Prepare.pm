@@ -18,7 +18,7 @@ our $VERSION = '0.01';
 sub all {
     my $self = shift;
 
-    if ($self->fetch_zone) {
+    if ( $self->fetch_zone ) {
         $self->db_import_zone;
     }
 }
@@ -26,23 +26,22 @@ sub all {
 sub fetch_zone {
     my $self = shift;
 
-    my $dig  = $self->cget(qw[programs dig]);
-    my $zcfg = $self->cget('zone');
+    my $dig  = $self->cget( qw[programs dig] );
+    my $zcfg = $self->cget( 'zone' );
 
-    foreach my $server (@{ $zcfg->{servers} }) {
-        my $cmd = sprintf("%s -y %s axfr %s @%s > %s",
-            $dig, $zcfg->{tsig}, $zcfg->{name}, $server, $zcfg->{datafile});
+    foreach my $server ( @{ $zcfg->{servers} } ) {
+        my $cmd = sprintf( "%s -y %s axfr %s @%s > %s", $dig, $zcfg->{tsig}, $zcfg->{name}, $server, $zcfg->{datafile} );
         system $cmd;
         open my $zfile, '<', $zcfg->{datafile}
           or die "Failed to open " . $zcfg->{datafile} . ": $!\n";
         my %flags = map { $_, 0 } @{ $zcfg->{flagdomains} };
-        while (defined(my $line = <$zfile>)) {
+        while ( defined( my $line = <$zfile> ) ) {
             next unless $line =~ /^(\S+?)\.\s+/;
-            if (exists($flags{$1})) {
+            if ( exists( $flags{$1} ) ) {
                 $flags{$1} = 1;
             }
         }
-        if (scalar(grep { $flags{$_} } keys %flags) == scalar(keys %flags)) {
+        if ( scalar( grep { $flags{$_} } keys %flags ) == scalar( keys %flags ) ) {
             return 1;    # File downloaded with all flag domains
         }
     }
@@ -53,43 +52,43 @@ sub fetch_zone {
 sub db_import_zone {
     my $self = shift;
 
-    my $db         = $self->db('zonestat-zone');
+    my $db         = $self->db( 'zonestat-zone' );
     my $designdocs = $db->listDesignDocs;
     map { $_->retrieve } @$designdocs;
     $db->delete;
     $db->create;
-    foreach my $d (@$designdocs) {
+    foreach my $d ( @$designdocs ) {
         $d->{rev} = undef;
         $d->create;
     }
 
-    open my $fh, '<', $self->cget(qw[zone datafile])
+    open my $fh, '<', $self->cget( qw[zone datafile] )
       or die "Failed to open zone file: $!\n";
 
     my @tmp;
     my $txtdata;
-    while (defined(my $line = <$fh>)) {
-        chomp($line);
+    while ( defined( my $line = <$fh> ) ) {
+        chomp( $line );
         next if $line =~ /^\s*$/;
         next if $line =~ /^\s*;/;    # Skip comment lines
-        my ($name, $ttl, $class, $type, $data) = split(/\s+/, $line, 5);
+        my ( $name, $ttl, $class, $type, $data ) = split( /\s+/, $line, 5 );
         $name =~ s/\.$//;
 
-        if ($type eq 'NS') {
-            push @tmp, $db->newDoc($name, undef);
+        if ( $type eq 'NS' ) {
+            push @tmp, $db->newDoc( $name, undef );
         }
 
-        if ($type eq 'TXT' and $name eq 'se' and $data =~ m|EPOCH (\d+)|) {
+        if ( $type eq 'TXT' and $name eq 'se' and $data =~ m|EPOCH (\d+)| ) {
             $txtdata = $1;
         }
 
-        if (@tmp > 10000) {
-            $db->bulkStore(\@tmp);
+        if ( @tmp > 10000 ) {
+            $db->bulkStore( \@tmp );
             @tmp = ();
         }
     }
-    $db->bulkStore(\@tmp);
-    my $doc = $db->newDoc('se', undef)->retrieve;
+    $db->bulkStore( \@tmp );
+    my $doc = $db->newDoc( 'se', undef )->retrieve;
     $doc->data->{time_t} = $txtdata;
     $doc->update;
 }
@@ -97,11 +96,11 @@ sub db_import_zone {
 sub create_random_set {
     my $self = shift;
 
-    my $dbp     = $self->dbproxy('zonestat-zone');
+    my $dbp     = $self->dbproxy( 'zonestat-zone' );
     my @domains = map { $_->{id} } @{ $dbp->select_random->{rows} };
-    my $dset    = $self->parent->domainset('random');
+    my $dset    = $self->parent->domainset( 'random' );
     $dset->clear;
-    $dset->add(@domains);
+    $dset->add( @domains );
 
     return $dset;
 }
@@ -111,51 +110,52 @@ sub update_asn_table_from_ripe {
 
     # ftp://ftp.ripe.net/ripe/dbase/split/ripe.db.aut-num.gz
     my $url = 'ftp://ftp.ripe.net/ripe/dbase/split/ripe.db.aut-num.gz';
-    my ($fh, $fname) = tempfile();
+    my ( $fh, $fname ) = tempfile();
 
     my $ua  = LWP::UserAgent->new;
     my $res = $ua->request(
-        HTTP::Request->new(GET => $url),
+        HTTP::Request->new( GET => $url ),
         sub {
-            my ($chunk) = @_;
+            my ( $chunk ) = @_;
             print $fh $chunk;
         }
     );
     seek $fh, 0, 0;
 
-    my $db = $self->db('zonestat-asdata');
+    my $db = $self->db( 'zonestat-asdata' );
     $db->delete;
     $db->create;
-    my ($asn, $asname, $asdescr) = (undef, '', '');
-    my $gz = IO::Uncompress::Gunzip->new($fh);
+    my ( $asn, $asname, $asdescr ) = ( undef, '', '' );
+    my $gz = IO::Uncompress::Gunzip->new( $fh );
     my @tmp;
     my $i = 0;
-    while (my $line = $gz->getline) {
-        if ($line =~ /^aut-num:\s+AS(\w+)/) {
-            if (defined($asn)) {
-                chomp($asdescr);
-                push @tmp,
-                  $db->newDoc($asn, undef,
-                    { asn => $asn, asname => $asname, descr => $asdescr });
+    while ( my $line = $gz->getline ) {
+        if ( $line =~ /^aut-num:\s+AS(\w+)/ ) {
+            if ( defined( $asn ) ) {
+                chomp( $asdescr );
+                push @tmp, $db->newDoc( $asn, undef, { asn => $asn, asname => $asname, descr => $asdescr } );
                 $asn     = undef;
                 $asname  = '';
                 $asdescr = '';
-                if (++$i % 10000 == 0) {
-                    $db->bulkStore(\@tmp);
+                if ( ++$i % 10000 == 0 ) {
+                    $db->bulkStore( \@tmp );
                     @tmp = ();
                 }
             }
             $asn = $1;
-        } elsif ($line =~ /^as-name:\s+([^#\n]+)$/) {
+        }
+        elsif ( $line =~ /^as-name:\s+([^#\n]+)$/ ) {
             $asname = $1;
-        } elsif ($line =~ /^descr:\s+(.*)$/) {
+        }
+        elsif ( $line =~ /^descr:\s+(.*)$/ ) {
             $asdescr .= "\t$1\n";
-        } else {
+        }
+        else {
 
             # print "[$line]\n";
         }
     }
-    $db->bulkStore(\@tmp);
+    $db->bulkStore( \@tmp );
     unlink $fname or die $!;
 }
 
@@ -172,14 +172,14 @@ BEGIN {
 
     # implement EPRT
     sub Net::FTP::_EPRT {
-        shift->command("EPRT", @_)->response() == Net::FTP::CMD_OK;
+        shift->command( "EPRT", @_ )->response() == Net::FTP::CMD_OK;
     }
 
     sub Net::FTP::eprt {
         @_ == 1 || @_ == 2 or croak 'usage: $ftp->eprt([PORT])';
-        my ($ftp, $port) = @_;
+        my ( $ftp, $port ) = @_;
         delete ${*$ftp}{net_ftp_intern_port};
-        unless ($port) {
+        unless ( $port ) {
             my $listen = ${*$ftp}{net_ftp_listen} ||= IO::Socket::INET6->new(
                 Listen    => 1,
                 Timeout   => $ftp->timeout,
@@ -188,14 +188,14 @@ BEGIN {
             ${*$ftp}{net_ftp_intern_port} = 1;
             $port = "|2|" . $listen->sockhost . "|" . $listen->sockport . "|";
         }
-        my $ok = $ftp->_EPRT($port);
+        my $ok = $ftp->_EPRT( $port );
         ${*$ftp}{net_ftp_port} = $port if $ok;
         return $ok;
     }
 
     # implement EPSV
     sub Net::FTP::_EPSV {
-        shift->command("EPSV", @_)->response() == Net::FTP::CMD_OK;
+        shift->command( "EPSV", @_ )->response() == Net::FTP::CMD_OK;
     }
 
     sub Net::FTP::epsv {
@@ -237,20 +237,21 @@ BEGIN {
             delete ${*$ftp}{net_ftp_dataconn};
 
             my $data;
-            if (my $port = ${*$ftp}{net_ftp_pasv}) {
+            if ( my $port = ${*$ftp}{net_ftp_pasv} ) {
                 $data = $pkg->new(
                     PeerAddr  => $ftp->peerhost,
                     PeerPort  => $port,
                     LocalAddr => ${*$ftp}{net_ftp_localaddr},
                 );
-            } elsif (my $listen = delete ${*$ftp}{net_ftp_listen}) {
-                $data = $listen->accept($pkg);
-                close($listen);
+            }
+            elsif ( my $listen = delete ${*$ftp}{net_ftp_listen} ) {
+                $data = $listen->accept( $pkg );
+                close( $listen );
             }
 
             return if !$data;
 
-            $data->timeout($ftp->timeout);
+            $data->timeout( $ftp->timeout );
             ${*$ftp}{net_ftp_dataconn} = $data;
             ${*$data}                  = "";
             ${*$data}{net_ftp_cmd}     = $ftp;

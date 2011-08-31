@@ -1,20 +1,25 @@
-# $Id: perltidyrc 3750 2007-09-26 08:05:04Z jakob $
+#
+#  Copyright (c) .SE, The Internet Infrastructure Foundation (2009) <hostmaster@iis.se>
+#
+#  All rights reserved.
+#
+#
+# $Id: perltidyrc 12874 2010-06-04 10:08:52Z Ulrich Wisser $
+# $Date: 2010-06-04 10:08:52 +0000 (Fri, 04 Jun 2010) $
+# $LastChangedBy: Ulrich Wisser $
+-ole=unix
+-nst
+-se
+-b
+-nw
+-l=0
+-i=4
+-ci=2
+-nsbl
+-cti=0
+-pt=0
+-sbt=1
+-bt=1
+-bbt=0
+-sfs
 
-
-# basic options
---maximum-line-length=80
---indent-columns=4
-
-# code indentation control
---continuation-indentation=2
-
-# whitespace control
---paren-tightness=2
---square-bracket-tightness=2
---block-brace-tightness=0
---space-for-semicolon
---add-semicolons
---nospace-function-paren
-
-# line break control
---cuddled-else

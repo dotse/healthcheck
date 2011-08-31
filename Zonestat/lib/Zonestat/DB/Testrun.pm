@@ -10,7 +10,7 @@ use POSIX qw[strftime];
 sub fetch {
     my $self = shift;
 
-    my $doc = $self->db('zonestat-testrun')->newDoc($self->{id});
+    my $doc = $self->db( 'zonestat-testrun' )->newDoc( $self->{id} );
     $doc->retrieve;
 
     $self->{doc} = $doc;
@@ -29,18 +29,19 @@ sub name {
     my $dset   = $self->domainset;
     my $time_t = $self->data->{queued_at};
 
-    return $dset . ' ' . strftime('%Y-%m-%d %H:%M', localtime($time_t));
+    return $dset . ' ' . strftime( '%Y-%m-%d %H:%M', localtime( $time_t ) );
 }
 
 sub test_count {
     my $self = shift;
 
-    my $dbp = $self->dbproxy('zonestat');
-    my $res = $dbp->test_count(group => 1, key => $self->data->{testrun});
+    my $dbp = $self->dbproxy( 'zonestat' );
+    my $res = $dbp->test_count( group => 1, key => $self->data->{testrun} );
 
-    if($res->{rows}[0]) {
+    if ( $res->{rows}[0] ) {
         return $res->{rows}[0]{value};
-    } else {
+    }
+    else {
         return 0;
     }
 }

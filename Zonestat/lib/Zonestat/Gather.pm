@@ -11,7 +11,7 @@ use Try::Tiny;
 
 our $VERSION = '0.02';
 our $debug   = 0;
-STDOUT->autoflush(1) if $debug;
+STDOUT->autoflush( 1 ) if $debug;
 
 sub enqueue_domainset {
     die "Unimplemented.";
@@ -23,54 +23,52 @@ sub single_domain {
     my $extra  = shift;
     my $id;
 
-    my $db   = $self->db('zonestat');
-    my $data = $self->parent->collect->for_domain($domain);
+    my $db   = $self->db( 'zonestat' );
+    my $data = $self->parent->collect->for_domain( $domain );
     $data->{domain} = $domain;
-    while (my ($k, $v) = each %$extra) {
-        $data->{$k} = $v unless exists($data->{$k});
+    while ( my ( $k, $v ) = each %$extra ) {
+        $data->{$k} = $v unless exists( $data->{$k} );
     }
 
-    if ($extra->{testrun}) {
+    if ( $extra->{testrun} ) {
         $id = $extra->{testrun} . '-' . $domain;
     }
 
-    return $db->newDoc($id, undef, $data)->create;
+    return $db->newDoc( $id, undef, $data )->create;
 }
 
 sub put_in_queue {
-    my $self    = shift;
-    my (@qrefs) = @_;
-    my $db      = $self->db('zonestat-queue');
+    my $self      = shift;
+    my ( @qrefs ) = @_;
+    my $db        = $self->db( 'zonestat-queue' );
     my @tmp;
 
-    foreach my $ref (@qrefs) {
+    foreach my $ref ( @qrefs ) {
         unless ($ref->{domain}
-            and defined($ref->{priority})
-            and $ref->{priority} > 0)
+            and defined( $ref->{priority} )
+            and $ref->{priority} > 0 )
         {
-            carp "Invalid domain and/or priority: "
-              . $ref->{domain} . '/'
-              . $ref->{priority};
+            carp "Invalid domain and/or priority: " . $ref->{domain} . '/' . $ref->{priority};
             return;
         }
 
-        push @tmp, $db->newDoc($ref->{domain}, undef, $ref);
+        push @tmp, $db->newDoc( $ref->{domain}, undef, $ref );
     }
-    
-    $db->bulkStore(\@tmp);
+
+    $db->bulkStore( \@tmp );
 }
 
 sub get_from_queue {
     my $self = shift;
     my $limit = shift || 10;
     my @res;
-    my $db   = $self->db('zonestat-queue');
-    my $ddoc = $db->newDesignDoc('_design/queues');
+    my $db   = $self->db( 'zonestat-queue' );
+    my $ddoc = $db->newDesignDoc( '_design/queues' );
     $ddoc->retrieve;
 
-    my $query = $ddoc->queryView('fetch', limit => $limit);
-    foreach my $d (@{ $query->{rows} }) {
-        my $doc = $db->newDoc($d->{id}, undef, $d);
+    my $query = $ddoc->queryView( 'fetch', limit => $limit );
+    foreach my $d ( @{ $query->{rows} } ) {
+        my $doc = $db->newDoc( $d->{id}, undef, $d );
         $doc->retrieve;
         $doc->data->{inprogress} = 1;
         try {
@@ -90,9 +88,9 @@ sub get_from_queue {
 
 sub set_active {
     my $self = shift;
-    my ($id, $pid) = @_;
-    my $db  = $self->db('zonestat-queue');
-    my $doc = $db->newDoc($id);
+    my ( $id, $pid ) = @_;
+    my $db  = $self->db( 'zonestat-queue' );
+    my $doc = $db->newDoc( $id );
     $doc->retrieve;
 
     $doc->data->{tester_pid} = $pid;
@@ -104,7 +102,7 @@ sub set_active {
 sub reset_queue_entry {
     my $self = shift;
     my $id   = shift;
-    my $doc  = $self->db('zonestat-queue')->newDoc($id);
+    my $doc  = $self->db( 'zonestat-queue' )->newDoc( $id );
 
     $doc->retrieve;
     $doc->data->{inprogress} = undef;
@@ -116,12 +114,12 @@ sub reset_queue_entry {
 
 sub reset_inprogress {
     my $self = shift;
-    my $db   = $self->db('zonestat-queue');
-    my $ddoc = $db->newDesignDoc('_design/queues');
+    my $db   = $self->db( 'zonestat-queue' );
+    my $ddoc = $db->newDesignDoc( '_design/queues' );
     $ddoc->retrieve;
-    my $query = $ddoc->queryView('inprogress');
-    foreach my $row (@{ $query->{rows} }) {
-        my $doc = $db->newDoc($row->{id});
+    my $query = $ddoc->queryView( 'inprogress' );
+    foreach my $row ( @{ $query->{rows} } ) {
+        my $doc = $db->newDoc( $row->{id} );
         $doc->retrieve;
         $doc->data->{inprogress} = undef;
         $doc->update;
@@ -131,19 +129,19 @@ sub reset_inprogress {
 sub requeue {
     my $self = shift;
     my $id   = shift;
-    my $doc  = $self->db('zonestat-queue')->newDoc($id);
+    my $doc  = $self->db( 'zonestat-queue' )->newDoc( $id );
     my $count;
     my $continue = 1;
     my $delay    = 1;
 
-    while ($continue) {
+    while ( $continue ) {
         try {
             $doc->retrieve;
             $continue = undef;
         }
         catch {
             $count++;
-            if ($count > 5) {
+            if ( $count > 5 ) {
                 die "Failed to requeue $id";
             }
             sleep $delay;
@@ -153,18 +151,18 @@ sub requeue {
     $doc->data->{priority} += 1;
     $doc->data->{requeued} += 1;
     $doc->data->{inprogress} = undef;
-    if ($doc->data->{requeued} <= 5) {
+    if ( $doc->data->{requeued} <= 5 ) {
         $delay    = 1;
         $count    = 0;
         $continue = 1;
-        while ($continue) {
+        while ( $continue ) {
             try {
                 $doc->update;
                 $continue = undef;
             }
             catch {
                 $count++;
-                if ($count > 5) {
+                if ( $count > 5 ) {
                     die "Failed to requeue $id";
                 }
                 sleep $delay;
@@ -172,11 +170,10 @@ sub requeue {
             };
         }
         return 1;
-    } else {
-        if ($doc->data->{source_data}) {
-            my $newdoc =
-              $self->db('zonestat')
-              ->newDoc($doc->data->{source_data} . '-' . $doc->data->{domain});
+    }
+    else {
+        if ( $doc->data->{source_data} ) {
+            my $newdoc = $self->db( 'zonestat' )->newDoc( $doc->data->{source_data} . '-' . $doc->data->{domain} );
             $newdoc->data->{failed}  = 1;
             $newdoc->data->{domain}  = $doc->data->{domain};
             $newdoc->data->{testrun} = 0 + $doc->data->{source_data};

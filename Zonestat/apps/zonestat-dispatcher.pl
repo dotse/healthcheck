@@ -70,9 +70,9 @@ use vars qw[
 $debug      = 0;
 $verbose    = 0;
 $check      = DNSCheck->new;
-$zs         = Zonestat->new(%{ $check->config });
-$limit      = $check->config->get("daemon")->{maxchild};
-$savelevel  = $check->config->get("daemon")->{savelevel} || 'INFO';
+$zs         = Zonestat->new( %{ $check->config } );
+$limit      = $check->config->get( "daemon" )->{maxchild};
+$savelevel  = $check->config->get( "daemon" )->{savelevel} || 'INFO';
 $running    = 1;
 $restart    = 0;
 $syslog     = 1;
@@ -100,58 +100,53 @@ sub slog {
     my $tries    = 0;
 
     # See perldoc on sprintf for why we have to write it like this
-    my $msg = sprintf($_[0], @_[1 .. $#_]);
+    my $msg = sprintf( $_[0], @_[ 1 .. $#_ ] );
 
-    printf("%s (%d): %s\n", uc($priority), $$, $msg) if $debug;
+    printf( "%s (%d): %s\n", uc( $priority ), $$, $msg ) if $debug;
 
   TRY:
     eval {
-        if ($syslog)
+        if ( $syslog )
         {
-            syslog($priority, @_);
-        } else {
-            printf STDERR "%s (%d): %s\n", uc($priority), $$, $msg;
+            syslog( $priority, @_ );
+        }
+        else {
+            printf STDERR "%s (%d): %s\n", uc( $priority ), $$, $msg;
         }
     };
-    if ($@) {
-        if ($tries < 5) {
+    if ( $@ ) {
+        if ( $tries < 5 ) {
             print STDERR "Trying to reconnect to syslogd...\n";
-            sleep(0.5);
+            sleep( 0.5 );
             $tries += 1;
-            openlog($check->config->get("syslog")->{ident},
-                'pid', $check->config->get("syslog")->{facility});
+            openlog( $check->config->get( "syslog" )->{ident}, 'pid', $check->config->get( "syslog" )->{facility} );
             goto TRY;
-        } else {
-            print STDERR
-              "SYSLOG CONNECTION LOST. Switching to stderr logging.\n";
+        }
+        else {
+            print STDERR "SYSLOG CONNECTION LOST. Switching to stderr logging.\n";
             $syslog = 0;
-            printf STDERR "%s (%d): %s\n", uc($priority), $$, $msg;
+            printf STDERR "%s (%d): %s\n", uc( $priority ), $$, $msg;
         }
     }
 }
 
 sub setup {
-    my $errfile = $check->config->get("daemon")->{errorlog};
-    my $pidfile = $check->config->get("daemon")->{pidfile};
+    my $errfile = $check->config->get( "daemon" )->{errorlog};
+    my $pidfile = $check->config->get( "daemon" )->{pidfile};
 
     @saved_argv = @ARGV;    # We'll use this if we're asked to restart ourselves
-    GetOptions('debug' => \$debug, 'verbose' => \$verbose);
-    openlog($check->config->get("syslog")->{ident},
-        'pid', $check->config->get("syslog")->{facility});
-    slog 'info', "$0 starting with %d maximum children.",
-      $check->config->get("daemon")->{maxchild};
-    slog 'info', 'IPv4 disabled.' unless $check->config->get("net")->{ipv4};
-    slog 'info', 'IPv6 disabled.' unless $check->config->get("net")->{ipv6};
-    slog 'info', 'SMTP disabled.' unless $check->config->get("net")->{smtp};
-    slog 'info', 'Logging as %s to facility %s.',
-      $check->config->get("syslog")->{ident},
-      $check->config->get("syslog")->{facility};
-    slog 'info', 'Reading config from %s and %s.',
-      $check->config->get("configfile"), $check->config->get("siteconfigfile");
+    GetOptions( 'debug' => \$debug, 'verbose' => \$verbose );
+    openlog( $check->config->get( "syslog" )->{ident}, 'pid', $check->config->get( "syslog" )->{facility} );
+    slog 'info', "$0 starting with %d maximum children.", $check->config->get( "daemon" )->{maxchild};
+    slog 'info', 'IPv4 disabled.' unless $check->config->get( "net" )->{ipv4};
+    slog 'info', 'IPv6 disabled.' unless $check->config->get( "net" )->{ipv6};
+    slog 'info', 'SMTP disabled.' unless $check->config->get( "net" )->{smtp};
+    slog 'info', 'Logging as %s to facility %s.', $check->config->get( "syslog" )->{ident}, $check->config->get( "syslog" )->{facility};
+    slog 'info', 'Reading config from %s and %s.', $check->config->get( "configfile" ), $check->config->get( "siteconfigfile" );
 
     detach() unless $debug;
     open STDERR, '>>', $errfile or die "Failed to open error log: $!";
-    printf STDERR "%s starting at %s\n", $0, scalar(localtime);
+    printf STDERR "%s starting at %s\n", $0, scalar( localtime );
     open PIDFILE, '>', $pidfile or die "Failed to open PID file: $!";
     print PIDFILE $$;
     close PIDFILE;
@@ -165,19 +160,19 @@ sub setup {
 
 sub detach {
 
-   # Instead of using ioctls and setfoo calls we use the old double-fork method.
+    # Instead of using ioctls and setfoo calls we use the old double-fork method.
     my $pid;
 
     # Once...
     $pid = fork;
     exit if $pid;
-    die "Fork failed: $!" unless defined($pid);
+    die "Fork failed: $!" unless defined( $pid );
 
     # ...and again
     $pid = fork;
     exit if $pid;
-    die "Fork failed: $!" unless defined($pid);
-    slog('info', 'Detached.');
+    die "Fork failed: $!" unless defined( $pid );
+    slog( 'info', 'Detached.' );
 }
 
 # Clean up residue from earlier run(s), if any.
@@ -192,23 +187,19 @@ sub inital_cleanup {
 sub dispatch {
     my @entries;
 
-    if (scalar keys %running < $limit) {
-        @entries = $zs->gather->get_from_queue($limit - scalar keys %running);
+    if ( scalar keys %running < $limit ) {
+        @entries = $zs->gather->get_from_queue( $limit - scalar keys %running );
     }
 
-    if (@entries) {
-        foreach my $e (@entries) {
-            unless (defined($problem{ $e->{domain} })
-                and $problem{ $e->{domain} } >= 5)
+    if ( @entries ) {
+        foreach my $e ( @entries ) {
+            unless ( defined( $problem{ $e->{domain} } )
+                and $problem{ $e->{domain} } >= 5 )
             {
-                process($e->{domain}, $e->{id}, $e->{source_id},
-                    $e->{source_data}, $e->{fake_parent_glue},
-                    $e->{priority});
-            } else {
-                slog 'error',
-                    "Testing "
-                  . $e->{domain}
-                  . " caused repeated abnormal termination of children. Assuming bug. Exiting.";
+                process( $e->{domain}, $e->{id}, $e->{source_id}, $e->{source_data}, $e->{fake_parent_glue}, $e->{priority} );
+            }
+            else {
+                slog 'error', "Testing " . $e->{domain} . " caused repeated abnormal termination of children. Assuming bug. Exiting.";
                 $running = 0;
             }
         }
@@ -228,15 +219,16 @@ sub process {
 
     my $pid = fork;
 
-    if ($pid) {    # True values, so parent
+    if ( $pid ) {    # True values, so parent
         $running{$pid}    = $domain;
         $qid{$pid}        = $id;
         $start_time{$pid} = gettimeofday();
         slog 'debug', "Child process $pid has been started.";
-    } elsif ($pid == 0) {    # Zero value, so child
-        running_in_child($domain, $id, $source, $source_data, $fake_glue,
-            $priority);
-    } else {                 # Undefined value, so error
+    }
+    elsif ( $pid == 0 ) {    # Zero value, so child
+        running_in_child( $domain, $id, $source, $source_data, $fake_glue, $priority );
+    }
+    else {                   # Undefined value, so error
         die "Fork failed: $!";
     }
 }
@@ -251,12 +243,12 @@ sub running_in_child {
     my $fake_glue   = shift;
     my $priority    = shift;
 
-    setpriority(0, $$, 2 * $priority);
-    setpgrp(0, 0);
-    my $dbdoc = $zs->gather->set_active($id, $$);
+    setpriority( 0, $$, 2 * $priority );
+    setpgrp( 0, 0 );
+    my $dbdoc = $zs->gather->set_active( $id, $$ );
     $0 = "dispatcher: gathering $domain (queue id $id)";
 
-   # On some OS:s (including Ubuntu Linux), this is visible in the process list.
+    # On some OS:s (including Ubuntu Linux), this is visible in the process list.
 
     slog 'debug', "$$ running queue id " . $id;
 
@@ -270,11 +262,11 @@ sub running_in_child {
         }
     );
 
-   # Everything went well, so exit nicely (if they didn't go well, we've already
-   # died not-so-nicely). Also, remove from database queue.
+    # Everything went well, so exit nicely (if they didn't go well, we've already
+    # died not-so-nicely). Also, remove from database queue.
     $dbdoc->delete;
     slog 'debug', "$$ about to exit nicely.";
-    exit(0);
+    exit( 0 );
 }
 
 ################################################################
@@ -282,10 +274,9 @@ sub running_in_child {
 ################################################################
 
 sub monitor_children {
-    my @pids = keys
-      %reaped;    # Can't trust %reaped to stay static while we work through it
+    my @pids = keys %reaped;    # Can't trust %reaped to stay static while we work through it
 
-    foreach my $pid (@pids) {
+    foreach my $pid ( @pids ) {
         slog 'debug', "Child process $pid has died.";
 
         my $domain   = $running{$pid};
@@ -295,15 +286,15 @@ sub monitor_children {
         delete $qid{$pid};
         delete $reaped{$pid};
         delete $start_time{$pid};
-        cleanup($domain, $exitcode, $pid, $qid);
+        cleanup( $domain, $exitcode, $pid, $qid );
     }
 
-    if (defined($exit_timeout) and time() - $exit_timeout > 900) {
+    if ( defined( $exit_timeout ) and time() - $exit_timeout > 900 ) {
         %running = ();
     }
 
-    foreach my $pid (keys %start_time) {
-        if ((gettimeofday() - $start_time{$pid}) > 900 and not $killed{$pid}) {
+    foreach my $pid ( keys %start_time ) {
+        if ( ( gettimeofday() - $start_time{$pid} ) > 900 and not $killed{$pid} ) {
             slog 'warning', "Child $pid timed out, killing and requeueing it.";
 
             # Using negative signal numbers sends to process groups.
@@ -311,11 +302,8 @@ sub monitor_children {
             sleep 0.1;
             kill -9, $pid;
             $killed{$pid} = time;
-            unless ($zs->gather->requeue($qid{$pid})) {
-                slog 'warning',
-                    "Child $pid requeued too many times. Entry "
-                  . $qid{$pid}
-                  . " removed.";
+            unless ( $zs->gather->requeue( $qid{$pid} ) ) {
+                slog 'warning', "Child $pid requeued too many times. Entry " . $qid{$pid} . " removed.";
             }
         }
     }
@@ -330,16 +318,16 @@ sub cleanup {
     my $status = $exitcode >> 8;
     my $signal = $exitcode & 127;
 
-    if ($status == 0) {
+    if ( $status == 0 ) {
 
         # Child died nicely. So we don't need to do anything.
-    } else {
+    }
+    else {
 
         # Child blew up. Clean up.
         $problem{$domain} += 1;
-        slog 'warning',
-          "Unclean exit when testing $domain (pid $pid, status $status).";
-        $zs->gather->reset_queue_entry($qid);
+        slog 'warning', "Unclean exit when testing $domain (pid $pid, status $status).";
+        $zs->gather->reset_queue_entry( $qid );
     }
 }
 
@@ -347,7 +335,7 @@ sub cleanup {
 sub REAPER {
     my $child;
 
-    while (($child = waitpid(-1, WNOHANG)) > 0) {
+    while ( ( $child = waitpid( -1, WNOHANG ) ) > 0 ) {
         $reaped{$child} = $?;
     }
     $SIG{CHLD} = \&REAPER;
@@ -360,20 +348,20 @@ sub REAPER {
 sub main {
     setup();
     inital_cleanup();
-    while ($running) {
+    while ( $running ) {
         my $skip = dispatch();
         monitor_children();
-        sleep($skip);
+        sleep( $skip );
     }
     slog 'info', "Waiting for %d children to exit.", scalar keys %running;
     $exit_timeout = time();
-    monitor_children until (keys %running == 0);
-    unlink $check->config->get("daemon")->{pidfile};
+    monitor_children until ( keys %running == 0 );
+    unlink $check->config->get( "daemon" )->{pidfile};
     slog 'info', "$0 exiting normally.";
     printf STDERR "%s exiting normally.\n", $0;
-    if ($restart) {
+    if ( $restart ) {
         slog 'info', 'Attempting to restart myself.';
-        exec($0, @saved_argv);
+        exec( $0, @saved_argv );
         warn "Exec failed: $!";
     }
 }

@@ -8,10 +8,10 @@ use base 'Zonestat::Common';
 sub new {
     my $class  = shift;
     my $parent = shift;
-    my $self   = $class->SUPER::new($parent);
-    my $id = shift;
-    
-    if(defined($id)) {
+    my $self   = $class->SUPER::new( $parent );
+    my $id     = shift;
+
+    if ( defined( $id ) ) {
         $self->{id} = $id;
         $self->fetch;
     }

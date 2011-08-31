@@ -48,35 +48,34 @@ my $asn   = $dc->asn;
 our $VERSION = '0.1';
 
 our %server_regexps = (
-    qr|^Apache/?(\S+)?|                   => 'Apache',
-    qr|^Microsoft-IIS/(\S+)|              => 'Microsoft IIS',
-    qr|^nginx/?(\S+)?|                    => 'nginx',
-    qr|^Lotus-Domino|                     => 'Lotus Domino',
-    qr|^GFE/(\S+)|                        => 'Google Web Server',
-    qr|^lighttpd/?(\S+)?|                 => 'lighttpd',
-    qr|^WebServerX|                       => 'WebServerX',
-    qr|^Zope/\(Zope ([-a-zA-Z0-9.]+)|     => 'Zope',
-    qr|^Resin/?(\S+)?|                    => 'Resin',
-    qr|^Roxen.{0,2}(Challenger)?/?(\S+)?| => 'Roxen',
-    qr|^ODERLAND|                         => 'Oderland',
-    qr|WebSTAR/?(\S+)|                    => 'WebSTAR',
-    qr|^IBM_HTTP_Server|                  => 'IBM HTTP Server (WebSphere)',
-    qr|^Zeus/?(\S+)|                      => 'Zeus',
-    qr|^Oversee Webserver v(\S+)|         => 'Oversee',
-    qr|^Sun Java System Application Server (\S+)| =>
-      'Sun Java System Application Server (GlassFish)',
-    qr|^AkamaiGHost|                           => 'Akamai',
-    qr|^Stronghold/?(\S+)|                     => 'RedHat Stronghold',
-    qr|^Stoned Webserver (\S+)?|               => 'Stoned Webserver',
-    qr|^Oracle HTTP Server Powered by Apache|  => 'Oracle HTTP Server',
-    qr|^Oracle-Application-Server-10g/(\S+)|   => 'Oracle Application Server',
-    qr|^TimmiT HTTPD Server powered by Apache| => 'TimmiT HTTPD Server',
-    qr|^Sun-ONE-Web-Server/(\S+)?|             => 'Sun ONE',
-    qr|^Server\d|                              => 'Oderland',
-    qr|^mod-xslt/(\S+) Apache|                 => 'Apache (mod_xslt)',
-    qr|^AppleIDiskServer-(\S+)|                => 'Apple iDisk',
-    qr|^Microsoft-HTTPAPI/(\S+)|               => 'Microsoft HTTPAPI',
-    qr|^Mongrel (\S+)|                         => 'Mongrel',
+    qr|^Apache/?(\S+)?|                           => 'Apache',
+    qr|^Microsoft-IIS/(\S+)|                      => 'Microsoft IIS',
+    qr|^nginx/?(\S+)?|                            => 'nginx',
+    qr|^Lotus-Domino|                             => 'Lotus Domino',
+    qr|^GFE/(\S+)|                                => 'Google Web Server',
+    qr|^lighttpd/?(\S+)?|                         => 'lighttpd',
+    qr|^WebServerX|                               => 'WebServerX',
+    qr|^Zope/\(Zope ([-a-zA-Z0-9.]+)|             => 'Zope',
+    qr|^Resin/?(\S+)?|                            => 'Resin',
+    qr|^Roxen.{0,2}(Challenger)?/?(\S+)?|         => 'Roxen',
+    qr|^ODERLAND|                                 => 'Oderland',
+    qr|WebSTAR/?(\S+)|                            => 'WebSTAR',
+    qr|^IBM_HTTP_Server|                          => 'IBM HTTP Server (WebSphere)',
+    qr|^Zeus/?(\S+)|                              => 'Zeus',
+    qr|^Oversee Webserver v(\S+)|                 => 'Oversee',
+    qr|^Sun Java System Application Server (\S+)| => 'Sun Java System Application Server (GlassFish)',
+    qr|^AkamaiGHost|                              => 'Akamai',
+    qr|^Stronghold/?(\S+)|                        => 'RedHat Stronghold',
+    qr|^Stoned Webserver (\S+)?|                  => 'Stoned Webserver',
+    qr|^Oracle HTTP Server Powered by Apache|     => 'Oracle HTTP Server',
+    qr|^Oracle-Application-Server-10g/(\S+)|      => 'Oracle Application Server',
+    qr|^TimmiT HTTPD Server powered by Apache|    => 'TimmiT HTTPD Server',
+    qr|^Sun-ONE-Web-Server/(\S+)?|                => 'Sun ONE',
+    qr|^Server\d|                                 => 'Oderland',
+    qr|^mod-xslt/(\S+) Apache|                    => 'Apache (mod_xslt)',
+    qr|^AppleIDiskServer-(\S+)|                   => 'Apple iDisk',
+    qr|^Microsoft-HTTPAPI/(\S+)|                  => 'Microsoft HTTPAPI',
+    qr|^Mongrel (\S+)|                            => 'Mongrel',
 );
 
 sub for_domain {
@@ -88,7 +87,7 @@ sub for_domain {
         start  => time(),
     );
 
-    $dc->zone->test($domain);
+    $dc->zone->test( $domain );
 
 =item dnscheck
 
@@ -100,11 +99,11 @@ last is a reference to a list with the arguments for the tag.
 
 =cut
 
-    $res{dnscheck} = dnscheck_log_cleanup($dc->logger->export);
+    $res{dnscheck} = dnscheck_log_cleanup( $dc->logger->export );
 
-    my %hosts = extract_hosts($domain, $res{dnscheck});
-    $hosts{webservers}  = get_webservers($domain);
-    $hosts{mailservers} = get_mailservers($domain);
+    my %hosts = extract_hosts( $domain, $res{dnscheck} );
+    $hosts{webservers}  = get_webservers( $domain );
+    $hosts{mailservers} = get_mailservers( $domain );
 
 =item dkim
 
@@ -116,7 +115,7 @@ SPF-formatted TXT record, if one exists.
 
 =cut
 
-    $res{dkim} = $self->dkim_data($domain);
+    $res{dkim} = $self->dkim_data( $domain );
 
 =item mailservers
 
@@ -130,7 +129,7 @@ and a key C<evaluation> with a brief evaluation of that data.
 
 =cut
 
-    $res{mailservers} = $self->mailserver_gather($hosts{mailservers});
+    $res{mailservers} = $self->mailserver_gather( $hosts{mailservers} );
 
 =item sslscan_web
 
@@ -143,7 +142,7 @@ quality of the scanned SSL server.
 
 =cut
 
-    $res{sslscan_web} = $self->sslscan_web($domain);
+    $res{sslscan_web} = $self->sslscan_web( $domain );
 
 =item pageanalyze
 
@@ -154,7 +153,7 @@ translation of the output from L<pageanalyzer>'s JSON mode.
 
 =cut
 
-    $res{pageanalyze} = $self->pageanalyze($domain);
+    $res{pageanalyze} = $self->pageanalyze( $domain );
 
 =item webinfo
 
@@ -237,7 +236,7 @@ The issuer field of the server SSL certificate, for HTTPS connections.
 
 =cut
 
-    $res{webinfo} = $self->webinfo($domain);
+    $res{webinfo} = $self->webinfo( $domain );
 
 =item geoip
 
@@ -286,13 +285,13 @@ The server's name.
 
 =cut
 
-    $res{geoip} = $self->geoip(\%hosts);
+    $res{geoip} = $self->geoip( \%hosts );
 
 =back
 
 =cut
 
-	$res{finish} = time();
+    $res{finish} = time();
     return \%res;
 }
 
@@ -305,30 +304,29 @@ sub dkim_data {
     my $spf_txt;
 
     # DKIM/ADSP
-    my $packet =
-      $dns->query_resolver('_adsp._domainkey.' . $domain, 'IN', 'TXT');
+    my $packet = $dns->query_resolver( '_adsp._domainkey.' . $domain, 'IN', 'TXT' );
 
-    if (defined($packet) and $packet->header->ancount > 0) {
-        my $rr = ($packet->answer)[0];
-        if ($rr->type eq 'TXT') {
+    if ( defined( $packet ) and $packet->header->ancount > 0 ) {
+        my $rr = ( $packet->answer )[0];
+        if ( $rr->type eq 'TXT' ) {
             $adsp = $rr->txtdata;
         }
     }
 
     # SPF, "real" kind
-    $packet = $dns->query_resolver($domain, 'IN', 'SPF');
-    if (defined($packet) and $packet->header->ancount > 0) {
-        my $rr = (grep { $_->type eq 'SPF' } $packet->answer)[0];
-        if ($rr) {
+    $packet = $dns->query_resolver( $domain, 'IN', 'SPF' );
+    if ( defined( $packet ) and $packet->header->ancount > 0 ) {
+        my $rr = ( grep { $_->type eq 'SPF' } $packet->answer )[0];
+        if ( $rr ) {
             $spf_spf = $rr->txtdata;
         }
     }
 
     # SPF, transitionary kind
-    $packet = $dns->query_resolver($domain, 'IN', 'TXT');
-    if (defined($packet) and $packet->header->ancount > 0) {
-        my $rr = (grep { $_->type eq 'TXT' } $packet->answer)[0];
-        if ($rr and $rr->txtdata =~ /^v=spf/) {
+    $packet = $dns->query_resolver( $domain, 'IN', 'TXT' );
+    if ( defined( $packet ) and $packet->header->ancount > 0 ) {
+        my $rr = ( grep { $_->type eq 'TXT' } $packet->answer )[0];
+        if ( $rr and $rr->txtdata =~ /^v=spf/ ) {
             $spf_txt = $rr->txtdata;
         }
     }
@@ -348,8 +346,8 @@ sub smtp_info_for_address {
     my $banner;
     my $ip;
 
-    my $smtp = Net::SMTP->new($addr);
-    if (defined($smtp)) {
+    my $smtp = Net::SMTP->new( $addr );
+    if ( defined( $smtp ) ) {
         $starttls = 1 if $smtp->message =~ m|STARTTLS|;
         $banner   = $smtp->banner;
         $ip       = $smtp->peerhost;
@@ -366,23 +364,21 @@ sub mailserver_gather {
     my $self  = shift;
     my $hosts = shift;
     my @res   = ();
-    my $scan  = $self->cget(qw[zonestat sslscan]);
+    my $scan  = $self->cget( qw[zonestat sslscan] );
 
     return unless -x $scan;
 
     my $cmd = "$scan --starttls --xml=stdout --quiet --no-failed";
-    foreach my $server (@$hosts) {
-        my $tmp = $self->smtp_info_for_address($server->{name});
+    foreach my $server ( @$hosts ) {
+        my $tmp = $self->smtp_info_for_address( $server->{name} );
         $tmp->{name} = $server->{name};
-        if ($tmp->{starttls}) {
+        if ( $tmp->{starttls} ) {
             my $sslscan;
             try {
-                $sslscan =
-                  XMLin(
-                    run_with_timeout(sub { qx[$cmd . $server->{name}] }, 600));
+                $sslscan = XMLin( run_with_timeout( sub { qx[$cmd . $server->{name}] }, 600 ) );
             };
             $tmp->{sslscan}    = $sslscan;
-            $tmp->{evaluation} = sslscan_evaluate($sslscan);
+            $tmp->{evaluation} = sslscan_evaluate( $sslscan );
         }
         push @res, $tmp;
     }
@@ -393,7 +389,7 @@ sub mailserver_gather {
 sub sslscan_web {
     my $self   = shift;
     my $domain = shift;
-    my $scan   = $self->cget(qw[zonestat sslscan]);
+    my $scan   = $self->cget( qw[zonestat sslscan] );
     my %res    = ();
     my $name   = "www.$domain";
 
@@ -402,10 +398,10 @@ sub sslscan_web {
     my $cmd = "$scan --xml=stdout --quiet --no-failed";
     $res{name} = $name;
     try {
-        $res{data} = XMLin(run_with_timeout(sub { qx[$cmd . $name] }, 600));
+        $res{data} = XMLin( run_with_timeout( sub { qx[$cmd . $name] }, 600 ) );
     };
-    $res{evaluation} = sslscan_evaluate($res{data});
-    $res{known_ca}   = $self->https_known_ca($domain);
+    $res{evaluation} = sslscan_evaluate( $res{data} );
+    $res{known_ca}   = $self->https_known_ca( $domain );
 
     return \%res;
 }
@@ -413,27 +409,19 @@ sub sslscan_web {
 sub pageanalyze {
     my $self   = shift;
     my $domain = shift;
-    my $padir  = $self->cget(qw[zonestat pageanalyzer]);
-    my $python = $self->cget(qw[zonestat python]);
+    my $padir  = $self->cget( qw[zonestat pageanalyzer] );
+    my $python = $self->cget( qw[zonestat python] );
     my %res    = ();
 
-    if ($padir and $python and -d $padir and -x $python) {
+    if ( $padir and $python and -d $padir and -x $python ) {
         open my $stderr_save, '>&', *STDERR;
         close STDERR;
         open STDERR, '>', "/tmp/dispatcher/stderr.$$";
-        foreach my $method (qw[http https]) {
-            if (
-                open my $pa, '-|',
-                $python,     $padir . '/pageanalyzer.py',
-                '-s',        '--nohex',
-                '-t',        '300',
-                '-f',        'json',
-                "$method://www.$domain/"
-              )
-            {
-                my $pa_result = join('', <$pa>);
-                if ($pa_result) {
-                    $res{$method} = decode_json($pa_result);
+        foreach my $method ( qw[http https] ) {
+            if ( open my $pa, '-|', $python, $padir . '/pageanalyzer.py', '-s', '--nohex', '-t', '300', '-f', 'json', "$method://www.$domain/" ) {
+                my $pa_result = join( '', <$pa> );
+                if ( $pa_result ) {
+                    $res{$method} = decode_json( $pa_result );
                     delete $res{$method}{resources};
                 }
             }
@@ -449,81 +437,78 @@ sub webinfo {
     my $domain = shift;
     my %res    = ();
 
-    my $ua = LWP::UserAgent->new(max_size => 1024 * 1024, timeout => 30)
-      ;    # Don't get more content than one megabyte
-    $ua->agent('.SE Zonestat');
+    my $ua = LWP::UserAgent->new( max_size => 1024 * 1024, timeout => 30 );    # Don't get more content than one megabyte
+    $ua->agent( '.SE Zonestat' );
 
   DOMAIN:
-    foreach
-      my $u ('http://www.' . $domain . '/', 'https://www.' . $domain . '/')
-    {
+    foreach my $u ( 'http://www.' . $domain . '/', 'https://www.' . $domain . '/' ) {
         my $https;
         my $ip;
         my $ssl;
         my $res;
         my $robots;
 
-        if ($u =~ m|^http://www\.([^/]+)|) {
+        if ( $u =~ m|^http://www\.([^/]+)| ) {
             $https = 0;
-        } elsif ($u =~ m|^https://www\.([^/]+)|) {
+        }
+        elsif ( $u =~ m|^https://www\.([^/]+)| ) {
             $https = 1;
-        } else {
+        }
+        else {
             print STDERR "Failed to parse: $u\n";
             next;
         }
 
-        $ssl = _https_test('www.' . $domain) if $https;
+        $ssl = _https_test( 'www.' . $domain ) if $https;
 
-        if ($https and (!defined($ssl) or (!$ssl->can('peer_certificate')))) {
+        if ( $https and ( !defined( $ssl ) or ( !$ssl->can( 'peer_certificate' ) ) ) ) {
 
             # We have an HTTPS URL, but can't establish an SSL connection. Skip.
             next DOMAIN;
         }
 
-        $res    = $ua->get($u);
-        $robots = check_robots_txt($u);
+        $res    = $ua->get( $u );
+        $robots = check_robots_txt( $u );
 
-        my $rcount = scalar($res->redirects);
+        my $rcount = scalar( $res->redirects );
         my $rurls = join ' ', map { $_->base } $res->redirects;
         $rurls .= ' ' . $res->base;
 
         # Don't try to deal with anything but HTTP.
         next DOMAIN
-          unless ($res->base->scheme eq 'http'
-            or $res->base->scheme eq 'https');
+          unless ( $res->base->scheme eq 'http'
+            or $res->base->scheme eq 'https' );
 
-        my ($tld) = $res->base->host =~ m|\.([-_0-9a-z]+)(:\d+)?$|i;
+        my ( $tld ) = $res->base->host =~ m|\.([-_0-9a-z]+)(:\d+)?$|i;
 
-        if ($res->header('Client-Peer')) {
+        if ( $res->header( 'Client-Peer' ) ) {
 
             # Works with LWP 5.836
             # Not guaranteed to work with later versions!
-            $ip = $res->header('Client-Peer');
+            $ip = $res->header( 'Client-Peer' );
             $ip =~ s/:\d+$//;
         }
 
         my $issuer;
 
-        if ($https and $ssl) {
-            $issuer = $ssl->peer_certificate('issuer');
+        if ( $https and $ssl ) {
+            $issuer = $ssl->peer_certificate( 'issuer' );
         }
-        if (my $s = $res->header('Server')) {
-            foreach my $r (keys %server_regexps) {
-                if ($s =~ $r) {
-                    my ($type, $encoding) =
-                      content_type_from_header($res->header('Content-Type'));
+        if ( my $s = $res->header( 'Server' ) ) {
+            foreach my $r ( keys %server_regexps ) {
+                if ( $s =~ $r ) {
+                    my ( $type, $encoding ) = content_type_from_header( $res->header( 'Content-Type' ) );
                     $res{ $https ? 'https' : 'http' } = {
-                        type          => $server_regexps{$r},
-                        version       => $1,
-                        raw_type      => $s,
-                        https         => $https,
-                        issuer        => $issuer,
-                        url           => $u,
-                        response_code => ('' . $res->code),
-                        content_type  => $type,
-                        charset       => $encoding,
-                        content_length =>
-                          scalar($res->header('Content-Length')),
+                        type           => $server_regexps{$r},
+                        version        => $1,
+                        raw_type       => $s,
+                        https          => $https,
+                        issuer         => $issuer,
+                        url            => $u,
+                        response_code  => ( '' . $res->code ),
+                        content_type   => $type,
+                        charset        => $encoding,
+                        content_length => scalar( $res->header( 'Content-Length' ) ),
                         redirect_count => $rcount,
                         redirect_urls  => $rurls,
                         ending_tld     => $tld,
@@ -535,18 +520,17 @@ sub webinfo {
                 }
             }
         }
-        my ($type, $encoding) =
-          content_type_from_header($res->header('Content-Type'));
+        my ( $type, $encoding ) = content_type_from_header( $res->header( 'Content-Type' ) );
         my %tmp;
         $tmp{type}           = 'Unknown';
         $tmp{version}        = undef;
         $tmp{https}          = $https;
-        $tmp{raw_type}       = $res->header('Server');
+        $tmp{raw_type}       = $res->header( 'Server' );
         $tmp{url}            = $u;
         $tmp{response_code}  = $res->code;
         $tmp{content_type}   = $type;
         $tmp{charset}        = $encoding;
-        $tmp{content_length} = scalar($res->header('Content-Length'));
+        $tmp{content_length} = scalar( $res->header( 'Content-Length' ) );
         $tmp{redirect_count} = $rcount;
         $tmp{redirect_urls}  = $rurls;
         $tmp{ending_tld}     = $tld;
@@ -562,20 +546,20 @@ sub webinfo {
 sub geoip {
     my $self    = shift;
     my $hostref = shift;
-    my $geoip   = Geo::IP->open($self->cget(qw[daemon geoip]));
+    my $geoip   = Geo::IP->open( $self->cget( qw[daemon geoip] ) );
     my @res     = ();
 
-    foreach my $ns (@{ $hostref->{nameservers} }) {
-        my $g  = $geoip->record_by_addr($ns->{address});
-        my $ip = Net::IP->new($ns->{address});
+    foreach my $ns ( @{ $hostref->{nameservers} } ) {
+        my $g  = $geoip->record_by_addr( $ns->{address} );
+        my $ip = Net::IP->new( $ns->{address} );
         my $ipversion;
-        $ipversion = $ip->version if defined($ip);
-        if ($g) {
+        $ipversion = $ip->version if defined( $ip );
+        if ( $g ) {
             push @res,
               {
                 address   => $ns->{address},
                 ipversion => $ipversion,
-                asn       => $asn->lookup($ns->{address}),
+                asn       => $asn->lookup( $ns->{address} ),
                 type      => 'nameserver',
                 country   => $g->country_name,
                 code      => $g->country_code,
@@ -584,12 +568,13 @@ sub geoip {
                 latitude  => $g->latitude,
                 name      => $ns->{name},
               };
-        } else {
+        }
+        else {
             push @res,
               {
                 address   => $ns->{address},
                 ipversion => $ipversion,
-                asn       => $asn->lookup($ns->{address}),
+                asn       => $asn->lookup( $ns->{address} ),
                 type      => 'nameserver',
                 country   => undef,
                 code      => undef,
@@ -601,18 +586,18 @@ sub geoip {
         }
     }
 
-    foreach my $mx (@{ $hostref->{mailservers} }) {
-        foreach my $addr ($dns->find_addresses($mx->{name}, 'IN')) {
-            my $g  = $geoip->record_by_addr($addr);
-            my $ip = Net::IP->new($addr);
+    foreach my $mx ( @{ $hostref->{mailservers} } ) {
+        foreach my $addr ( $dns->find_addresses( $mx->{name}, 'IN' ) ) {
+            my $g  = $geoip->record_by_addr( $addr );
+            my $ip = Net::IP->new( $addr );
             my $ipversion;
-            $ipversion = $ip->version if defined($ip);
-            if ($g) {
+            $ipversion = $ip->version if defined( $ip );
+            if ( $g ) {
                 push @res,
                   {
                     address   => $addr,
                     ipversion => $ipversion,
-                    asn       => $asn->lookup($addr),
+                    asn       => $asn->lookup( $addr ),
                     type      => 'mailserver',
                     country   => $g->country_name,
                     code      => $g->country_code,
@@ -621,12 +606,13 @@ sub geoip {
                     latitude  => $g->latitude,
                     name      => $mx->{name},
                   };
-            } else {
+            }
+            else {
                 push @res,
                   {
                     address   => $addr,
                     ipversion => $ipversion,
-                    asn       => $asn->lookup($addr),
+                    asn       => $asn->lookup( $addr ),
                     type      => 'mailserver',
                     country   => undef,
                     code      => undef,
@@ -639,17 +625,17 @@ sub geoip {
         }
     }
 
-    foreach my $ws (@{ $hostref->{webservers} }) {
-        my $g  = $geoip->record_by_addr($ws->{address});
-        my $ip = Net::IP->new($ws->{address});
+    foreach my $ws ( @{ $hostref->{webservers} } ) {
+        my $g  = $geoip->record_by_addr( $ws->{address} );
+        my $ip = Net::IP->new( $ws->{address} );
         my $ipversion;
-        $ipversion = $ip->version if defined($ip);
-        if ($g) {
+        $ipversion = $ip->version if defined( $ip );
+        if ( $g ) {
             push @res,
               {
                 address   => $ws->{address},
                 ipversion => $ipversion,
-                asn       => $asn->lookup($ws->{address}),
+                asn       => $asn->lookup( $ws->{address} ),
                 type      => 'webserver',
                 country   => $g->country_name,
                 code      => $g->country_code,
@@ -658,12 +644,13 @@ sub geoip {
                 latitude  => $g->latitude,
                 name      => $ws->{name},
               };
-        } else {
+        }
+        else {
             push @res,
               {
                 address   => $ws->{address},
                 ipversion => $ipversion,
-                asn       => $asn->lookup($ws->{address}),
+                asn       => $asn->lookup( $ws->{address} ),
                 type      => 'webserver',
                 country   => undef,
                 code      => undef,
@@ -683,13 +670,13 @@ sub geoip {
 ###
 
 sub dnscheck_log_cleanup {
-    my @raw    = @{ shift(@_) };
+    my @raw    = @{ shift( @_ ) };
     my @cooked = ();
 
-    foreach my $r (@raw) {
+    foreach my $r ( @raw ) {
 
         # Not all of these are used, but kept for documenting what data is what.
-        my ($tstamp, $context, $level, $tag, $moduleid, $parentid, @args) = @$r;
+        my ( $tstamp, $context, $level, $tag, $moduleid, $parentid, @args ) = @$r;
         next if $level eq 'DEBUG' and !$debug;
         next if $tag =~ m/:(BEGIN|END)$/;
 
@@ -711,15 +698,15 @@ sub extract_hosts {
     my %res;
     my %asn;
 
-    foreach my $r (@$dcref) {
-        if ($r->{tag} eq 'DNS:NAMESERVER_FOUND') {
+    foreach my $r ( @$dcref ) {
+        if ( $r->{tag} eq 'DNS:NAMESERVER_FOUND' ) {
             next unless $r->{args}[0] eq $domain;
             push @{ $res{nameservers} },
               {
                 domain  => $r->{args}[0],
                 name    => $r->{args}[2],
                 address => $r->{args}[3],
-                asn     => $asn->lookup($r->{args}[3]),
+                asn     => $asn->lookup( $r->{args}[3] ),
               };
         }
     }
@@ -728,19 +715,19 @@ sub extract_hosts {
 }
 
 sub run_with_timeout {
-    my ($cref, $timeout) = @_;
+    my ( $cref, $timeout ) = @_;
     my $res = '';
 
-    my $mask      = POSIX::SigSet->new(SIGALRM);
-    my $action    = POSIX::SigAction->new(sub { die "timeout\n" }, $mask);
+    my $mask      = POSIX::SigSet->new( SIGALRM );
+    my $action    = POSIX::SigAction->new( sub { die "timeout\n" }, $mask );
     my $oldaction = POSIX::SigAction->new;
-    sigaction(SIGALRM, $action, $oldaction);
+    sigaction( SIGALRM, $action, $oldaction );
     eval {
-        alarm($timeout);
+        alarm( $timeout );
         $res = $cref->();
-        alarm(0);
+        alarm( 0 );
     };
-    sigaction(SIGALRM, $oldaction);
+    sigaction( SIGALRM, $oldaction );
     return $res;
 }
 
@@ -748,11 +735,11 @@ sub get_mailservers {
     my $domain = shift;
     my @res;
 
-    my $r = $dns->query_resolver($domain, 'MX', 'IN');
-    if (defined($r) and $r->header->ancount > 0) {
-        foreach my $rr ($r->answer) {
+    my $r = $dns->query_resolver( $domain, 'MX', 'IN' );
+    if ( defined( $r ) and $r->header->ancount > 0 ) {
+        foreach my $rr ( $r->answer ) {
             next unless $rr->type eq 'MX';
-            foreach my $addr ($dns->find_addresses($rr->exchange, 'IN')) {
+            foreach my $addr ( $dns->find_addresses( $rr->exchange, 'IN' ) ) {
                 push @res, { name => $rr->exchange, address => $addr };
             }
         }
@@ -765,10 +752,10 @@ sub get_webservers {
     my $domain = shift;
     my @res;
 
-    my $r = $dns->query_resolver("www.$domain", 'A', 'IN');
-    if (defined($r) and $r->header->ancount > 0) {
-        foreach my $rr ($r->answer) {
-            next unless ($rr->type eq 'A' or $rr->type eq 'AAAA');
+    my $r = $dns->query_resolver( "www.$domain", 'A', 'IN' );
+    if ( defined( $r ) and $r->header->ancount > 0 ) {
+        foreach my $rr ( $r->answer ) {
+            next unless ( $rr->type eq 'A' or $rr->type eq 'AAAA' );
             push @res, { name => $rr->name, address => $rr->address };
         }
     }
@@ -777,21 +764,21 @@ sub get_webservers {
 }
 
 sub _https_test {
-    my ($host) = @_;
+    my ( $host ) = @_;
 
-    my $s = IO::Socket::INET->new(PeerAddr => $host, PeerPort => 443);
+    my $s = IO::Socket::INET->new( PeerAddr => $host, PeerPort => 443 );
 
-    if (!defined($s)) {
+    if ( !defined( $s ) ) {
         return;
     }
 
     eval {
         $SIG{ALRM} = sub { die "timeout\n" };
-        alarm(5);
-        IO::Socket::SSL->start_SSL($s);
-        alarm(0);
+        alarm( 5 );
+        IO::Socket::SSL->start_SSL( $s );
+        alarm( 0 );
     };
-    if ($@) {
+    if ( $@ ) {
         die unless $@ eq "timeout\n";
         return;
     }
@@ -800,35 +787,35 @@ sub _https_test {
 }
 
 sub check_robots_txt {
-    my ($url) = @_;
+    my ( $url ) = @_;
 
-    return !!get($url . 'robots.txt');
+    return !!get( $url . 'robots.txt' );
 }
 
 sub content_type_from_header {
     my @data = @_;
-    my ($type, $encoding);
+    my ( $type, $encoding );
 
-    foreach my $h (@data) {
-        my ($t, $e) = $h =~ m|^([^/]+/[-\w]+)(?:;\s*charset\s*=\s*(\S+))?|;
-        unless ($type) {
+    foreach my $h ( @data ) {
+        my ( $t, $e ) = $h =~ m|^([^/]+/[-\w]+)(?:;\s*charset\s*=\s*(\S+))?|;
+        unless ( $type ) {
             $type = $t;
         }
-        unless ($encoding) {
+        unless ( $encoding ) {
             $encoding = $e;
         }
-        unless ($type or $encoding) {
+        unless ( $type or $encoding ) {
             print STDERR "Failed to parse Content-Type header: $h\n";
         }
 
     }
 
-    if ($encoding) {
-        $encoding = lc($encoding);
+    if ( $encoding ) {
+        $encoding = lc( $encoding );
         $encoding =~ s/^utf[^-]/utf-/;
     }
 
-    return ($type, $encoding);
+    return ( $type, $encoding );
 }
 
 sub sslscan_evaluate {
@@ -838,54 +825,56 @@ sub sslscan_evaluate {
     my %result;
 
     # Check renegotiation status.
-    if ($data->{renegotiation}{secure} and $data->{renegotiation}{supported}) {
+    if ( $data->{renegotiation}{secure} and $data->{renegotiation}{supported} ) {
         $result{renegotiation} = 'secure';
-    } elsif ($data->{renegotiation}{supported}) {
+    }
+    elsif ( $data->{renegotiation}{supported} ) {
         $result{renegotiation} = 'insecure';
-    } else {
+    }
+    else {
         $result{renegotiation} = 'none';
     }
 
     my @default = ();
-    if (defined($data->{defaultcipher})
-        and ref($data->{defaultcipher}) eq 'ARRAY')
+    if ( defined( $data->{defaultcipher} )
+        and ref( $data->{defaultcipher} ) eq 'ARRAY' )
     {
         @default = @{ $data->{defaultcipher} };
-    } elsif (defined($data->{defaultcipher})
-        and ref($data->{defaultcipher}) eq 'HASH')
+    }
+    elsif ( defined( $data->{defaultcipher} )
+        and ref( $data->{defaultcipher} ) eq 'HASH' )
     {
-        @default = ($data->{defaultcipher});
+        @default = ( $data->{defaultcipher} );
     }
 
     # Check support for HTTPS
-    $result{https_support} = (@default > 0);
+    $result{https_support} = ( @default > 0 );
 
     # Check support for SSL versions
-    $result{sslv2} = !!(grep { $_->{sslversion} eq 'SSLv2' } @default);
-    $result{sslv3} = !!(grep { $_->{sslversion} eq 'SSLv3' } @default);
-    $result{tlsv1} = !!(grep { $_->{sslversion} eq 'TLSv1' } @default);
+    $result{sslv2} = !!( grep { $_->{sslversion} eq 'SSLv2' } @default );
+    $result{sslv3} = !!( grep { $_->{sslversion} eq 'SSLv3' } @default );
+    $result{tlsv1} = !!( grep { $_->{sslversion} eq 'TLSv1' } @default );
 
     # We're going to traverse this list a few times.
     my @cipher;
-    if (defined($data->{cipher}) and ref($data->{cipher}) eq 'ARRAY') {
+    if ( defined( $data->{cipher} ) and ref( $data->{cipher} ) eq 'ARRAY' ) {
         @cipher = @{ $data->{cipher} };
-    } elsif (defined($data->{cipher}) and ref($data->{cipher}) eq 'HASH') {
-        @cipher = ($data->{cipher});
+    }
+    elsif ( defined( $data->{cipher} ) and ref( $data->{cipher} ) eq 'HASH' ) {
+        @cipher = ( $data->{cipher} );
     }
     @cipher = grep { $_->{status} eq 'accepted' } @cipher;
 
     # Is authentication without key permitted?
-    $result{no_key_auth} = !!(grep { $_->{au} eq 'None' } @cipher);
+    $result{no_key_auth} = !!( grep { $_->{au} eq 'None' } @cipher );
 
-    $result{no_encryption}   = !!(grep { $_->{bits} == 0 } @cipher);
-    $result{weak_encryption} = !!(grep { $_->{bits} < 128 } @cipher);
-    $result{medium_encryption} =
-      !!(grep { $_->{bits} >= 128 and $_->{bits} < 256 } @cipher);
-    $result{strong_encryption} = !!(grep { $_->{bits} >= 256 } @cipher);
+    $result{no_encryption}     = !!( grep { $_->{bits} == 0 } @cipher );
+    $result{weak_encryption}   = !!( grep { $_->{bits} < 128 } @cipher );
+    $result{medium_encryption} = !!( grep { $_->{bits} >= 128 and $_->{bits} < 256 } @cipher );
+    $result{strong_encryption} = !!( grep { $_->{bits} >= 256 } @cipher );
 
     # This relies on the special EV OID _not_ getting translated to a name.
-    $result{ev_cert} =
-      !!(index($data->{certificate}{subject}, '1.3.6.1.4.1.311.60.2.1.3') >= 0);
+    $result{ev_cert} = !!( index( $data->{certificate}{subject}, '1.3.6.1.4.1.311.60.2.1.3' ) >= 0 );
 
     return \%result;
 }
@@ -894,28 +883,29 @@ sub https_known_ca {
     my $self   = shift;
     my $server = shift;
 
-    my $openssl  = $self->cget(qw[zonestat openssl]);
-    my $certfile = $self->cget(qw[zonestat cacertfile]);
+    my $openssl  = $self->cget( qw[zonestat openssl] );
+    my $certfile = $self->cget( qw[zonestat cacertfile] );
 
-    unless ($openssl and $certfile) {
+    unless ( $openssl and $certfile ) {
         return;
     }
 
-    unless (-x $openssl and -r $certfile) {
+    unless ( -x $openssl and -r $certfile ) {
         confess "$openssl not executable or $certfile not readable";
     }
 
-    my $raw =
-qx[$openssl s_client -CAfile $certfile -connect www.$server:443 < /dev/null 2>/dev/null];
+    my $raw = qx[$openssl s_client -CAfile $certfile -connect www.$server:443 < /dev/null 2>/dev/null];
 
-    if ($raw =~ m|Verify return code: \d+ \(([^)]+)\)|) {
+    if ( $raw =~ m|Verify return code: \d+ \(([^)]+)\)| ) {
         my $verdict = $1;
-        if ($verdict eq 'ok') {
+        if ( $verdict eq 'ok' ) {
             return { ok => 1, verdict => $verdict };
-        } else {
+        }
+        else {
             return { ok => 0, verdict => $verdict };
         }
-    } else {
+    }
+    else {
         return { ok => undef, verdict => undef };
     }
 }
@@ -931,12 +921,12 @@ sub kaminsky_check {
         nameservers => [$addr],
         recurse     => 1,
     );
-    my $p = $res->query('porttest.dns-oarc.net', 'IN', 'TXT', $addr);
+    my $p = $res->query( 'porttest.dns-oarc.net', 'IN', 'TXT', $addr );
 
-    if (defined($p) and $p->header->ancount > 0) {
-        my $r = (grep { $_->type eq 'TXT' } $p->answer)[0];
-        if ($r) {
-            my ($verdict) = $r->txtdata =~ m/ is ([A-Z]+):/;
+    if ( defined( $p ) and $p->header->ancount > 0 ) {
+        my $r = ( grep { $_->type eq 'TXT' } $p->answer )[0];
+        if ( $r ) {
+            my ( $verdict ) = $r->txtdata =~ m/ is ([A-Z]+):/;
             $verdict ||= 'UNKNOWN';
             return $verdict;
         }

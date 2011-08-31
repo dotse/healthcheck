@@ -13,29 +13,30 @@ our $VERSION = '0.02';
 
 sub login {
     my $self = shift;
-    my ($name, $pwd) = @_;
+    my ( $name, $pwd ) = @_;
 
-    return unless ($name and $pwd);
+    return unless ( $name and $pwd );
 
-    my $user = $self->by_id($name);
+    my $user = $self->by_id( $name );
     return unless $user;
 
-    if (sha1_hex($user->{user}{salt} . $pwd) eq $user->{user}{password}) {
+    if ( sha1_hex( $user->{user}{salt} . $pwd ) eq $user->{user}{password} ) {
         return $user;
-    } else {
+    }
+    else {
         return;
     }
 }
 
 sub create {
-    my ($self, $name, $password, $displayname, $email) = @_;
-    my $db = $self->db('zonestat-user');
+    my ( $self, $name, $password, $displayname, $email ) = @_;
+    my $db = $self->db( 'zonestat-user' );
 
-    croak "User $name already exists" if $db->docExists($name);
+    croak "User $name already exists" if $db->docExists( $name );
 
-    my $doc = $db->newDoc($name);
-    $doc->data->{salt}        = sha1_hex(rand());
-    $doc->data->{password}    = sha1_hex($doc->data->{salt} . $password);
+    my $doc = $db->newDoc( $name );
+    $doc->data->{salt}        = sha1_hex( rand() );
+    $doc->data->{password}    = sha1_hex( $doc->data->{salt} . $password );
     $doc->data->{email}       = $email;
     $doc->data->{displayname} = $displayname;
     $doc->data->{name}        = $name;
@@ -47,11 +48,11 @@ sub create {
 }
 
 sub by_id {
-    my $self = shift;
-    my ($id) = @_;
-    my $db   = $self->db('zonestat-user');
+    my $self   = shift;
+    my ( $id ) = @_;
+    my $db     = $self->db( 'zonestat-user' );
 
-    my $doc = $db->newDoc($id);
+    my $doc = $db->newDoc( $id );
     try {
         $doc->retrieve;
     }

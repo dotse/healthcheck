@@ -18,7 +18,7 @@ sub total_tested_domains {
     my $self = shift;
     my $tr   = shift;
 
-    my $res = $self->dbproxy('zonestat')->test_count(key => 0+$tr);
+    my $res = $self->dbproxy( 'zonestat' )->test_count( key => 0 + $tr );
 
     return $res->{rows}[0]{value};
 }
@@ -31,12 +31,12 @@ sub number_of_domains_with_message {
     my @trs   = @_;
     my %res;
 
-    my $dbp = $self->dbproxy('zonestat');
-    foreach my $tr (@trs) {
+    my $dbp = $self->dbproxy( 'zonestat' );
+    foreach my $tr ( @trs ) {
         my $tmp = $dbp->check_withmsg(
             group    => 1,
-            startkey => [$tr, $level, 'A'],
-            endkey   => [$tr, $level, 'z'],
+            startkey => [ $tr, $level, 'A' ],
+            endkey   => [ $tr, $level, 'z' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -46,16 +46,16 @@ sub number_of_domains_with_message {
 
 sub number_of_servers_with_software {
     my $self = shift;
-    my ($https, @tr) = @_;
+    my ( $https, @tr ) = @_;
     my %res;
     my $protocol = $https ? 'https' : 'http';
 
-    my $dbp = $self->dbproxy('zonestat');
-    foreach my $tr (@tr) {
+    my $dbp = $self->dbproxy( 'zonestat' );
+    foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_servertype(
             group    => 1,
-            startkey => [$tr, $protocol, undef],
-            endkey   => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+            startkey => [ $tr, $protocol, undef ],
+            endkey   => [ $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -65,16 +65,16 @@ sub number_of_servers_with_software {
 
 sub webservers_by_responsecode {
     my $self = shift;
-    my ($https, @tr) = @_;
+    my ( $https, @tr ) = @_;
     my %res;
     my $protocol = $https ? 'https' : 'http';
 
-    my $dbp = $self->dbproxy('zonestat');
-    foreach my $tr (@tr) {
+    my $dbp = $self->dbproxy( 'zonestat' );
+    foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_response(
             group    => 1,
-            startkey => [$tr, $protocol, undef],
-            endkey   => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+            startkey => [ $tr, $protocol, undef ],
+            endkey   => [ $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -84,16 +84,16 @@ sub webservers_by_responsecode {
 
 sub webservers_by_contenttype {
     my $self = shift;
-    my ($https, @tr) = @_;
+    my ( $https, @tr ) = @_;
     my %res;
     my $protocol = $https ? 'https' : 'http';
 
-    my $dbp = $self->dbproxy('zonestat');
-    foreach my $tr (@tr) {
+    my $dbp = $self->dbproxy( 'zonestat' );
+    foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_contenttype(
             group    => 1,
-            startkey => [$tr, $protocol, undef],
-            endkey   => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+            startkey => [ $tr, $protocol, undef ],
+            endkey   => [ $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -103,16 +103,16 @@ sub webservers_by_contenttype {
 
 sub webservers_by_charset {
     my $self = shift;
-    my ($https, @tr) = @_;
+    my ( $https, @tr ) = @_;
     my %res;
     my $protocol = $https ? 'https' : 'http';
 
-    my $dbp = $self->dbproxy('zonestat');
-    foreach my $tr (@tr) {
+    my $dbp = $self->dbproxy( 'zonestat' );
+    foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_charset(
             group    => 1,
-            startkey => [$tr, $protocol, undef],
-            endkey   => [$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz'],
+            startkey => [ $tr, $protocol, undef ],
+            endkey   => [ $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -135,18 +135,18 @@ sub all_dnscheck_tests {
 sub all_domainsets {
     my $self = shift;
 
-    my $dbp = $self->dbproxy('zonestat-dset');
-    return map { $_->{key} } @{ $dbp->util_set(group => 'true')->{rows} };
+    my $dbp = $self->dbproxy( 'zonestat-dset' );
+    return map { $_->{key} } @{ $dbp->util_set( group => 'true' )->{rows} };
 }
 
 sub tests_with_max_severity {
     my $self    = shift;
     my $testrun = shift;
 
-    my $dbp = $self->dbproxy('zonestat');
+    my $dbp = $self->dbproxy( 'zonestat' );
     my $res = $dbp->check_maxseverity(
-        startkey => ['' . $testrun, 'A'],
-        endkey   => ['' . $testrun, 'Z'],
+        startkey => [ '' . $testrun, 'A' ],
+        endkey   => [ '' . $testrun, 'Z' ],
         group    => 'true'
     )->{rows};
 
@@ -162,40 +162,40 @@ sub domainset_being_tested {
 
 sub top_foo_servers {
     my $self   = shift;
-    my $kind   = lc(shift);
+    my $kind   = lc( shift );
     my $tr     = shift;
     my $number = shift || 25;
     my @res;
 
-    my $dbp     = $self->dbproxy('zonestat');
+    my $dbp     = $self->dbproxy( 'zonestat' );
     my $endkind = $kind;
     $endkind++;
     my $tmp = $dbp->server_data(
         group_level => 9,
-        startkey    => [0+$tr, $kind],
-        endkey      => [0+$tr, $endkind],
+        startkey    => [ 0 + $tr, $kind ],
+        endkey      => [ 0 + $tr, $endkind ],
     );
 
-    foreach my $e (@{ $tmp->{rows} }) {
-        push @res, [$e->{value}, @{ $e->{key} }[2 .. 8]];
+    foreach my $e ( @{ $tmp->{rows} } ) {
+        push @res, [ $e->{value}, @{ $e->{key} }[ 2 .. 8 ] ];
     }
 
-    return ((sort { $b->[0] <=> $a->[0] } @res)[0 .. $number - 1]);
+    return ( ( sort { $b->[0] <=> $a->[0] } @res )[ 0 .. $number - 1 ] );
 }
 
 sub top_dns_servers {
     my $self = shift;
-    return $self->top_foo_servers('nameserver', @_);
+    return $self->top_foo_servers( 'nameserver', @_ );
 }
 
 sub top_http_servers {
     my $self = shift;
-    return $self->top_foo_servers('webserver', @_);
+    return $self->top_foo_servers( 'webserver', @_ );
 }
 
 sub top_smtp_servers {
     my $self = shift;
-    return $self->top_foo_servers('mailserver', @_);
+    return $self->top_foo_servers( 'mailserver', @_ );
 }
 
 sub nameservers_per_asn {
@@ -203,12 +203,12 @@ sub nameservers_per_asn {
     my @tr   = @_;
     my %res;
 
-    my $dbp = $self->dbproxy('zonestat');
-    foreach my $t (@tr) {
+    my $dbp = $self->dbproxy( 'zonestat' );
+    foreach my $t ( @tr ) {
         my $tmp = $dbp->server_ns_per_asn(
             group    => 1,
-            startkey => [$t + 0],
-            endkey   => [$t + 1],
+            startkey => [ $t + 0 ],
+            endkey   => [ $t + 1 ],
         );
         $res{$t} = { map { $_->{key}[1] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -219,127 +219,127 @@ sub nameservers_per_asn {
 sub ipv6_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my ($total, $count);
+    my ( $total, $count );
 
-    my $dbp = $self->dbproxy('zonestat');
-    my $tmp = $dbp->server_ipv6_capable(group => 1, key => 0+$tr)->{rows};
+    my $dbp = $self->dbproxy( 'zonestat' );
+    my $tmp = $dbp->server_ipv6_capable( group => 1, key => 0 + $tr )->{rows};
 
-    if ($tmp) {
-        ($count, $total) = @{ $tmp->[0]{value} };
+    if ( $tmp ) {
+        ( $count, $total ) = @{ $tmp->[0]{value} };
     }
 
-    return (($count / $total), $total);    # Percentage, number of v6-domains
+    return ( ( $count / $total ), $total );    # Percentage, number of v6-domains
 }
 
 sub multihome_percentage_for_testrun {
     my $self = shift;
-    my ($tr, $ipv6) = @_;
-    my $dbp = $self->dbproxy('zonestat');
-    my $tmp = $dbp->server_multihomed(group => 1, key => 0+$tr)->{rows}[0]{value};
-    my ($percentage, $total);
+    my ( $tr, $ipv6 ) = @_;
+    my $dbp = $self->dbproxy( 'zonestat' );
+    my $tmp = $dbp->server_multihomed( group => 1, key => 0 + $tr )->{rows}[0]{value};
+    my ( $percentage, $total );
 
-    if ($tmp) {
-        my ($v6, $v4);
-        ($v6, $v4, $total) = @{$tmp};
-        if ($ipv6) {
+    if ( $tmp ) {
+        my ( $v6, $v4 );
+        ( $v6, $v4, $total ) = @{$tmp};
+        if ( $ipv6 ) {
             $percentage = $v6 / $total;
-        } else {
+        }
+        else {
             $percentage = $v4 / $total;
         }
     }
 
-    return (100 * $percentage, $total);
+    return ( 100 * $percentage, $total );
 }
 
 sub dnssec_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $dbp  = $self->dbproxy('zonestat');
-    my $tmp =
-      $dbp->server_dnssec_capable(group => 1, key => 0+$tr)->{rows}[0]{value};
+    my $dbp  = $self->dbproxy( 'zonestat' );
+    my $tmp  = $dbp->server_dnssec_capable( group => 1, key => 0 + $tr )->{rows}[0]{value};
 
-    unless ($tmp) {
-        return (undef, undef);
+    unless ( $tmp ) {
+        return ( undef, undef );
     }
 
-    my ($count, $total) = @$tmp;
+    my ( $count, $total ) = @$tmp;
 
-    return (100 * ($count / $total), $total);
+    return ( 100 * ( $count / $total ), $total );
 }
 
 sub recursing_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $dbp  = $self->dbproxy('zonestat');
-    my $tmp  = $dbp->server_recursing(group => 1, key => 0+$tr)->{rows}[0]{value};
+    my $dbp  = $self->dbproxy( 'zonestat' );
+    my $tmp  = $dbp->server_recursing( group => 1, key => 0 + $tr )->{rows}[0]{value};
 
-    unless ($tmp) {
-        return (undef, undef);
+    unless ( $tmp ) {
+        return ( undef, undef );
     }
 
-    my ($count, $total) = @$tmp;
+    my ( $count, $total ) = @$tmp;
 
-    return (100 * ($count / $total), $total);
+    return ( 100 * ( $count / $total ), $total );
 }
 
 sub adsp_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $dbp  = $self->dbproxy('zonestat');
-    my $tmp  = $dbp->server_adsp(group => 1, key => 0+$tr)->{rows}[0]{value};
+    my $dbp  = $self->dbproxy( 'zonestat' );
+    my $tmp  = $dbp->server_adsp( group => 1, key => 0 + $tr )->{rows}[0]{value};
 
-    unless ($tmp) {
-        return (undef, undef);
+    unless ( $tmp ) {
+        return ( undef, undef );
     }
 
-    my ($count, $total) = @$tmp;
+    my ( $count, $total ) = @$tmp;
 
-    return (100 * ($count / $total), $total);
+    return ( 100 * ( $count / $total ), $total );
 }
 
 sub spf_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $dbp  = $self->dbproxy('zonestat');
-    my $tmp  = $dbp->server_spf(group => 1, key => 0+$tr)->{rows}[0]{value};
+    my $dbp  = $self->dbproxy( 'zonestat' );
+    my $tmp  = $dbp->server_spf( group => 1, key => 0 + $tr )->{rows}[0]{value};
 
-    unless ($tmp) {
-        return (undef, undef);
+    unless ( $tmp ) {
+        return ( undef, undef );
     }
 
-    my ($count, $total) = @$tmp;
+    my ( $count, $total ) = @$tmp;
 
-    return (100 * ($count / $total), $total);
+    return ( 100 * ( $count / $total ), $total );
 }
 
 sub starttls_percentage_for_testrun {
     my $self = shift;
     my $tr   = shift;
-    my $dbp  = $self->dbproxy('zonestat');
-    my $tmp  = $dbp->server_starttls(group => 1, key => 0+$tr)->{rows}[0]{value};
+    my $dbp  = $self->dbproxy( 'zonestat' );
+    my $tmp  = $dbp->server_starttls( group => 1, key => 0 + $tr )->{rows}[0]{value};
 
-    unless ($tmp) {
-        return (undef, undef);
+    unless ( $tmp ) {
+        return ( undef, undef );
     }
 
-    my ($count, $total) = @$tmp;
+    my ( $count, $total ) = @$tmp;
 
-    return (100 * ($count / $total), $total);
+    return ( 100 * ( $count / $total ), $total );
 }
 
 sub nameserver_count {
     my $self = shift;
-    my ($tr, $ipv6) = @_;
-    my $dbp = $self->dbproxy('zonestat');
+    my ( $tr, $ipv6 ) = @_;
+    my $dbp = $self->dbproxy( 'zonestat' );
     my $tmp = $dbp->server_ns_count(
         group    => 1,
-        startkey => [0+$tr, $ipv6 ? "6" : "4"],
-        endkey   => [0+$tr, $ipv6 ? "7" : "5"]
+        startkey => [ 0 + $tr, $ipv6 ? "6" : "4" ],
+        endkey   => [ 0 + $tr, $ipv6 ? "7" : "5" ]
     )->{rows};
 
     warn "Warning: This method is horribly inefficient, and should not be used";
-    unless ($tmp) {
-        return (undef, undef);
+    unless ( $tmp ) {
+        return ( undef, undef );
     }
 
     return scalar @$tmp;
@@ -347,20 +347,20 @@ sub nameserver_count {
 
 sub mailservers_in_sweden {
     my $self = shift;
-    my ($tr, $ipv6) = @_;
-    my $dbp = $self->dbproxy('zonestat');
-    my $tmp =
-      $dbp->server_mx_in_sweden(group => 1, key => 0+$tr)->{rows}[0]{value};
+    my ( $tr, $ipv6 ) = @_;
+    my $dbp = $self->dbproxy( 'zonestat' );
+    my $tmp = $dbp->server_mx_in_sweden( group => 1, key => 0 + $tr )->{rows}[0]{value};
 
-    unless ($tmp) {
-        return (undef, undef);
+    unless ( $tmp ) {
+        return ( undef, undef );
     }
 
-    my ($v6count, $v4count, $total) = @$tmp;
+    my ( $v6count, $v4count, $total ) = @$tmp;
 
-    if ($ipv6) {
+    if ( $ipv6 ) {
         return $v6count;
-    } else {
+    }
+    else {
         return $v4count;
     }
 }
@@ -370,8 +370,8 @@ sub message_bands {
     my @tr   = @_;
     my %res;
 
-    foreach my $tr (@tr) {
-        my $res = $self->dbproxy('zonestat')->check_bands(
+    foreach my $tr ( @tr ) {
+        my $res = $self->dbproxy( 'zonestat' )->check_bands(
             group => 'true',
             key   => "$tr",
         )->{rows};
@@ -383,7 +383,7 @@ sub message_bands {
 
 sub lookup_desc {
     my $self = shift;
-    my ($message) = @_;
+    my ( $message ) = @_;
 
     return $locale->{messages}{$message}{descr};
 }
@@ -393,11 +393,11 @@ sub pageanalyzer_summary {
     my @tr   = @_;
     my %res;
 
-    foreach my $tr (@tr) {
-        my $res = $self->dbproxy('zonestat')->pageanalyze_summary(
+    foreach my $tr ( @tr ) {
+        my $res = $self->dbproxy( 'zonestat' )->pageanalyze_summary(
             group    => 'true',
-            startkey => ['' . $tr, 'A'],
-            endkey   => ['' . $tr, 'z']
+            startkey => [ '' . $tr, 'A' ],
+            endkey   => [ '' . $tr, 'z' ]
         )->{rows};
 
         $res{$tr} = { map { $_->{key}[1] => $_->{value} } @{$res} };
