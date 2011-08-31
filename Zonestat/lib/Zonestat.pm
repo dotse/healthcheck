@@ -3,6 +3,7 @@ package Zonestat;
 use 5.008008;
 use strict;
 use warnings;
+use utf8;
 
 use Config;
 use CouchDB::Client;
@@ -60,6 +61,7 @@ sub register_plugins {
         # Do something useful here
     }
 
+    return;
 }
 
 sub cget {
