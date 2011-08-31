@@ -27,7 +27,6 @@ Statweb::Controller::Root - Root Controller for Statweb
 
 =cut
 
-use Data::Dumper;
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
 
