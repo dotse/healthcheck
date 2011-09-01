@@ -365,6 +365,18 @@ sub mailservers_in_sweden {
     }
 }
 
+sub webserver_count {
+    my $self = shift;
+    my ($tr, $https) = @_;
+    my $tmp = $self->dbproxy('zonestat')->server_web(group => 1, key => 0+$tr)->{rows}[0]{value};
+
+    if ($https) {
+        return $tmp->{https}
+    } else {
+        return $tmp->{http}
+    }
+}
+
 sub message_bands {
     my $self = shift;
     my @tr   = @_;

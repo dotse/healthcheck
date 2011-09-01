@@ -150,15 +150,11 @@ sub default : Path : Args(0) {
 
     $data{distinctv6} = [map { $p->nameserver_count($_->id, 1) } @trs];
 
-=pod
-
     $data{http} =
-      [map { $_->search_related('webservers', { https => 0 })->count } @trs];
+      [map { $p->webserver_count($_->id, 0) } @trs];
 
     $data{https} =
-      [map { $_->search_related('webservers', { https => 1 })->count } @trs];
-
-=cut
+      [map { $p->webserver_count($_->id, 1) } @trs];
 
     $c->stash(
         {
