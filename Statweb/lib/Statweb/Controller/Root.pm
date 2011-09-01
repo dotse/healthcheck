@@ -72,7 +72,7 @@ sub left_bar : Private {
       grep { $_ }
       map  { $c->model('DB')->testrun($_) }
       keys %{ $c->session->{testruns} };
-    my %sets = map { $_->{set} => 1 } @runs;
+    my %sets = map { $_->domainset => 1 } @runs;
 
     $c->stash(
         {

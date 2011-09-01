@@ -358,10 +358,10 @@ sub mailservers_in_sweden {
     my ( $v6count, $v4count, $total ) = @$tmp;
 
     if ( $ipv6 ) {
-        return $v6count;
+        return (100*($v6count/$total), $v6count);
     }
     else {
-        return $v4count;
+        return (100*($v4count/$total), $v4count);
     }
 }
 
