@@ -358,22 +358,23 @@ sub mailservers_in_sweden {
     my ( $v6count, $v4count, $total ) = @$tmp;
 
     if ( $ipv6 ) {
-        return (100*($v6count/$total), $v6count);
+        return ( 100 * ( $v6count / $total ), $v6count );
     }
     else {
-        return (100*($v4count/$total), $v4count);
+        return ( 100 * ( $v4count / $total ), $v4count );
     }
 }
 
 sub webserver_count {
     my $self = shift;
-    my ($tr, $https) = @_;
-    my $tmp = $self->dbproxy('zonestat')->server_web(group => 1, key => 0+$tr)->{rows}[0]{value};
+    my ( $tr, $https ) = @_;
+    my $tmp = $self->dbproxy( 'zonestat' )->server_web( group => 1, key => 0 + $tr )->{rows}[0]{value};
 
-    if ($https) {
-        return $tmp->{https}
-    } else {
-        return $tmp->{http}
+    if ( $https ) {
+        return $tmp->{https};
+    }
+    else {
+        return $tmp->{http};
     }
 }
 
