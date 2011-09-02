@@ -31,10 +31,36 @@ sub single_domain {
     }
 
     if ( $extra->{testrun} ) {
+        my $nsdb = $self->db( 'zonestat-nameserver' );
+        foreach my $geo ( @{ $data->{geoip} } ) {
+            if ( $geo->{type} eq 'nameserver' ) {
+                my $nsid = $extra->{testrun} . '-' . $geo->{address};
+                $nsdb->newDoc(
+                    $nsid, undef,
+                    {
+                        testrun   => $extra->{testrun},
+                        address   => $geo->{address},
+                        ipversion => $geo->{ipversion},
+                    }
+                  )->create
+                  unless $nsdb->docExists( $nsid );
+            }
+        }
+
         $id = $extra->{testrun} . '-' . $domain;
     }
 
-    return $db->newDoc( $id, undef, $data )->create;
+    my $res;
+    if ( $db->docExists( $id ) ) {
+        $res = $db->newDoc( $id )->retrieve;
+        $res->data( $data );
+        $res->update;
+    }
+    else {
+        $res = $db->newDoc( $id, undef, $data )->create;
+    }
+
+    return $res;
 }
 
 sub put_in_queue {

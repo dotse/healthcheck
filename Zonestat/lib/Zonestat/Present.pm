@@ -330,19 +330,16 @@ sub starttls_percentage_for_testrun {
 sub nameserver_count {
     my $self = shift;
     my ( $tr, $ipv6 ) = @_;
-    my $dbp = $self->dbproxy( 'zonestat' );
-    my $tmp = $dbp->server_ns_count(
-        group    => 1,
-        startkey => [ 0 + $tr, $ipv6 ? "6" : "4" ],
-        endkey   => [ 0 + $tr, $ipv6 ? "7" : "5" ]
-    )->{rows};
+    my $dbp = $self->dbproxy( 'zonestat-nameserver' );
 
-    warn "Warning: This method is horribly inefficient, and should not be used";
-    unless ( $tmp ) {
-        return ( undef, undef );
-    }
+    my $tmp = $dbp->ns_count(
+        group       => 1,
+        group_level => 2,
+        startkey    => [ "$tr", $ipv6 ? "6" : "4" ],
+        endkey      => [ "$tr", $ipv6 ? "7" : "5" ]
+    )->{rows}[0]{value};
 
-    return scalar @$tmp;
+    return $tmp || 0;
 }
 
 sub mailservers_in_sweden {
