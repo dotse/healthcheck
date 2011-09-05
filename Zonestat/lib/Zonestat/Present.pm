@@ -228,7 +228,7 @@ sub ipv6_percentage_for_testrun {
         ( $count, $total ) = @{ $tmp->[0]{value} };
     }
 
-    return ( ( $count / $total ), $total );    # Percentage, number of v6-domains
+    return ( 100 * ( $count / $total ), $count );    # Percentage, number of v6-domains
 }
 
 sub multihome_percentage_for_testrun {
@@ -243,13 +243,14 @@ sub multihome_percentage_for_testrun {
         ( $v6, $v4, $total ) = @{$tmp};
         if ( $ipv6 ) {
             $percentage = $v6 / $total;
+            return ( 100 * $percentage, $v6 );
         }
         else {
             $percentage = $v4 / $total;
+            return ( 100 * $percentage, $v4 );
         }
     }
 
-    return ( 100 * $percentage, $total );
 }
 
 sub dnssec_percentage_for_testrun {
@@ -264,7 +265,7 @@ sub dnssec_percentage_for_testrun {
 
     my ( $count, $total ) = @$tmp;
 
-    return ( 100 * ( $count / $total ), $total );
+    return ( 100 * ( $count / $total ), $count );
 }
 
 sub recursing_percentage_for_testrun {
@@ -279,7 +280,7 @@ sub recursing_percentage_for_testrun {
 
     my ( $count, $total ) = @$tmp;
 
-    return ( 100 * ( $count / $total ), $total );
+    return ( 100 * ( $count / $total ), $count );
 }
 
 sub adsp_percentage_for_testrun {
@@ -294,7 +295,7 @@ sub adsp_percentage_for_testrun {
 
     my ( $count, $total ) = @$tmp;
 
-    return ( 100 * ( $count / $total ), $total );
+    return ( 100 * ( $count / $total ), $count );
 }
 
 sub spf_percentage_for_testrun {
@@ -309,7 +310,7 @@ sub spf_percentage_for_testrun {
 
     my ( $count, $total ) = @$tmp;
 
-    return ( 100 * ( $count / $total ), $total );
+    return ( 100 * ( $count / $total ), $count );
 }
 
 sub starttls_percentage_for_testrun {
@@ -324,7 +325,7 @@ sub starttls_percentage_for_testrun {
 
     my ( $count, $total ) = @$tmp;
 
-    return ( 100 * ( $count / $total ), $total );
+    return ( 100 * ( $count / $total ), $count );
 }
 
 sub nameserver_count {
