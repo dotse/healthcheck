@@ -13,6 +13,7 @@ sub all_sets {
     my $self = shift;
     my $dbp  = $self->dbproxy( 'zonestat-dset' );
 
+    ## no critic (Modules::RequireExplicitInclusion)
     return map { __PACKAGE__->new( $self->parent, $_ ) } map { $_->{key} } @{ $dbp->util_set( group => 1 )->{rows} };
 }
 
@@ -25,7 +26,11 @@ sub new {
     return $self;
 }
 
-sub name { return ( $_[0]->{name} || '' ) }
+sub name {
+    my $self = shift;
+
+    return ( $self->{name} || '' );
+}
 
 sub db {
     my $self = shift;
@@ -42,9 +47,8 @@ sub id {
 }
 
 sub add {
-    my $self    = shift;
-    my @domains = @_;
-    my $name    = $self->name;
+    my ( $self, @domains ) = @_;
+    my $name = $self->name;
 
     $self->db->bulkStore( [ map { $self->db->newDoc( $self->id( $_ ), undef, { domain => $_, set => $name } ) } @domains ] );
 

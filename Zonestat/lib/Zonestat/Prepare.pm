@@ -8,6 +8,7 @@ use POSIX 'strftime';
 use Carp;
 
 use LWP::UserAgent;
+use HTTP::Request;
 use IO::Uncompress::Gunzip;
 use File::Temp 'tempfile';
 use Data::Dumper;
@@ -22,6 +23,8 @@ sub all {
     if ( $self->fetch_zone ) {
         $self->db_import_zone;
     }
+
+    return;
 }
 
 sub fetch_zone {
@@ -35,13 +38,14 @@ sub fetch_zone {
         system $cmd;
         open my $zfile, '<', $zcfg->{datafile}
           or die "Failed to open " . $zcfg->{datafile} . ": $!\n";
-        my %flags = map { $_, 0 } @{ $zcfg->{flagdomains} };
+        my %flags = map { $_ => 0 } @{ $zcfg->{flagdomains} };
         while ( defined( my $line = <$zfile> ) ) {
             next unless $line =~ /^(\S+?)\.\s+/;
             if ( exists( $flags{$1} ) ) {
                 $flags{$1} = 1;
             }
         }
+        close( $zfile );
         if ( scalar( grep { $flags{$_} } keys %flags ) == scalar( keys %flags ) ) {
             return 1;    # File downloaded with all flag domains
         }
@@ -63,11 +67,15 @@ sub db_import_zone {
         $d->create;
     }
 
+    my @tmp;
+    my $txtdata;
+
+    ## no critic (InputOutput::RequireBriefOpen)
+    # The close() below is not soon enough for Critic, apparently. Since we rather
+    # like to keep the file open while we read from it, Critic can go hang.
     open my $fh, '<', $self->cget( qw[zone datafile] )
       or die "Failed to open zone file: $!\n";
 
-    my @tmp;
-    my $txtdata;
     while ( defined( my $line = <$fh> ) ) {
         chomp( $line );
         next if $line =~ /^\s*$/;
@@ -88,10 +96,14 @@ sub db_import_zone {
             @tmp = ();
         }
     }
+    close( $fh );
+
     $db->bulkStore( \@tmp );
     my $doc = $db->newDoc( 'se', undef )->retrieve;
     $doc->data->{time_t} = $txtdata;
     $doc->update;
+
+    return;
 }
 
 sub create_random_set {
@@ -158,6 +170,8 @@ sub update_asn_table_from_ripe {
     }
     $db->bulkStore( \@tmp );
     unlink $fname or die $!;
+
+    return;
 }
 
 # The following is pretty much the entire content of Steffen Ullrich's
@@ -165,6 +179,8 @@ sub update_asn_table_from_ripe {
 # restrictions on using modules off of CPAN on production servers. If the
 # module and its siblings ever show up in Ubuntu's package repository, we can
 # remove this as well as some hideous code in DNSCheck::Test::SMTP.
+
+## no critic (Subroutines::ProhibitNestedSubs Subroutines::ProhibitQualifiedSubDeclarations Subroutines::RequireArgUnpacking Subroutines::RequireFinalReturn Subroutines::ProhibitCallsToUnexportedSubs ValuesAndExpressions::ProhibitMixedBooleanOperators Modules::RequireExplicitInclusion TestingAndDebugging::ProhibitNoWarnings BuiltinFunctions::ProhibitStringyEval)
 
 BEGIN {
     use Net::FTP;    # tested with version 2.77

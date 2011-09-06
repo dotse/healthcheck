@@ -18,7 +18,11 @@ sub new {
     return $self;
 }
 
-sub name { return $_[0]->{name} }
+sub name {
+    my $self = shift;
+
+    return $self->{name};
+}
 
 sub db {
     my $self = shift;
@@ -41,10 +45,13 @@ sub initialize {
               }
         }
     }
+
+    return;
 }
 
 our $AUTOLOAD;
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub AUTOLOAD {
     my $self = shift;
     my $view = $AUTOLOAD;
@@ -60,7 +67,7 @@ sub AUTOLOAD {
         return $self->{$view}->( @_ );
     }
     else {
-        carp "No such view: $view";
+        croak "No such view: $view";
     }
 }
 

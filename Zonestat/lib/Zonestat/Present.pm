@@ -25,9 +25,7 @@ sub total_tested_domains {
 }
 
 sub number_of_domains_with_message {
-    my $self  = shift;
-    my $level = shift;
-    my @trs   = @_;
+    my ( $self, $level, @trs ) = @_;
     my %res;
 
     my $dbp = $self->dbproxy( 'zonestat' );
@@ -44,8 +42,7 @@ sub number_of_domains_with_message {
 }
 
 sub number_of_servers_with_software {
-    my $self = shift;
-    my ( $https, @tr ) = @_;
+    my ( $self, $https, @tr ) = @_;
     my %res;
     my $protocol = $https ? 'https' : 'http';
 
@@ -63,8 +60,7 @@ sub number_of_servers_with_software {
 }
 
 sub webservers_by_responsecode {
-    my $self = shift;
-    my ( $https, @tr ) = @_;
+    my ( $self, $https, @tr ) = @_;
     my %res;
     my $protocol = $https ? 'https' : 'http';
 
@@ -82,8 +78,7 @@ sub webservers_by_responsecode {
 }
 
 sub webservers_by_contenttype {
-    my $self = shift;
-    my ( $https, @tr ) = @_;
+    my ( $self, $https, @tr ) = @_;
     my %res;
     my $protocol = $https ? 'https' : 'http';
 
@@ -101,8 +96,7 @@ sub webservers_by_contenttype {
 }
 
 sub webservers_by_charset {
-    my $self = shift;
-    my ( $https, @tr ) = @_;
+    my ( $self, $https, @tr ) = @_;
     my %res;
     my $protocol = $https ? 'https' : 'http';
 
@@ -182,24 +176,26 @@ sub top_foo_servers {
     return ( ( sort { $b->[0] <=> $a->[0] } @res )[ 0 .. $number - 1 ] );
 }
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub top_dns_servers {
     my $self = shift;
     return $self->top_foo_servers( 'nameserver', @_ );
 }
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub top_http_servers {
     my $self = shift;
     return $self->top_foo_servers( 'webserver', @_ );
 }
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub top_smtp_servers {
     my $self = shift;
     return $self->top_foo_servers( 'mailserver', @_ );
 }
 
 sub nameservers_per_asn {
-    my $self = shift;
-    my @tr   = @_;
+    my ( $self, @tr ) = @_;
     my %res;
 
     my $dbp = $self->dbproxy( 'zonestat' );
@@ -231,8 +227,7 @@ sub ipv6_percentage_for_testrun {
 }
 
 sub multihome_percentage_for_testrun {
-    my $self = shift;
-    my ( $tr, $ipv6 ) = @_;
+    my ( $self, $tr, $ipv6 ) = @_;
     my $dbp = $self->dbproxy( 'zonestat' );
     my $tmp = $dbp->server_multihomed( group => 1, key => 0 + $tr )->{rows}[0]{value};
     my ( $percentage, $total );
@@ -328,8 +323,7 @@ sub starttls_percentage_for_testrun {
 }
 
 sub nameserver_count {
-    my $self = shift;
-    my ( $tr, $ipv6 ) = @_;
+    my ( $self, $tr, $ipv6 ) = @_;
     my $dbp = $self->dbproxy( 'zonestat-nameserver' );
 
     my $tmp = $dbp->ns_count(
@@ -343,8 +337,7 @@ sub nameserver_count {
 }
 
 sub mailservers_in_sweden {
-    my $self = shift;
-    my ( $tr, $ipv6 ) = @_;
+    my ( $self, $tr, $ipv6 ) = @_;
     my $dbp = $self->dbproxy( 'zonestat' );
     my $tmp = $dbp->server_mx_in_sweden( group => 1, key => 0 + $tr )->{rows}[0]{value};
 
@@ -363,8 +356,7 @@ sub mailservers_in_sweden {
 }
 
 sub webserver_count {
-    my $self = shift;
-    my ( $tr, $https ) = @_;
+    my ( $self, $tr, $https ) = @_;
     my $tmp = $self->dbproxy( 'zonestat' )->server_web( group => 1, key => 0 + $tr )->{rows}[0]{value};
 
     if ( $https ) {
@@ -376,8 +368,7 @@ sub webserver_count {
 }
 
 sub message_bands {
-    my $self = shift;
-    my @tr   = @_;
+    my ( $self, @tr ) = @_;
     my %res;
 
     foreach my $tr ( @tr ) {
@@ -392,15 +383,13 @@ sub message_bands {
 }
 
 sub lookup_desc {
-    my $self = shift;
-    my ( $message ) = @_;
+    my ( $self, $message ) = @_;
 
     return $locale->{messages}{$message}{descr};
 }
 
 sub pageanalyzer_summary {
-    my $self = shift;
-    my @tr   = @_;
+    my ( $self, @tr ) = @_;
     my %res;
 
     foreach my $tr ( @tr ) {

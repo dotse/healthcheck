@@ -40,6 +40,7 @@ use POSIX qw[strftime :signal_h];
 use Carp;
 use Try::Tiny;
 use Net::IP;
+use Net::SMTP;
 
 my $debug = 0;
 my $dc    = DNSCheck->new;
@@ -414,6 +415,7 @@ sub pageanalyze {
     my $python = $self->cget( qw[zonestat python] );
     my %res    = ();
 
+    ## no critic (InputOutput::RequireBriefOpen)
     if ( $padir and $python and -d $padir and -x $python ) {
         open my $stderr_save, '>&', *STDERR;
         close STDERR;
@@ -429,6 +431,7 @@ sub pageanalyze {
         }
         open STDERR, '>&', $stderr_save;
     }
+    ## use critic
 
     return \%res;
 }
@@ -462,7 +465,7 @@ sub webinfo {
 
         $ssl = _https_test( 'www.' . $domain ) if $https;
 
-        if ( $https and ( !defined( $ssl ) or ( !$ssl->can( 'peer_certificate' ) ) ) ) {
+        if ( $https && ( !defined( $ssl ) || ( !$ssl->can( 'peer_certificate' ) ) ) ) {
 
             # We have an HTTPS URL, but can't establish an SSL connection. Skip.
             next DOMAIN;
@@ -671,14 +674,15 @@ sub geoip {
 ###
 
 sub dnscheck_log_cleanup {
-    my @raw    = @{ shift( @_ ) };
-    my @cooked = ();
+    my ( $aref ) = @_;
+    my @raw      = @{$aref};
+    my @cooked   = ();
 
     foreach my $r ( @raw ) {
 
         # Not all of these are used, but kept for documenting what data is what.
         my ( $tstamp, $context, $level, $tag, $moduleid, $parentid, @args ) = @$r;
-        next if $level eq 'DEBUG' and !$debug;
+        next if $level eq 'DEBUG' and ( not $debug );
         next if $tag =~ m/:(BEGIN|END)$/;
 
         push @cooked,
@@ -715,6 +719,7 @@ sub extract_hosts {
     return %res;
 }
 
+## no critic (Modules::RequireExplicitInclusion)
 sub run_with_timeout {
     my ( $cref, $timeout ) = @_;
     my $res = '';
@@ -731,6 +736,7 @@ sub run_with_timeout {
     sigaction( SIGALRM, $oldaction );
     return $res;
 }
+## use critic
 
 sub get_mailservers {
     my $domain = shift;
@@ -773,6 +779,8 @@ sub _https_test {
         return;
     }
 
+    ## no critic (Variables::RequireLocalizedPunctuationVars)
+    # No, Critic, %SIG should not be localized. Ever. That's not how signals work.
     eval {
         $SIG{ALRM} = sub { die "timeout\n" };
         alarm( 5 );
@@ -819,6 +827,7 @@ sub content_type_from_header {
     return ( $type, $encoding );
 }
 
+## no critic (TestingAndDebugging::ProhibitNoWarnings)
 sub sslscan_evaluate {
     no warnings 'uninitialized';
     my $data = shift;
@@ -913,6 +922,8 @@ sub https_known_ca {
 
 # This methods is too slow to be useful, and only included here if we ever
 # want to use it for some special purpose.
+## no critic (Modules::RequireExplicitInclusion)
+# No, we should not include Net::DNS::Resolver ourselves, that's not how it works.
 sub kaminsky_check {
     my $self = shift;
     my $addr = shift;

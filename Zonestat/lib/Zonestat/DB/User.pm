@@ -13,8 +13,7 @@ use Carp;
 our $VERSION = '0.02';
 
 sub login {
-    my $self = shift;
-    my ( $name, $pwd ) = @_;
+    my ( $self, $name, $pwd ) = @_;
 
     return unless ( $name and $pwd );
 
@@ -49,9 +48,8 @@ sub create {
 }
 
 sub by_id {
-    my $self   = shift;
-    my ( $id ) = @_;
-    my $db     = $self->db( 'zonestat-user' );
+    my ( $self, $id ) = @_;
+    my $db = $self->db( 'zonestat-user' );
 
     my $doc = $db->newDoc( $id );
     try {

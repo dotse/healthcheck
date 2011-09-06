@@ -12,7 +12,10 @@ use Try::Tiny;
 
 our $VERSION = '0.02';
 our $debug   = 0;
+## no critic (Modules::RequireExplicitInclusion)
+# Seriously, Critic?
 STDOUT->autoflush( 1 ) if $debug;
+## use critic
 
 sub enqueue_domainset {
     die "Unimplemented.";
@@ -65,9 +68,8 @@ sub single_domain {
 }
 
 sub put_in_queue {
-    my $self      = shift;
-    my ( @qrefs ) = @_;
-    my $db        = $self->db( 'zonestat-queue' );
+    my ( $self, @qrefs ) = @_;
+    my $db = $self->db( 'zonestat-queue' );
     my @tmp;
 
     foreach my $ref ( @qrefs ) {
@@ -82,7 +84,8 @@ sub put_in_queue {
         push @tmp, $db->newDoc( $ref->{domain}, undef, $ref );
     }
 
-    $db->bulkStore( \@tmp );
+    return $db->bulkStore( \@tmp );
+
 }
 
 sub get_from_queue {
@@ -114,8 +117,7 @@ sub get_from_queue {
 }
 
 sub set_active {
-    my $self = shift;
-    my ( $id, $pid ) = @_;
+    my ( $self, $id, $pid ) = @_;
     my $db  = $self->db( 'zonestat-queue' );
     my $doc = $db->newDoc( $id );
     $doc->retrieve;
@@ -151,6 +153,8 @@ sub reset_inprogress {
         $doc->data->{inprogress} = undef;
         $doc->update;
     }
+
+    return;
 }
 
 sub requeue {

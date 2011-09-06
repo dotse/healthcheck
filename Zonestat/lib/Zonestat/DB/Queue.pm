@@ -6,6 +6,7 @@ use utf8;
 
 use base 'Zonestat::DB::Common';
 
+## no critic (Subroutines::ProhibitBuiltinHomonyms)
 sub length {
     my $self = shift;
 

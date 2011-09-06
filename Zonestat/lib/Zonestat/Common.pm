@@ -24,18 +24,21 @@ sub parent {
     return $self->{parent};
 }
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub cget {
     my $self = shift;
 
     return $self->{parent}->cget( @_ );
 }
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub db {
     my $self = shift;
 
     return $self->parent->db( @_ );
 }
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub dbproxy {
     my $self = shift;
 
@@ -54,7 +57,7 @@ sub run_id {
         }
 
         my $i = 0;
-        while ( !defined( $run_id ) and ++$i <= 10 ) {
+        while ( ( !defined( $run_id ) ) && ( ++$i <= 10 ) ) {
             try {
                 $doc->retrieve;
                 $doc->data->{counter} = $doc->data->{counter} + 1;

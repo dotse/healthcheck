@@ -11,6 +11,7 @@ our $VERSION = '0.01';
 
 our $defaults = Load( join( '', <DATA> ) );
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub new {
     my $class = shift;
     my $overrides;
@@ -32,8 +33,7 @@ sub new {
 }
 
 sub get {
-    my $self = shift;
-    my @keys = @_;
+    my ( $self, @keys ) = @_;
 
     while ( @keys ) {
         my $k = shift @keys;
@@ -44,31 +44,28 @@ sub get {
 }
 
 sub set {
-    my $self = shift;
-    my $val  = shift;
-    my @keys = @_;
+    my ( $self, $val, @keys ) = @_;
 
     while ( @keys > 1 ) {
         my $k = shift @keys;
         $self = $self->{$k};
     }
 
-    $self->{ $keys[0] } = $val;
+    return $self->{ $keys[0] } = $val;
 }
 
 # Helper methods
 
 sub deepcopy {
-    my $self = shift;
-    my ( $target, $source ) = @_;
+    my ( $self, $target, $source ) = @_;
 
     while ( my ( $k, $v ) = each %$source ) {
-        if ( !ref( $v ) or ref( $v ) ne 'HASH' ) {
+        if ( ( !ref( $v ) ) || ( ref( $v ) ne 'HASH' ) ) {
             $target->{$k} = $v;
         }
-        elsif (!defined( $target->{$k} )
-            or !ref( $target->{$k} )
-            or ref( $target->{$k} ) ne 'HASH' )
+        elsif (( !defined( $target->{$k} ) )
+            || ( !ref( $target->{$k} ) )
+            || ( ref( $target->{$k} ) ne 'HASH' ) )
         {
             $target->{$k} = {};
             $self->deepcopy( $target->{$k}, $v );
@@ -77,6 +74,8 @@ sub deepcopy {
             $self->deepcopy( $target->{$k}, $v );
         }
     }
+
+    return;
 }
 
 1;

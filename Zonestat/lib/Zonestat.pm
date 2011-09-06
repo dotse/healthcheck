@@ -25,6 +25,7 @@ use Module::Find;
 
 our $VERSION = '0.03';
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub new {
     my $class = shift;
     my $self = bless {}, $class;
@@ -43,6 +44,7 @@ sub new {
 
     return $self;
 }
+## use critic
 
 sub plugins {
     my $self = shift;
@@ -64,11 +66,13 @@ sub register_plugins {
     return;
 }
 
+## no critic (Subroutines::RequireArgUnpacking)
 sub cget {
     my $self = shift;
 
     return $self->{conf}->get( @_ );
 }
+## use critic
 
 sub collect {
     my $self = shift;
@@ -117,8 +121,7 @@ sub dbproxy {
 }
 
 sub user {
-    my $self = shift;
-    my ( $name_or_id, $pwd ) = @_;
+    my ( $self, $name_or_id, $pwd ) = @_;
 
     return Zonestat::DB::User->new( $self );
 }

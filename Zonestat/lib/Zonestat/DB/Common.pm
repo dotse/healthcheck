@@ -20,7 +20,11 @@ sub new {
     return $self;
 }
 
-sub id { return $_[0]->{id} }
+sub id {
+    my $self = shift;
+
+    return $self->{id};
+}
 
 sub data {
     my $self = shift;
