@@ -23,8 +23,6 @@ sub total_tested_domains {
     return $res->{rows}[0]{value};
 }
 
-### FIXME: Special table for DNSSEC problems.
-
 sub number_of_domains_with_message {
     my $self  = shift;
     my $level = shift;

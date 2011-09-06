@@ -12,7 +12,7 @@
     <tr>
         <th>Errors</th>
         [% FOREACH n IN trs -%]
-           <th>[% n.domainset.name %] [% n.name %]</th>
+           <th>[% n.name %]</th>
         [% END -%]
     </tr>
     [% FOREACH mess IN eorder -%]
@@ -23,7 +23,7 @@
             </td>
             [% FOREACH n IN trs -%]
             <td class="numeric">
-                [% 100 * (errors.${mess}.${n.id} / sizes.${n.id}) FILTER format('%0.2f') %]%
+                [% 100 * (errors.${n.id}.${mess} / sizes.${n.id}) FILTER format('%0.2f') %]%
             </td>
             [% END -%]
         </tr>
@@ -40,7 +40,7 @@
     <tr>
         <th>Warnings</th>
         [% FOREACH n IN trs -%]
-           <th>[% n.domainset.name %] [% n.name %]</th>
+           <th>[% n.name %]</th>
         [% END -%]
     </tr>
     [% FOREACH mess IN worder -%]
@@ -51,7 +51,7 @@
             </td>
             [% FOREACH n IN trs -%]
             <td class="numeric">
-                [% 100 * (warnings.${mess}.${n.id} / sizes.${n.id}) FILTER format('%0.2f') %]%
+                [% 100 * (warnings.${n.id}.${mess} / sizes.${n.id}) FILTER format('%0.2f') %]%
             </td>
             [% END -%]
         </tr>

@@ -279,22 +279,20 @@ sub _reshuffle {
 
 sub dnscheck : Local : Args(0) {
     my ($self, $c) = @_;
-    my $db = $c->model('DB::Testrun');
-
     my @trs = @{ $c->stash->{trs} };
 
-    my %sizes = map { $_->id, $_->tests->count } @trs;
+    my %sizes = map { $_->id, $_->test_count } @trs;
     my $name;
     my %data;
     my $p        = $c->{zs}->present;
-    my %errors   = $p->number_of_domains_with_message('ERROR', @trs);
-    my %warnings = $p->number_of_domains_with_message('WARNING', @trs);
+    my %errors   = $p->number_of_domains_with_message('ERROR', map {0+$_->id} @trs);
+    my %warnings = $p->number_of_domains_with_message('WARNING', map {0+$_->id} @trs);
     my @eorder =
-      sort { $errors{$b}{ $trs[0]->id } <=> $errors{$a}{ $trs[0]->id } }
-      keys %errors;
+      sort { $errors{ $trs[0]->id }{$b} <=> $errors{ $trs[0]->id }{$a} }
+      keys %{$errors{$trs[0]->id}};
     my @worder =
-      sort { $warnings{$b}{ $trs[0]->id } <=> $warnings{$a}{ $trs[0]->id } }
-      keys %warnings;
+      sort { $warnings{ $trs[0]->id }{$b} <=> $warnings{ $trs[0]->id }{$a} }
+      keys %{$warnings{$trs[0]->id}};
     my %descriptions;
 
     foreach my $m (@eorder, @worder) {
@@ -318,7 +316,7 @@ sub dnscheck : Local : Args(0) {
         $name = scalar(@trs) . ' testruns';
     }
 
-    $data{names} = [map { $_->domainset->name . ' ' . $_->name } @trs];
+    $data{names} = [map { $_->domainset . ' ' . $_->name } @trs];
 
     $c->stash(
         {
