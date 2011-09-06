@@ -18,6 +18,7 @@ The hashref returned from the C<for_domain> method contains a number of sections
 
 use 5.008008;
 use strict;
+use utf8;
 use warnings;
 
 use base 'Zonestat::Common';

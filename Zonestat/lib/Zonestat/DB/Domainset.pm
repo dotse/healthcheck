@@ -1,6 +1,7 @@
 package Zonestat::DB::Domainset;
 
 use strict;
+use utf8;
 use warnings;
 
 use base 'Zonestat::DB::Common';

@@ -2,6 +2,7 @@ package Zonestat::Config;
 
 use 5.008008;
 use strict;
+use utf8;
 use warnings;
 
 use YAML qw[Load LoadFile];

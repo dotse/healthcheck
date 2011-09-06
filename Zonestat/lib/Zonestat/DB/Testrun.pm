@@ -1,6 +1,7 @@
 package Zonestat::DB::Testrun;
 
 use strict;
+use utf8;
 use warnings;
 
 use base 'Zonestat::DB::Common';

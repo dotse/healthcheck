@@ -2,6 +2,7 @@ package Zonestat::DB::Queue;
 
 use warnings;
 use strict;
+use utf8;
 
 use base 'Zonestat::DB::Common';
 

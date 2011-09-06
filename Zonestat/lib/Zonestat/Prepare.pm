@@ -2,6 +2,7 @@ package Zonestat::Prepare;
 
 use 5.008008;
 use strict;
+use utf8;
 use warnings;
 use POSIX 'strftime';
 use Carp;
