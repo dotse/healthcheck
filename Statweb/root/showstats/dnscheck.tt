@@ -75,10 +75,10 @@
             </tr>
             [% FOREACH tr IN trs -%]
                 <tr class="[% loop.parity %]">
-                    <th>[% tr.domainset.name %]<br>[% tr.name %]</th>
-                [% FOREACH n IN band.$level.${tr.id} -%]
+                    <th>[% tr.name %]</th>
+                [% FOREACH n IN [0, 1, 2, "3+"] -%]
                     <td class="numeric">
-                        [% n -%]
+                        [% band.${tr.id}.$level.$n -%]
                     </td>
                 [% END -%]
                 </tr>

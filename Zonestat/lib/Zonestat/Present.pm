@@ -372,11 +372,12 @@ sub message_bands {
     my %res;
 
     foreach my $tr ( @tr ) {
-        my $res = $self->dbproxy( 'zonestat' )->check_bands(
+        my $r = $self->dbproxy( 'zonestat' )->check_bands(
             group => 'true',
-            key   => "$tr",
+            key   => 0+$tr,
         )->{rows};
-        $res{$tr} = { map { $_->{key} => $_->{value} } @{$res} };
+        $res{$tr} = { map { $_->{key} => $_->{value} } @{$r} };
+        $res{$_->{key}}=$_->{value} for @$r;
     }
 
     return %res;

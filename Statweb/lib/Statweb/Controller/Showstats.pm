@@ -300,12 +300,7 @@ sub dnscheck : Local : Args(0) {
     }
 
     # "Message band" tables.
-    my %band;
-    foreach my $level (qw[CRITICAL ERROR WARNING]) {
-        foreach my $tr (@trs) {
-            $band{$level}{ $tr->id } = [$p->message_bands($tr, $level)];
-        }
-    }
+    my %band = $p->message_bands(map {$_->id} @trs);
 
     # "Max severity" table
     my %severity = $p->tests_with_max_severity(@trs);
