@@ -133,17 +133,20 @@ sub all_domainsets {
 }
 
 sub tests_with_max_severity {
-    my $self    = shift;
-    my $testrun = shift;
+    my ( $self, @testruns ) = @_;
+    my %res;
 
     my $dbp = $self->dbproxy( 'zonestat' );
-    my $res = $dbp->check_maxseverity(
-        startkey => [ '' . $testrun, 'A' ],
-        endkey   => [ '' . $testrun, 'Z' ],
-        group    => 'true'
-    )->{rows};
-
-    return map { $_->{key}[1] => $_->{value} } @$res;
+    foreach my $testrun ( @testruns ) {
+        my $r = $dbp->check_maxseverity(
+            startkey => [ 0 + $testrun->id, 'A' ],
+            endkey   => [ 0 + $testrun->id, 'Z' ],
+            group    => 'true'
+        )->{rows};
+        my %tmp = map { $_->{key}[1] => $_->{value} } @$r;
+        $res{ $testrun->id } = \%tmp;
+    }
+    return %res;
 }
 
 sub domainset_being_tested {
@@ -374,10 +377,10 @@ sub message_bands {
     foreach my $tr ( @tr ) {
         my $r = $self->dbproxy( 'zonestat' )->check_bands(
             group => 'true',
-            key   => 0+$tr,
+            key   => 0 + $tr,
         )->{rows};
         $res{$tr} = { map { $_->{key} => $_->{value} } @{$r} };
-        $res{$_->{key}}=$_->{value} for @$r;
+        $res{ $_->{key} } = $_->{value} for @$r;
     }
 
     return %res;

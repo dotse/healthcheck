@@ -104,13 +104,13 @@
             <th>[% tr.domainset.name %] <br> [% tr.name %]</th>
         [% END -%]
     </tr>
-    [% FOREACH level IN ['critical' 'error' 'warning' 'notice' 'info' 'clear'] -%]
+    [% FOREACH level IN ['CRITICAL' 'ERROR' 'WARNING' 'NOTICE'] -%]
         <tr class="[% loop.parity %]">
             <td>[% level FILTER upper %]</td>
             [% FOREACH tr IN trs -%]
                 <td class="numeric">
                     <a href="[% c.uri_for('view_by_level',level,tr.id) %]">
-                        [% 0 + severity.$level.${tr.id} %]
+                        [% 0 + severity.${tr.id}.$level %]
                     </a>
                 </td>
             [% END -%]
