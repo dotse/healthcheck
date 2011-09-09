@@ -29,8 +29,13 @@
 ######################################################################
 use 5.008;
 
+## no critic (Variables::RequireLocalizedPunctuationVars)
+# The only such variables we use are ones for OS interaction, which are by
+# their very nature global to this process.
+
 use warnings;
 use strict;
+use utf8;
 
 use DNSCheck;
 use Zonestat;
@@ -96,11 +101,10 @@ main();
 # dying if we suddenly lose contact with syslogd. Which we do if the system is
 # too heavily loaded.
 sub slog {
-    my $priority = shift;
-    my $tries    = 0;
+    my ( $priority, $format, @args ) = @_;
+    my $tries = 0;
 
-    # See perldoc on sprintf for why we have to write it like this
-    my $msg = sprintf( $_[0], @_[ 1 .. $#_ ] );
+    my $msg = sprintf( $format, @args );
 
     printf( "%s (%d): %s\n", uc( $priority ), $$, $msg ) if $debug;
 
@@ -108,7 +112,7 @@ sub slog {
     eval {
         if ( $syslog )
         {
-            syslog( $priority, @_ );
+            syslog( $priority, $format, @args );
         }
         else {
             printf STDERR "%s (%d): %s\n", uc( $priority ), $$, $msg;
@@ -128,6 +132,8 @@ sub slog {
             printf STDERR "%s (%d): %s\n", uc( $priority ), $$, $msg;
         }
     }
+
+    return;
 }
 
 sub setup {
@@ -147,15 +153,17 @@ sub setup {
     detach() unless $debug;
     open STDERR, '>>', $errfile or die "Failed to open error log: $!";
     printf STDERR "%s starting at %s\n", $0, scalar( localtime );
-    open PIDFILE, '>', $pidfile or die "Failed to open PID file: $!";
-    print PIDFILE $$;
-    close PIDFILE;
+    open my $pidfh, '>', $pidfile or die "Failed to open PID file: $!";
+    print $pidfh $$;
+    close $pidfh;
     $SIG{CHLD} = \&REAPER;
     $SIG{TERM} = sub { $running = 0 };
     $SIG{HUP}  = sub {
         $running = 0;
         $restart = 1;
     };
+
+    return;
 }
 
 sub detach {
@@ -173,11 +181,14 @@ sub detach {
     exit if $pid;
     die "Fork failed: $!" unless defined( $pid );
     slog( 'info', 'Detached.' );
+
+    return;
 }
 
 # Clean up residue from earlier run(s), if any.
 sub inital_cleanup {
     $zs->gather->reset_inprogress;
+    return;
 }
 
 ################################################################
@@ -231,6 +242,8 @@ sub process {
     else {                   # Undefined value, so error
         die "Fork failed: $!";
     }
+
+    return;
 }
 
 sub running_in_child {
@@ -307,6 +320,8 @@ sub monitor_children {
             }
         }
     }
+
+    return;
 }
 
 sub cleanup {
@@ -329,6 +344,8 @@ sub cleanup {
         slog 'warning', "Unclean exit when testing $domain (pid $pid, status $status).";
         $zs->gather->reset_queue_entry( $qid );
     }
+
+    return;
 }
 
 # This code is mostly stolen from the perlipc manpage.
@@ -339,6 +356,8 @@ sub REAPER {
         $reaped{$child} = $?;
     }
     $SIG{CHLD} = \&REAPER;
+
+    return;
 }
 
 ################################################################
@@ -364,6 +383,8 @@ sub main {
         exec( $0, @saved_argv );
         warn "Exec failed: $!";
     }
+
+    return;
 }
 
 __END__
