@@ -399,13 +399,12 @@ sub pageanalyzer_summary {
     foreach my $tr ( @tr ) {
         my $res = $self->dbproxy( 'zonestat' )->pageanalyze_summary(
             group    => 'true',
-            startkey => [ '' . $tr, 'A' ],
-            endkey   => [ '' . $tr, 'z' ]
+            key => [ 0 + $tr, 'http' ],
         )->{rows};
 
-        $res{$tr} = { map { $_->{key}[1] => $_->{value} } @{$res} };
+        $res{$tr} = $res->[0]{value};
     }
-    return %res;
+    return \%res;
 }
 
 1;

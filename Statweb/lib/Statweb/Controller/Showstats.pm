@@ -215,20 +215,18 @@ sub webpages_pageanalyzer : Private {
     my @trs = @{ $c->stash->{trs} };
     my $p = $c->{zs}->present;
     
-    foreach my $tr (@trs) {
-        $c->stash->{pa}{$tr->id} = $p->pageanalyzer_summary($tr);
-    }
+    $c->stash->{pa} = $p->pageanalyzer_summary(map {$_->id} @trs);
 }
 
 sub webpages : Local : Args(0) {
     my ($self, $c) = @_;
-    my $db  = $c->model('DB::Testrun');
     my @trs = @{ $c->stash->{trs} };
+    my $db = $c->{zs}->dbproxy('zonestat');
     my $name;
     my $p = $c->{zs}->present;
 
     if (@trs == 1) {
-        $name = $trs[0]->name;
+        $name = $trs[0];
     } else {
         $name = scalar(@trs) . ' testruns';
     }
@@ -238,12 +236,9 @@ sub webpages : Local : Args(0) {
             template  => 'showstats/webpages.tt',
             pagetitle => $name,
             http_code => \%http_response_code,
-            names     => {
-                map { $_->id => $_->domainset->name . '<br>' . $_->name } @trs
-            },
             sizes => {
-                http  => [map { $_->webservers({ https => 0 })->count } @trs],
-                https => [map { $_->webservers({ https => 1 })->count } @trs],
+                http  => [map { $db->server_web(key => 0+$_->id)->{rows}[0]{value}{http} } @trs],
+                https => [map { $db->server_web(key => 0+$_->id)->{rows}[0]{value}{https} } @trs],
             },
             trs    => \@trs,
             titles => {

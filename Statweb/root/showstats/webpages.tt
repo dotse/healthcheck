@@ -37,8 +37,6 @@
 </table>
 [% END -%]
 
-<pre>[% dumped %]</pre>
-
 <h1>Web statistics for [% pagetitle %]</h1>
 
 <h2>Pageanalyzer summary</h2>
@@ -56,7 +54,6 @@
         <th colspan="2">Average compression</th>
         <th colspan="2">Effective compression</th>
         <th colspan="2">Compressed resources</th>
-        <th colspan="3">Page Elements</th>
     </tr>
     <tr>
         <th>Avg.</th><th>Std. Dev.</th>
@@ -66,69 +63,25 @@
         <th>Avg.</th><th>Std. Dev.</th>
         <th>Avg.</th><th>Std. Dev.</th>
         <th>Avg.</th><th>Std. Dev.</th>
-        <th>Size</th><th>Load Time</th><th>Count</th>
     </tr>
     [% FOREACH tr IN trs -%]
     [% p = pa.${tr.id} %]
     <tr class="[% loop.parity %]">
-        <th>[% names.${tr.id} %]</th>
-        <td class="numeric">[% p.load_time.average FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.load_time.stddev FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.requests.average FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.requests.stddev FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.external.average FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.external.stddev FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.rx_bytes.average / 1024 FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.rx_bytes.stddev / 1024 FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.compression.average FILTER format("%0.1f") %]%</td>
-        <td class="numeric">[% p.compression.stddev FILTER format("%0.1f") %]%</td>
-        <td class="numeric">[% p.effective_compression.average FILTER format("%0.1f") %]%</td>
-        <td class="numeric">[% p.effective_compression.stddev FILTER format("%0.1f") %]%</td>
+        <th>[% tr.name %]</th>
+        <td class="numeric">[% p.total_time.average FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.total_time.stdDeviation FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.total_requests.average FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.total_requests.stdDeviation FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.external_resources.average FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.external_resources.stdDeviation FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.total_bytes.average / 1024 FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.total_bytes.stdDeviation / 1024 FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.average_compression_ratio_percent.average FILTER format("%0.1f") %]%</td>
+        <td class="numeric">[% p.average_compression_ratio_percent.stdDeviation FILTER format("%0.1f") %]%</td>
+        <td class="numeric">[% p.effective_compression_ratio_percent.average FILTER format("%0.1f") %]%</td>
+        <td class="numeric">[% p.effective_compression_ratio_percent.stdDeviation FILTER format("%0.1f") %]%</td>
         <td class="numeric">[% p.compressed_resources.average FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.compressed_resources.stddev FILTER format("%0.1f") %]</td>
-        [% names = {document = 'HTML' image = 'Images' stylesheet = 'CSS' script = 'Javascript' embed = 'Flash/Java' } -%]
-        <td>
-            <table>
-            [% FOREACH k IN ["document", "image", "stylesheet", "script", "embed"] -%]
-                <tr>
-                    <td>[% names.$k %]</td>
-                    [% IF p.size.total -%]
-                    <td class="numeric">[% 100 * p.size.$k / p.size.total FILTER format("%0.1f") %]%</td>
-                    [% ELSE -%]
-                    <td class="numeric">N/A</td>
-                    [% END -%]
-                </tr>
-            [% END -%]
-            </table>
-        </td>
-        <td>
-            <table>
-            [% FOREACH k IN ["document", "image", "stylesheet", "script", "embed"] -%]
-                <tr>
-                    <td>[% names.$k %]</td>
-                    [% IF p.time.total -%]
-                    <td class="numeric">[% 100 * p.time.$k / p.time.total FILTER format("%0.1f") %]%</td>
-                    [% ELSE -%]
-                    <td class="numeric">N/A</td>
-                    [% END -%]
-                </tr>
-            [% END -%]
-            </table>
-        </td>
-        <td>
-            <table>
-            [% FOREACH k IN ["document", "image", "stylesheet", "script", "embed"] -%]
-                <tr>
-                    <td>[% names.$k %]</td>
-                    [% IF p.count.total -%]
-                    <td class="numeric">[% 100 * p.count.$k / p.count.total FILTER format("%0.1f") %]%</td>
-                    [% ELSE -%]
-                    <td class="numeric">N/A</td>
-                    [% END -%]
-                </tr>
-            [% END -%]
-            </table>
-        </td>
+        <td class="numeric">[% p.compressed_resources.stdDeviation FILTER format("%0.1f") %]</td>
     </tr>
     [% END -%]
 </table>

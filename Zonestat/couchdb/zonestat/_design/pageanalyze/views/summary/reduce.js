@@ -1,10 +1,15 @@
+// "average_compression_ratio_percent":20.8378357341649,"compressed_resources":11,
+// "effective_compression_ratio_percent":74.7202007651954
+
 function(keys, values, rereduce) {
     return {
         "total_bytes": stats(values.map(function(e){return e.total_bytes;}), rereduce, 1024),
-        "total_time": stats(values.map(function(e){return e.total_time}), rereduce),
+        "total_time": stats(values.map(function(e){return e.total_time}), rereduce, 1000),
         "total_requests": stats(values.map(function(e){return e.total_requests}), rereduce),
         "external_resources": stats(values.map(function(e){return e.external_resources}), rereduce),
-        
+        "average_compression_ratio_percent": stats(values.map(function(e){return e.average_compression_ratio_percent}), rereduce),
+        "compressed_resources": stats(values.map(function(e){return e.compressed_resources}), rereduce),
+        "effective_compression_ratio_percent": stats(values.map(function(e){return e.effective_compression_ratio_percent}), rereduce)
     };
 }
 
