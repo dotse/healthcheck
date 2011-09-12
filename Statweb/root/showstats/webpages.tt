@@ -74,8 +74,8 @@
         <td class="numeric">[% p.total_requests.stdDeviation FILTER format("%0.1f") %]</td>
         <td class="numeric">[% p.external_resources.average FILTER format("%0.1f") %]</td>
         <td class="numeric">[% p.external_resources.stdDeviation FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.total_bytes.average / 1024 FILTER format("%0.1f") %]</td>
-        <td class="numeric">[% p.total_bytes.stdDeviation / 1024 FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.total_bytes.average FILTER format("%0.1f") %]</td>
+        <td class="numeric">[% p.total_bytes.stdDeviation FILTER format("%0.1f") %]</td>
         <td class="numeric">[% p.average_compression_ratio_percent.average FILTER format("%0.1f") %]%</td>
         <td class="numeric">[% p.average_compression_ratio_percent.stdDeviation FILTER format("%0.1f") %]%</td>
         <td class="numeric">[% p.effective_compression_ratio_percent.average FILTER format("%0.1f") %]%</td>
