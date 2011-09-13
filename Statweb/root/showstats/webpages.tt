@@ -5,7 +5,7 @@
     <tr>
         <th>[% title %]</th>
         [% FOREACH tr IN trs -%]
-        <th>[% names.${tr.id} %]</th>
+        <th>[% tr.name %]</th>
         [% END -%]
     </tr>
     [% FOREACH t IN root.${h} -%]

@@ -167,7 +167,7 @@ sub default : Path : Args(0) {
 
 sub webpages_software : Private {
     my ($self, $c) = @_;
-    my @trs = @{ $c->stash->{trs} };
+    my @trs = map {$_->id} @{ $c->stash->{trs} };
     my $p   = $c->{zs}->present;
 
     $c->stash->{data}{software} = {
@@ -179,7 +179,7 @@ sub webpages_software : Private {
 
 sub webpages_response : Private {
     my ($self, $c) = @_;
-    my @trs = @{ $c->stash->{trs} };
+    my @trs = map {$_->id} @{ $c->stash->{trs} };
     my $p   = $c->{zs}->present;
 
     $c->stash->{data}{response} = {
@@ -190,7 +190,7 @@ sub webpages_response : Private {
 
 sub webpages_content : Private {
     my ($self, $c) = @_;
-    my @trs = @{ $c->stash->{trs} };
+    my @trs = map {$_->id} @{ $c->stash->{trs} };
     my $p   = $c->{zs}->present;
 
     $c->stash->{data}{content} = {
@@ -201,7 +201,7 @@ sub webpages_content : Private {
 
 sub webpages_charset : Private {
     my ($self, $c) = @_;
-    my @trs = @{ $c->stash->{trs} };
+    my @trs = map {$_->id} @{ $c->stash->{trs} };
     my $p   = $c->{zs}->present;
 
     $c->stash->{data}{charset} = {
@@ -257,16 +257,17 @@ sub webpages : Local : Args(0) {
     $c->forward('webpages_pageanalyzer');
 }
 
+
 sub _reshuffle {
     my ($trs, %res) = @_;
     my @out;
 
-    my @ids        = map { $_->id } @{$trs};
+    my @ids        = @$trs;
     my $kid        = $ids[0];
-    my @categories = sort { $res{$b}{$kid} <=> $res{$a}{$kid} } keys %res;
+    my @categories = sort { $res{$kid}{$b} <=> $res{$kid}{$a} } keys %{$res{$kid}};
 
     foreach my $c (@categories) {
-        push @out, [$c, map { $_ ? $_ : 0 } map { $res{$c}{$_} } @ids];
+        push @out, [$c, map { $_ ? $_ : 0 } map { $res{$_}{$c} } @ids];
     }
 
     return \@out;

@@ -50,8 +50,8 @@ sub number_of_servers_with_software {
     foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_servertype(
             group    => 1,
-            startkey => [ $tr, $protocol, undef ],
-            endkey   => [ $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
+            startkey => [ 0+$tr, $protocol, undef ],
+            endkey   => [ 0+$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -68,8 +68,8 @@ sub webservers_by_responsecode {
     foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_response(
             group    => 1,
-            startkey => [ $tr, $protocol, undef ],
-            endkey   => [ $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
+            startkey => [ 0+$tr, $protocol, undef ],
+            endkey   => [ 0+$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -86,8 +86,8 @@ sub webservers_by_contenttype {
     foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_contenttype(
             group    => 1,
-            startkey => [ $tr, $protocol, undef ],
-            endkey   => [ $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
+            startkey => [ 0+$tr, $protocol, undef ],
+            endkey   => [ 0+$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -104,8 +104,8 @@ sub webservers_by_charset {
     foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_charset(
             group    => 1,
-            startkey => [ $tr, $protocol, undef ],
-            endkey   => [ $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
+            startkey => [ 0+$tr, $protocol, undef ],
+            endkey   => [ 0+$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
