@@ -25,7 +25,6 @@ use base 'Zonestat::Common';
 
 use DNSCheck;
 use Time::HiRes qw[time];
-use POSIX qw[:signal_h];
 use JSON;
 use XML::Simple;
 use IO::Socket::INET;
@@ -41,6 +40,10 @@ use Carp;
 use Try::Tiny;
 use Net::IP;
 use Net::SMTP;
+use IPC::Open3;
+use Symbol 'gensym';
+use IO::File;
+use IO::Select;
 
 my $debug = 0;
 my $dc    = DNSCheck->new;
@@ -376,8 +379,9 @@ sub mailserver_gather {
         $tmp->{name} = $server->{name};
         if ( $tmp->{starttls} ) {
             my $sslscan;
+            my ( $success, $stdout, $stderr ) = run_external( 600, $cmd . ' ' . $server->{name} );
             try {
-                $sslscan = XMLin( run_with_timeout( sub { qx[$cmd . $server->{name}] }, 600 ) );
+                $sslscan = XMLin( $stdout );
             };
             $tmp->{sslscan}    = $sslscan;
             $tmp->{evaluation} = sslscan_evaluate( $sslscan );
@@ -399,8 +403,9 @@ sub sslscan_web {
 
     my $cmd = "$scan --xml=stdout --quiet --no-failed";
     $res{name} = $name;
+    my ( $success, $stdout, $stderr ) = run_external( 600, $cmd . ' ' . $name );
     try {
-        $res{data} = XMLin( run_with_timeout( sub { qx[$cmd . $name] }, 600 ) );
+        $res{data} = XMLin( $stdout );
     };
     $res{evaluation} = sslscan_evaluate( $res{data} );
     $res{known_ca}   = $self->https_known_ca( $domain );
@@ -719,24 +724,43 @@ sub extract_hosts {
     return %res;
 }
 
-## no critic (Modules::RequireExplicitInclusion)
-sub run_with_timeout {
-    my ( $cref, $timeout ) = @_;
-    my $res = '';
+# Runs an external command, with a timeout, and collecting both stdout and stderr from it.
+sub run_external {
+    my ( $timeout, @args ) = @_;
+    my ( $read, $err );
+    $err = gensym();
+    my %output;
+    my $pid     = open3( undef, $read, $err, '-' );
+    my $read_no = $read->fileno;
+    my $err_no  = $err->fileno;
 
-    my $mask      = POSIX::SigSet->new( SIGALRM );
-    my $action    = POSIX::SigAction->new( sub { die "timeout\n" }, $mask );
-    my $oldaction = POSIX::SigAction->new;
-    sigaction( SIGALRM, $action, $oldaction );
-    eval {
+    if ( $pid ) {    # Parent
+        local $SIG{ALRM} = sub { die 'timeout' };
         alarm( $timeout );
-        $res = $cref->();
-        alarm( 0 );
-    };
-    sigaction( SIGALRM, $oldaction );
-    return $res;
+        eval {
+            my $s = IO::Select->new( $read, $err );
+            while ( $s->handles ) {
+                foreach my $h ( $s->can_read ) {
+                    if ( my $line = $h->getline ) {
+                        $output{ $h->fileno } .= $line;
+                    }
+                    else {
+                        $s->remove( $h );
+                    }
+                }
+            }
+        };
+        if ( $@ and $@ =~ /^timeout/ ) {
+            kill 15, $pid;
+            return ( undef, '', '' );
+        }
+    }
+    else {    # Child
+        exec( @args );
+    }
+
+    return ( 1, $output{ $read->fileno }, $output{ $err->fileno } );
 }
-## use critic
 
 sub get_mailservers {
     my $domain = shift;
