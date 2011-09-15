@@ -754,6 +754,9 @@ sub run_external {
             kill 15, $pid;
             return ( undef, '', '' );
         }
+        else {
+            alarm( 0 );
+        }
     }
     else {    # Child
         exec( @args );
