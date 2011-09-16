@@ -158,6 +158,7 @@ sub setup {
     close $pidfh;
     $SIG{CHLD} = \&REAPER;
     $SIG{TERM} = sub { $running = 0 };
+    $SIG{INT}  = sub { $running = 0 };
     $SIG{HUP}  = sub {
         $running = 0;
         $restart = 1;

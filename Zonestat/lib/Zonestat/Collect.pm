@@ -383,6 +383,10 @@ sub mailserver_gather {
             try {
                 $sslscan = XMLin( $stdout );
             };
+            if ( $stderr ) {
+                print STDERR "[$$] $cmd: $stderr\n";
+            }
+
             $tmp->{sslscan}    = $sslscan;
             $tmp->{evaluation} = sslscan_evaluate( $sslscan );
         }
@@ -407,6 +411,10 @@ sub sslscan_web {
     try {
         $res{data} = XMLin( $stdout );
     };
+    if ( $stderr and $debug ) {    # sslscan prints lots of garbage on STDERR.
+        print STDERR "[$$] $cmd: $stderr\n";
+    }
+
     $res{evaluation} = sslscan_evaluate( $res{data} );
     $res{known_ca}   = $self->https_known_ca( $domain );
 
@@ -420,23 +428,18 @@ sub pageanalyze {
     my $python = $self->cget( qw[zonestat python] );
     my %res    = ();
 
-    ## no critic (InputOutput::RequireBriefOpen)
     if ( $padir and $python and -d $padir and -x $python ) {
-        open my $stderr_save, '>&', *STDERR;
-        close STDERR;
-        open STDERR, '>', "/tmp/dispatcher/stderr.$$";
         foreach my $method ( qw[http https] ) {
-            if ( open my $pa, '-|', $python, $padir . '/pageanalyzer.py', '-s', '--nohex', '-t', '300', '-f', 'json', "$method://www.$domain/" ) {
-                my $pa_result = join( '', <$pa> );
-                if ( $pa_result ) {
-                    $res{$method} = decode_json( $pa_result );
-                    delete $res{$method}{resources};
-                }
+            my ( $success, $stdout, $stderr ) = run_external( 600, $python, $padir . '/pageanalyzer.py', '-s', '--nohex', '-t', '300', '-f', 'json', "$method://www.$domain/" );
+            if ( $success and $stdout ) {
+                $res{$method} = decode_json( $stdout );
+                delete $res{$method}{resources};
+            }
+            if ( $debug and $stderr ) {
+                print STDERR $stderr;
             }
         }
-        open STDERR, '>&', $stderr_save;
     }
-    ## use critic
 
     return \%res;
 }
