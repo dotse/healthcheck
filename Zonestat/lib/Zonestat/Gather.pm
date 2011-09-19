@@ -39,15 +39,21 @@ sub single_domain {
         foreach my $geo ( @{ $data->{geoip} } ) {
             if ( $geo->{type} eq 'nameserver' ) {
                 my $nsid = $extra->{testrun} . '-' . $geo->{address};
-                $nsdb->newDoc(
-                    $nsid, undef,
-                    {
-                        testrun   => $extra->{testrun},
-                        address   => $geo->{address},
-                        ipversion => $geo->{ipversion},
+                try {
+                    $nsdb->newDoc(
+                        $nsid, undef,
+                        {
+                            testrun   => $extra->{testrun},
+                            address   => $geo->{address},
+                            ipversion => $geo->{ipversion},
+                        }
+                    )->create;
+                }
+                catch {
+                    unless ( /^Storage error: 409 Conflict/ ) {
+                        die( $_ ); # If it's not a conflict, rethrow
                     }
-                  )->create
-                  unless $nsdb->docExists( $nsid );
+                };
             }
         }
 
