@@ -384,7 +384,7 @@ sub mailserver_gather {
                 $sslscan = XMLin( $stdout );
             };
             if ( $stderr ) {
-                print STDERR "[$$] $cmd: $stderr\n";
+                print STDERR "[$$] $cmd: $stderr\n" if $debug;
             }
 
             $tmp->{sslscan}    = $sslscan;

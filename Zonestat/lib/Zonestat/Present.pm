@@ -173,10 +173,13 @@ sub top_foo_servers {
     );
 
     foreach my $e ( @{ $tmp->{rows} } ) {
+        # count, address, latitude, longitude, country, code, city, asn
         push @res, [ $e->{value}, @{ $e->{key} }[ 2 .. 8 ] ];
     }
 
-    return ( ( sort { $b->[0] <=> $a->[0] } @res )[ 0 .. $number - 1 ] );
+    my @tmp = sort { $b->[0] <=> $a->[0] } @res;
+    $number = $#tmp if $number>$#tmp;
+    return ( @tmp[ 0 .. $number - 1 ] );
 }
 
 ## no critic (Subroutines::RequireArgUnpacking)

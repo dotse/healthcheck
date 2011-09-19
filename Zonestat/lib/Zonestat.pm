@@ -20,6 +20,7 @@ use Zonestat::DB::Domainset;
 use Zonestat::DB::Testrun;
 use Zonestat::DB;
 use Zonestat::DB::Queue;
+use Zonestat::DB::Asdata;
 
 use Module::Find;
 
@@ -124,6 +125,11 @@ sub user {
     my ( $self, $name_or_id, $pwd ) = @_;
 
     return Zonestat::DB::User->new( $self );
+}
+
+sub asdata {
+    my $self = shift;
+    return Zonestat::DB::Asdata->new($self);
 }
 
 sub dbconfig {
