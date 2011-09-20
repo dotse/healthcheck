@@ -5,15 +5,20 @@ function(doc){
         doc.geoip.forEach(function(e){
             if(e.type == 'nameserver'){
                 e.asn.forEach(function(asn){
-                    if(res[asn] == null) {
-                        res[asn] = 0;
+                    if (res[e.ipversion] == null) {
+                        res[e.ipversion] = {};
+                    };
+                    if(res[e.ipversion][asn] == null) {
+                        res[e.ipversion][asn] = 0;
                     }
-                    res[asn] = res[asn] + 1;
+                    res[e.ipversion][asn] = res[e.ipversion][asn] + 1;
                 });
             }
         });
-        for(asn in res){
-            emit([doc.testrun, asn], res[asn]);
+        for(ipv in res) {
+            for(asn in res[ipv]){
+                emit([ipv, doc.testrun, asn], res[ipv][asn]);
+            }
         }
     }
 }

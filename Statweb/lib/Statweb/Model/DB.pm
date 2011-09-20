@@ -20,6 +20,7 @@ has 'zs' => (
         user => 'user',
         testrun => 'testrun',
         queue => 'queue',
+        asdata => 'asdata',
     },
 );
 

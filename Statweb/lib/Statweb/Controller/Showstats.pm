@@ -79,82 +79,57 @@ my %http_response_code = (
 );
 
 sub index : Local : Args(0) {
-    my ($self, $c) = @_;
+    my ( $self, $c ) = @_;
 
-    $c->detach('default');
+    $c->detach( 'default' );
 }
 
 sub default : Path : Args(0) {
-    my ($self, $c) = @_;
+    my ( $self, $c ) = @_;
 
     my @trs = @{ $c->stash->{trs} };
     my $name;
     my %data;
     my $p = $c->{zs}->present;
 
-    if (@trs == 1) {
+    if ( @trs == 1 ) {
         $name = $trs[0]->name;
-    } else {
-        $name = scalar(@trs) . ' testruns';
+    }
+    else {
+        $name = scalar( @trs ) . ' testruns';
     }
 
-    $data{names} = [map { $_->domainset . ' ' . $_->name } @trs];
+    $data{names} = [ map { $_->domainset . ' ' . $_->name } @trs ];
 
-    $data{ipv6domains} =
-      [map { sprintf "%0.2f%% (%d)", $p->ipv6_percentage_for_testrun($_->id) }
-          @trs];
+    $data{ipv6domains} = [ map { sprintf "%0.2f%% (%d)", $p->ipv6_percentage_for_testrun( $_->id ) } @trs ];
 
-    $data{ipv4as} = [
-        map {
-            sprintf "%0.2f%% (%d)",
-              $p->multihome_percentage_for_testrun($_->id, 0)
-          } @trs
-    ];
+    $data{ipv4as} = [ map { sprintf "%0.2f%% (%d)", $p->multihome_percentage_for_testrun( $_->id, 0 ) } @trs ];
 
-    $data{ipv6as} = [
-        map {
-            sprintf "%0.2f%% (%d)",
-              $p->multihome_percentage_for_testrun($_->id, 1)
-          } @trs
-    ];
+    $data{ipv6as} = [ map { sprintf "%0.2f%% (%d)", $p->multihome_percentage_for_testrun( $_->id, 1 ) } @trs ];
 
-    $data{dnssec} =
-      [map { sprintf "%0.2f%% (%d)", $p->dnssec_percentage_for_testrun($_->id) }
-          @trs];
+    $data{dnssec} = [ map { sprintf "%0.2f%% (%d)", $p->dnssec_percentage_for_testrun( $_->id ) } @trs ];
 
-    $data{recursive} = [
-        map { sprintf "%0.2f%% (%d)", $p->recursing_percentage_for_testrun($_->id) }
-          @trs
-    ];
+    $data{recursive} = [ map { sprintf "%0.2f%% (%d)", $p->recursing_percentage_for_testrun( $_->id ) } @trs ];
 
-    $data{adsp} =
-      [map { sprintf "%0.2f%% (%d)", $p->adsp_percentage_for_testrun($_->id) }
-          @trs];
+    $data{adsp} = [ map { sprintf "%0.2f%% (%d)", $p->adsp_percentage_for_testrun( $_->id ) } @trs ];
 
-    $data{spf} =
-      [map { sprintf "%0.2f%% (%d)", $p->spf_percentage_for_testrun($_->id) } @trs];
+    $data{spf} = [ map { sprintf "%0.2f%% (%d)", $p->spf_percentage_for_testrun( $_->id ) } @trs ];
 
-    $data{starttls} =
-      [map { sprintf "%0.2f%% (%d)", $p->starttls_percentage_for_testrun($_->id) }
-          @trs];
+    $data{starttls} = [ map { sprintf "%0.2f%% (%d)", $p->starttls_percentage_for_testrun( $_->id ) } @trs ];
 
-    $data{mailv4} =
-      [map { sprintf "%0.2f%% (%d)", $p->mailservers_in_sweden($_->id, 0) } @trs];
+    $data{mailv4} = [ map { sprintf "%0.2f%% (%d)", $p->mailservers_in_sweden( $_->id, 0 ) } @trs ];
 
-    $data{mailv6} =
-      [map { sprintf "%0.2f%% (%d)", $p->mailservers_in_sweden($_->id, 1) } @trs];
+    $data{mailv6} = [ map { sprintf "%0.2f%% (%d)", $p->mailservers_in_sweden( $_->id, 1 ) } @trs ];
 
-    $data{tested} = [map { $_->test_count } @trs];
+    $data{tested} = [ map { $_->test_count } @trs ];
 
-    $data{distinctv4} = [map { $p->nameserver_count($_->id, 0) } @trs];
+    $data{distinctv4} = [ map { $p->nameserver_count( $_->id, 0 ) } @trs ];
 
-    $data{distinctv6} = [map { $p->nameserver_count($_->id, 1) } @trs];
+    $data{distinctv6} = [ map { $p->nameserver_count( $_->id, 1 ) } @trs ];
 
-    $data{http} =
-      [map { $p->webserver_count($_->id, 0) } @trs];
+    $data{http} = [ map { $p->webserver_count( $_->id, 0 ) } @trs ];
 
-    $data{https} =
-      [map { $p->webserver_count($_->id, 1) } @trs];
+    $data{https} = [ map { $p->webserver_count( $_->id, 1 ) } @trs ];
 
     $c->stash(
         {
@@ -166,69 +141,69 @@ sub default : Path : Args(0) {
 }
 
 sub webpages_software : Private {
-    my ($self, $c) = @_;
-    my @trs = map {$_->id} @{ $c->stash->{trs} };
-    my $p   = $c->{zs}->present;
+    my ( $self, $c ) = @_;
+    my @trs = map { $_->id } @{ $c->stash->{trs} };
+    my $p = $c->{zs}->present;
 
     $c->stash->{data}{software} = {
-        http => _reshuffle(\@trs, $p->number_of_servers_with_software(0, @trs)),
-        https =>
-          _reshuffle(\@trs, $p->number_of_servers_with_software(1, @trs)),
+        http  => _reshuffle( \@trs, $p->number_of_servers_with_software( 0, @trs ) ),
+        https => _reshuffle( \@trs, $p->number_of_servers_with_software( 1, @trs ) ),
     };
 }
 
 sub webpages_response : Private {
-    my ($self, $c) = @_;
-    my @trs = map {$_->id} @{ $c->stash->{trs} };
-    my $p   = $c->{zs}->present;
+    my ( $self, $c ) = @_;
+    my @trs = map { $_->id } @{ $c->stash->{trs} };
+    my $p = $c->{zs}->present;
 
     $c->stash->{data}{response} = {
-        http  => _reshuffle(\@trs, $p->webservers_by_responsecode(0, @trs)),
-        https => _reshuffle(\@trs, $p->webservers_by_responsecode(1, @trs)),
+        http  => _reshuffle( \@trs, $p->webservers_by_responsecode( 0, @trs ) ),
+        https => _reshuffle( \@trs, $p->webservers_by_responsecode( 1, @trs ) ),
     };
 }
 
 sub webpages_content : Private {
-    my ($self, $c) = @_;
-    my @trs = map {$_->id} @{ $c->stash->{trs} };
-    my $p   = $c->{zs}->present;
+    my ( $self, $c ) = @_;
+    my @trs = map { $_->id } @{ $c->stash->{trs} };
+    my $p = $c->{zs}->present;
 
     $c->stash->{data}{content} = {
-        http  => _reshuffle(\@trs, $p->webservers_by_contenttype(0, @trs)),
-        https => _reshuffle(\@trs, $p->webservers_by_contenttype(1, @trs)),
+        http  => _reshuffle( \@trs, $p->webservers_by_contenttype( 0, @trs ) ),
+        https => _reshuffle( \@trs, $p->webservers_by_contenttype( 1, @trs ) ),
     };
 }
 
 sub webpages_charset : Private {
-    my ($self, $c) = @_;
-    my @trs = map {$_->id} @{ $c->stash->{trs} };
-    my $p   = $c->{zs}->present;
+    my ( $self, $c ) = @_;
+    my @trs = map { $_->id } @{ $c->stash->{trs} };
+    my $p = $c->{zs}->present;
 
     $c->stash->{data}{charset} = {
-        http  => _reshuffle(\@trs, $p->webservers_by_charset(0, @trs)),
-        https => _reshuffle(\@trs, $p->webservers_by_charset(1, @trs)),
+        http  => _reshuffle( \@trs, $p->webservers_by_charset( 0, @trs ) ),
+        https => _reshuffle( \@trs, $p->webservers_by_charset( 1, @trs ) ),
     };
 }
 
 sub webpages_pageanalyzer : Private {
-    my ($self, $c) = @_;
+    my ( $self, $c ) = @_;
     my @trs = @{ $c->stash->{trs} };
-    my $p = $c->{zs}->present;
-    
-    $c->stash->{pa} = $p->pageanalyzer_summary(map {$_->id} @trs);
+    my $p   = $c->{zs}->present;
+
+    $c->stash->{pa} = $p->pageanalyzer_summary( map { $_->id } @trs );
 }
 
 sub webpages : Local : Args(0) {
-    my ($self, $c) = @_;
+    my ( $self, $c ) = @_;
     my @trs = @{ $c->stash->{trs} };
-    my $db = $c->{zs}->dbproxy('zonestat');
+    my $db  = $c->{zs}->dbproxy( 'zonestat' );
     my $name;
     my $p = $c->{zs}->present;
 
-    if (@trs == 1) {
+    if ( @trs == 1 ) {
         $name = $trs[0];
-    } else {
-        $name = scalar(@trs) . ' testruns';
+    }
+    else {
+        $name = scalar( @trs ) . ' testruns';
     }
 
     $c->stash(
@@ -236,9 +211,9 @@ sub webpages : Local : Args(0) {
             template  => 'showstats/webpages.tt',
             pagetitle => $name,
             http_code => \%http_response_code,
-            sizes => {
-                http  => [map { $db->server_web(key => 0+$_->id)->{rows}[0]{value}{http} } @trs],
-                https => [map { $db->server_web(key => 0+$_->id)->{rows}[0]{value}{https} } @trs],
+            sizes     => {
+                http  => [ map { $db->server_web( key => 0 + $_->id )->{rows}[0]{value}{http} } @trs ],
+                https => [ map { $db->server_web( key => 0 + $_->id )->{rows}[0]{value}{https} } @trs ],
             },
             trs    => \@trs,
             titles => {
@@ -250,64 +225,64 @@ sub webpages : Local : Args(0) {
         }
     );
 
-    $c->forward('webpages_software');
-    $c->forward('webpages_response');
-    $c->forward('webpages_content');
-    $c->forward('webpages_charset');
-    $c->forward('webpages_pageanalyzer');
+    $c->forward( 'webpages_software' );
+    $c->forward( 'webpages_response' );
+    $c->forward( 'webpages_content' );
+    $c->forward( 'webpages_charset' );
+    $c->forward( 'webpages_pageanalyzer' );
 }
 
-
 sub _reshuffle {
-    my ($trs, %res) = @_;
+    my ( $trs, %res ) = @_;
     my @out;
 
     my @ids        = @$trs;
     my $kid        = $ids[0];
-    my @categories = sort { $res{$kid}{$b} <=> $res{$kid}{$a} } keys %{$res{$kid}};
+    my @categories = sort { $res{$kid}{$b} <=> $res{$kid}{$a} } keys %{ $res{$kid} };
 
-    foreach my $c (@categories) {
-        push @out, [$c, map { $_ ? $_ : 0 } map { $res{$_}{$c} } @ids];
+    foreach my $c ( @categories ) {
+        push @out, [ $c, map { $_ ? $_ : 0 } map { $res{$_}{$c} } @ids ];
     }
 
     return \@out;
 }
 
 sub dnscheck : Local : Args(0) {
-    my ($self, $c) = @_;
+    my ( $self, $c ) = @_;
     my @trs = @{ $c->stash->{trs} };
 
     my %sizes = map { $_->id, $_->test_count } @trs;
     my $name;
     my %data;
     my $p        = $c->{zs}->present;
-    my %errors   = $p->number_of_domains_with_message('ERROR', map {0+$_->id} @trs);
-    my %warnings = $p->number_of_domains_with_message('WARNING', map {0+$_->id} @trs);
+    my %errors   = $p->number_of_domains_with_message( 'ERROR', map { 0 + $_->id } @trs );
+    my %warnings = $p->number_of_domains_with_message( 'WARNING', map { 0 + $_->id } @trs );
     my @eorder =
       sort { $errors{ $trs[0]->id }{$b} <=> $errors{ $trs[0]->id }{$a} }
-      keys %{$errors{$trs[0]->id}};
+      keys %{ $errors{ $trs[0]->id } };
     my @worder =
       sort { $warnings{ $trs[0]->id }{$b} <=> $warnings{ $trs[0]->id }{$a} }
-      keys %{$warnings{$trs[0]->id}};
+      keys %{ $warnings{ $trs[0]->id } };
     my %descriptions;
 
-    foreach my $m (@eorder, @worder) {
-        $descriptions{$m} = $p->lookup_desc($m);
+    foreach my $m ( @eorder, @worder ) {
+        $descriptions{$m} = $p->lookup_desc( $m );
     }
 
     # "Message band" tables.
-    my %band = $p->message_bands(map {$_->id} @trs);
+    my %band = $p->message_bands( map { $_->id } @trs );
 
     # "Max severity" table
-    my %severity = $p->tests_with_max_severity(@trs);
+    my %severity = $p->tests_with_max_severity( @trs );
 
-    if (@trs == 1) {
+    if ( @trs == 1 ) {
         $name = $trs[0]->name;
-    } else {
-        $name = scalar(@trs) . ' testruns';
+    }
+    else {
+        $name = scalar( @trs ) . ' testruns';
     }
 
-    $data{names} = [map { $_->domainset . ' ' . $_->name } @trs];
+    $data{names} = [ map { $_->domainset . ' ' . $_->name } @trs ];
 
     $c->stash(
         {
@@ -328,38 +303,34 @@ sub dnscheck : Local : Args(0) {
 }
 
 sub servers : Local : Args(0) {
-    my ($self, $c) = @_;
-    my $db  = $c->model('DB::Testrun');
+    my ( $self, $c ) = @_;
     my @trs = @{ $c->stash->{trs} };
 
     my $name;
     my %data;
     my $p = $c->{zs}->present;
 
-    if (@trs == 1) {
-        $name = $trs[0]->name;
-    } else {
-        $name = scalar(@trs) . ' testruns';
+    if ( @trs == 1 ) {
+        $name = $trs[0];
+    }
+    else {
+        $name = scalar( @trs ) . ' testruns';
     }
 
-    $data{names} =
-      { map { $_->id, $_->domainset->name . ' ' . $_->name } @trs };
+    $data{names} = { map { $_->id, $_->name } @trs };
     $data{trs} = \@trs;
 
-    foreach my $kind (qw[dns smtp http]) {
-        foreach my $tr (@trs) {
-            my @s = $p->top_foo_servers($kind, $tr, 25);
+    foreach my $kind ( qw[nameserver mailserver webserver] ) {
+        foreach my $tr ( @trs ) {
+            my @s = $p->top_foo_servers( $kind, $tr->id, 25 );
             $data{$kind}{ $tr->id } = [
                 map {
-                    {
-                        reverse => $_->reverse,
-                          count => $_->get_column('count'),
-                          location =>
-                          join(', ', grep { $_ } ($_->city, $_->country)),
-                          geourl => ($_->latitude and $_->longitude)
-                          ? sprintf(
-                            'http://maps.google.com/maps?q=%02.2f+%02.2f',
-                            $_->latitude, $_->longitude)
+                    {    # 0:count, 1:address, 2:latitude, 3:longitude, 4:country, 5:code, 6:city, 7:asn
+                        reverse    => $_->[1],
+                          count    => $_->[0],
+                          location => join( ', ', grep { $_ } ( $_->[6], $_->[4] ) ),
+                          geourl => ( $_->[2] and $_->[3] )
+                          ? sprintf( 'http://maps.google.com/maps?q=%02.2f+%02.2f', $_->[2], $_->[3] )
                           : ''
                     }
                   } @s
@@ -367,27 +338,25 @@ sub servers : Local : Args(0) {
         }
     }
 
-    my %ns_per_asn_v4 = $p->nameservers_per_asn(0, @trs);
-    my %ns_per_asn_v6 = $p->nameservers_per_asn(1, @trs);
+    my %ns_per_asn_v4 = $p->nameservers_per_asn( 0, map { $_->id } @trs );
+    my %ns_per_asn_v6 = $p->nameservers_per_asn( 1, map { $_->id } @trs );
     my %asnames;
-    my $asn = $c->model('DB::Asdata');
+    my $asn = $c->model( 'DB' )->asdata;
 
-    foreach my $as (keys %ns_per_asn_v4, keys %ns_per_asn_v6) {
-        my $r = $asn->search({ asn => $as });
-        if (defined($r) and defined($r->first)) {
-            $asnames{$as} = $r->first->asname;
-        } else {
-            $asnames{$as} = 'No name';
+    foreach my $tr ( @trs ) {
+        foreach my $as ( keys %{ $ns_per_asn_v4{ $tr->id } }, keys %{ $ns_per_asn_v6{ $tr->id } } ) {
+            my $n = $asn->asn2name( $as );
+            if ( defined( $n ) ) {
+                $asnames{$as} = $n;
+            }
+            else {
+                $asnames{$as} = 'No name';
+            }
         }
     }
-
-    my @asv4order = sort {
-        $ns_per_asn_v4{$b}{ $trs[0]->id } <=> $ns_per_asn_v4{$a}{ $trs[0]->id }
-    } keys %ns_per_asn_v4;
+    my @asv4order = sort { $ns_per_asn_v4{ $trs[0]->id }{$b} <=> $ns_per_asn_v4{ $trs[0]->id }{$a} } keys %{ $ns_per_asn_v4{ $trs[0]->id } };
     splice @asv4order, 20 if @asv4order > 20;
-    my @asv6order = sort {
-        $ns_per_asn_v6{$b}{ $trs[0]->id } <=> $ns_per_asn_v6{$a}{ $trs[0]->id }
-    } keys %ns_per_asn_v6;
+    my @asv6order = sort { $ns_per_asn_v6{ $trs[0]->id }{$b} <=> $ns_per_asn_v6{ $trs[0]->id }{$a} } keys %{ $ns_per_asn_v6{ $trs[0]->id } };
     splice @asv6order, 20 if @asv6order > 20;
 
     $c->stash(
@@ -406,11 +375,9 @@ sub servers : Local : Args(0) {
 }
 
 sub view_by_level : Local : Args(2) {
-    my ($self, $c, $level, $trid) = @_;
-    my $tr = $c->model('DB::Testrun')->find($trid);
-    my @tests =
-      $tr->search_related('tests', { 'count_' . lc($level) => { '>', 0 } })
-      ->all;
+    my ( $self, $c, $level, $trid ) = @_;
+    my $tr = $c->model( 'DB::Testrun' )->find( $trid );
+    my @tests = $tr->search_related( 'tests', { 'count_' . lc( $level ) => { '>', 0 } } )->all;
 
     $c->stash(
         {
@@ -423,15 +390,15 @@ sub view_by_level : Local : Args(2) {
 }
 
 sub auto : Private {
-    my ($self, $c) = @_;
-    my $db = $c->model('DB::Testrun');
+    my ( $self, $c ) = @_;
+    my $db = $c->model( 'DB::Testrun' );
 
     $c->stash(
         {
             trs => [
                 sort   { $b->test_count <=> $a->test_count }
                   grep { $_ }
-                  map  { $c->model('DB')->testrun($_) }
+                  map  { $c->model( 'DB' )->testrun( $_ ) }
                   keys %{ $c->session->{testruns} }
             ]
         }

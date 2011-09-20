@@ -50,8 +50,8 @@ sub number_of_servers_with_software {
     foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_servertype(
             group    => 1,
-            startkey => [ 0+$tr, $protocol, undef ],
-            endkey   => [ 0+$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
+            startkey => [ 0 + $tr, $protocol, undef ],
+            endkey   => [ 0 + $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -68,8 +68,8 @@ sub webservers_by_responsecode {
     foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_response(
             group    => 1,
-            startkey => [ 0+$tr, $protocol, undef ],
-            endkey   => [ 0+$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
+            startkey => [ 0 + $tr, $protocol, undef ],
+            endkey   => [ 0 + $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -86,8 +86,8 @@ sub webservers_by_contenttype {
     foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_contenttype(
             group    => 1,
-            startkey => [ 0+$tr, $protocol, undef ],
-            endkey   => [ 0+$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
+            startkey => [ 0 + $tr, $protocol, undef ],
+            endkey   => [ 0 + $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -104,8 +104,8 @@ sub webservers_by_charset {
     foreach my $tr ( @tr ) {
         my $tmp = $dbp->web_charset(
             group    => 1,
-            startkey => [ 0+$tr, $protocol, undef ],
-            endkey   => [ 0+$tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
+            startkey => [ 0 + $tr, $protocol, undef ],
+            endkey   => [ 0 + $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
         $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
@@ -173,12 +173,13 @@ sub top_foo_servers {
     );
 
     foreach my $e ( @{ $tmp->{rows} } ) {
+
         # count, address, latitude, longitude, country, code, city, asn
         push @res, [ $e->{value}, @{ $e->{key} }[ 2 .. 8 ] ];
     }
 
     my @tmp = sort { $b->[0] <=> $a->[0] } @res;
-    $number = $#tmp if $number>$#tmp;
+    $number = $#tmp if $number > $#tmp;
     return ( @tmp[ 0 .. $number - 1 ] );
 }
 
@@ -201,17 +202,18 @@ sub top_smtp_servers {
 }
 
 sub nameservers_per_asn {
-    my ( $self, @tr ) = @_;
+    my ( $self, $ipv6, @tr ) = @_;
     my %res;
 
     my $dbp = $self->dbproxy( 'zonestat' );
+    my $ipstr = $ipv6 ? '6' : '4';
     foreach my $t ( @tr ) {
         my $tmp = $dbp->server_ns_per_asn(
             group    => 1,
-            startkey => [ $t + 0 ],
-            endkey   => [ $t + 1 ],
+            startkey => [ $ipstr, $t + 0, 0 ],
+            endkey   => [ $ipstr, $t + 1, 0 ],
         );
-        $res{$t} = { map { $_->{key}[1] => $_->{value} } @{ $tmp->{rows} } };
+        $res{$t} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
     }
 
     return %res;
@@ -401,8 +403,8 @@ sub pageanalyzer_summary {
 
     foreach my $tr ( @tr ) {
         my $res = $self->dbproxy( 'zonestat' )->pageanalyze_summary(
-            group    => 'true',
-            key => [ 0 + $tr, 'http' ],
+            group => 'true',
+            key   => [ 0 + $tr, 'http' ],
         )->{rows};
 
         $res{$tr} = $res->[0]{value};

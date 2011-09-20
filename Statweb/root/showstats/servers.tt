@@ -2,8 +2,8 @@
 
 <h1>Server statistics for [% pagetitle %]</h1>
 
-[% FOREACH kind IN [ 'dns' 'http' 'smtp' ] -%]
-    <h2>Top 25 servers serving [% kind FILTER upper %] for each run</h2>
+[% FOREACH kind IN [ 'nameserver' 'mailserver' 'webserver' ] -%]
+    <h2>Top 25 [% kind FILTER ucfirst %]s for each run</h2>
     [% FOREACH tr IN data.trs -%]
         <table>
             <tr>
@@ -46,7 +46,7 @@
         [% END %]
         </td>
         [% FOREACH tr IN trs -%]
-           <td class="numeric">[% ns_per_asn_v4.$o.${tr.id} %]</td>
+           <td class="numeric">[% ns_per_asn_v4.${tr.id}.$o %]</td>
         [% END -%]
         </tr>
     [% END -%]
@@ -73,7 +73,7 @@
         [% END %]
         </td>
         [% FOREACH tr IN trs -%]
-           <td class="numeric">[% ns_per_asn_v6.$o.${tr.id} %]</td>
+           <td class="numeric">[% ns_per_asn_v6.${tr.id}.$o %]</td>
         [% END -%]
         </tr>
     [% END -%]
