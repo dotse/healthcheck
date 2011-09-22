@@ -156,31 +156,34 @@ sub domainset_being_tested {
     die "Not ported.";
 }
 
+use Data::Dumper;
 sub top_foo_servers {
     my $self   = shift;
-    my $kind   = lc( shift );
+    my $kind   = shift;
     my $tr     = shift;
     my $number = shift || 25;
     my @res;
 
     my $dbp     = $self->dbproxy( 'zonestat' );
-    my $endkind = $kind;
-    $endkind++;
-    my $tmp = $dbp->server_data(
-        group_level => 9,
-        startkey    => [ 0 + $tr, $kind ],
-        endkey      => [ 0 + $tr, $endkind ],
+
+    my $tmp = $dbp->stat_toplist(
+        key => [0+$tr, $kind]
     );
 
-    foreach my $e ( @{ $tmp->{rows} } ) {
+    my %data = %{$tmp->{rows}[0]{value}};
+    my %host;
 
-        # count, address, latitude, longitude, country, code, city, asn
-        push @res, [ $e->{value}, @{ $e->{key} }[ 2 .. 8 ] ];
+    foreach my $key (keys %data) {
+        my $tmp = $dbp->stat_server(key => $key, limit => 1);
+        $host{$key} = $tmp->{rows}[0]{value};
     }
 
-    my @tmp = sort { $b->[0] <=> $a->[0] } @res;
-    $number = $#tmp if $number > $#tmp;
-    return ( @tmp[ 0 .. $number - 1 ] );
+    @res = sort {$b->[0] <=> $a->[0]}
+        map {[$data{$_}, $_, $host{$_}{latitude}, 
+              $host{$_}{longitude}, $host{$_}{country},
+              $host{$_}{code}, $host{$_}{city}, $host{$_}{asn}]} keys %data;
+
+    return @res;
 }
 
 ## no critic (Subroutines::RequireArgUnpacking)
