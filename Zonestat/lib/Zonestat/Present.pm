@@ -156,7 +156,6 @@ sub domainset_being_tested {
     die "Not ported.";
 }
 
-use Data::Dumper;
 sub top_foo_servers {
     my $self   = shift;
     my $kind   = shift;
@@ -167,7 +166,9 @@ sub top_foo_servers {
     my $dbp     = $self->dbproxy( 'zonestat' );
 
     my $tmp = $dbp->stat_toplist(
-        key => [0+$tr, $kind]
+        startkey => [0+$tr, $kind],
+        endkey => [0+$tr, $kind.'Z'],
+        group_level => 2,
     );
 
     my %data = %{$tmp->{rows}[0]{value}};

@@ -21,8 +21,10 @@ function(keys, values, rereduce) {
     var sorted_pairs = pairs.sort(function(a,b){return b[1]-a[1]});
 
     var tmp = {};
+    var keep;
     if(rereduce) {
-        sorted_pairs = sorted_pairs.splice(0,COUNT);
+        keep = sorted_pairs.splice(0,COUNT);
+        sorted_pairs = keep.concat(sorted_pairs.filter(function(n){return n[0]==keys[keys.length-1][2]})) // return n[0]>keys[keys.length-1][2]
     }
     
     for(var n in sorted_pairs){
