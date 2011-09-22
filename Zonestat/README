@@ -1,5 +1,5 @@
-Zonestat version 0.01
-=====================
+Zonestat version 0.2
+====================
 
 This module (or set of modules) is written for .SE, the Swedish ccTLD
 registry, for them to gather statistics about their zone. Any usability for
@@ -7,12 +7,15 @@ other people is as of this writing more or less accidental.
 
 Installation notes:
 
-* Zonestat relies heavily on and reads much configuration from the DNSCheck
-  installation. Make sure that installation works.
+* Zonestat by default reads its configuration from 
+  $Config{siteprefix} . '/share/zonestat/config.yaml'
 
-* One particular thing that may need to be changed is to make sure that the
-  DNSCheck message DNS:NAMESERVER_FOUND does get entered into the database,
-  either by setting the log filter level low enough in site_config.yaml or by
-  changing that message's priority level to something sufficiently high in
+* Zonestat relies heavily on the DNSCheck installation. Make sure that
+  installation works.
+
+* One thing may have to be changed in the DNSCheck configuration: The DNSCheck
+  message DNS:NAMESERVER_FOUND must get entered into the database, either by
+  setting the log filter level low enough in site_config.yaml or by changing
+  that message's priority level to something sufficiently high in
   site_policy.yaml
 

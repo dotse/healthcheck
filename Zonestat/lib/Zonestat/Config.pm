@@ -5,28 +5,27 @@ use strict;
 use utf8;
 use warnings;
 
-use YAML qw[Load LoadFile];
+use Config::Any;
+use Data::Dumper;
 
-our $VERSION = '0.01';
-
-our $defaults = Load( join( '', <DATA> ) );
+our $VERSION = '0.2';
 
 ## no critic (Subroutines::RequireArgUnpacking)
 sub new {
-    my $class = shift;
+    my ($class, @files) = @_;
     my $overrides;
 
-    if ( @_ == 1 ) {
-        $overrides = LoadFile( $_[0] );
+    if ( @files == 1 ) {
+        my $tmp = Config::Any->load_files({ files => [$files[0]], use_ext => 1, flatten_to_hash => 1 });
+        $overrides = $tmp->{$files[0]};
     }
     else {
-        $overrides = {@_};
+        $overrides = {@files};
     }
 
     my $self = {};
     bless $self, $class;
 
-    $self->deepcopy( $self, $defaults );
     $self->deepcopy( $self, $overrides );
 
     return $self;
@@ -140,33 +139,3 @@ at your option, any later version of Perl 5 you may have available.
 =cut
 
 __DATA__
-
-dbi:
-    host: 127.0.0.1
-    port: 3306
-    database: dnscheck
-    user: dnscheck
-    password: dnscheck
-
-zone:
-    name: se.
-    servers:
-        - philby.nic.se
-        - burgess.nic.se
-    flagdomains:
-        - aaanicsecontrolzoneadfasldkjfansjjhjlhd.se
-        - dddnicsecontrolzonedfalksdjflkasdlkfjad.se
-        - gggnicsecontrolzonehalskjdfhakjlsdfaskd.se
-        - kkknicsecontrolzonentvsadfksajdshfajsdd.se
-        - nnnnicsecontrolzoneahsdqibwbercvhufasbd.se
-        - ooonicsecontrolzoneefuqasdfajewkfdgyyfd.se
-        - qqqnicsecontrolzonegqfyegfudoqwegfhjdsa.se
-        - tttnicsecontrolzonefqwgeufyqewyefygasdf.se
-        - vvvnicsecontrolzoneqwrfiuqhurwhdfuasads.se
-        - xxxnicsecontrolzoneqifilqwiehefqwdfasda.se
-    datafile: /var/tmp/se.zone
-    tsig: test.key:tsig:WW91IGFjdHVhbGx5IGJvdGhlcmVkIHRvIGRlY29kZSB0aGlzPw==
-
-programs:
-    dig: /usr/bin/dig
-

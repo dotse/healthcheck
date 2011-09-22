@@ -24,7 +24,7 @@ use Zonestat::DB::Asdata;
 
 use Module::Find;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 ## no critic (Subroutines::RequireArgUnpacking)
 sub new {
@@ -32,7 +32,7 @@ sub new {
     my $self = bless {}, $class;
 
     unless ( @_ ) {
-        @_ = ( $Config{siteprefix} . '/share/dnscheck/site_config.yaml' );
+        @_ = ( $Config{siteprefix} . '/share/zonestat/config.yaml' );
     }
 
     $self->{conf}    = Zonestat::Config->new( @_ );
