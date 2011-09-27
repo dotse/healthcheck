@@ -14,7 +14,7 @@ WriteMakefile(
         Geo::IP => 0,
         HTTP::Response => 5.824,
         XML::Simple => 0,
-        CouchDB::Client => 0,
+        CouchDB::Client => 0.10,
         CouchDB::Helper => 0,
         Config::Any => 0.20,
     }, 

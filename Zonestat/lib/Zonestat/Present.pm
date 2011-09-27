@@ -416,6 +416,26 @@ sub pageanalyzer_summary {
     return \%res;
 }
 
+sub tests_by_level {
+    my ($self, $level, @trs) = @_;
+    my %res;
+    
+    foreach my $tr (map {0+$_} @trs) {
+        my $r = $self->dbproxy('zonestat')->check_bylevel(
+            group => 1,
+            startkey => [uc($level), $tr, ''],
+            endkey => [uc($level), $tr, 'Z'],
+        )->{rows};
+        my @domains = map {$_->{key}[2]} @$r;
+        my $view = $self->db('zonestat')->newDesignDoc('_design/check');
+        $view->retrieve;
+        $r = $view->bulkGetView('bylevel', [map {[$tr, $_]} @domains]);
+        $res{$tr} = {map {$_->{key}[1] => $_->{value}} @$r};
+    }
+    
+    return \%res;
+}
+
 1;
 __END__
 
