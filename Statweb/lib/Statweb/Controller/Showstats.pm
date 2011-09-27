@@ -376,22 +376,23 @@ sub servers : Local : Args(0) {
 
 sub view_by_level : Local : Args(2) {
     my ( $self, $c, $level, $trid ) = @_;
-    my $tr = $c->model( 'DB::Testrun' )->find( $trid );
-    my @tests = $tr->search_related( 'tests', { 'count_' . lc( $level ) => { '>', 0 } } )->all;
+    my $tr = $c->{zs}->testrun($trid);
+    my $results = $c->{zs}->present->tests_by_level($level, $trid)->{$trid};
+    my @order = sort keys %$results;
 
     $c->stash(
         {
             template => 'showstats/view_by_level.tt',
             tr       => $tr,
             level    => $level,
-            tests    => \@tests,
+            tests    => $results,
+            order    => \@order,
         }
     );
 }
 
 sub auto : Private {
     my ( $self, $c ) = @_;
-    my $db = $c->model( 'DB::Testrun' );
 
     $c->stash(
         {

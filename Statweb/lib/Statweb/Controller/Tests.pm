@@ -4,6 +4,8 @@ use strict;
 use warnings;
 use parent 'Catalyst::Controller';
 
+use List::Util qw[max];
+
 =head1 NAME
 
 Statweb::Controller::Tests - Catalyst Controller
@@ -20,14 +22,19 @@ Catalyst Controller.
 
 =cut
 
-sub index : Path : Args(1) {
-    my ($self, $c, $id) = @_;
-    my $test = $c->model('DB::Tests')->find($id);
+sub index : Path : Args(2) {
+    my ($self, $c, $trid, $domain) = @_;
+    my $test = $c->model('DB')->db('zonestat')->newDoc($trid . '-' . $domain);
+    $test->retrieve;
+    my @ordered = sort {$a->{timestamp} <=> $b->{timestamp}} @{$test->data->{dnscheck}};
+    my $arg_count = max map {scalar(@{$_->{args}})} @ordered;
 
     $c->stash(
         {
             template => 'tests/index.tt',
-            test     => $test,
+            domain => $domain,
+            test     => \@ordered,
+            arg_count => $arg_count,
         }
     );
 }

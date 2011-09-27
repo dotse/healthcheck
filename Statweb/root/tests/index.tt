@@ -1,29 +1,22 @@
-<h1>[% test.domain %]</h1>
+<h1>[% domain %]</h1>
 
 <table id="testinfo">
     <tr>
         <th colspan="6">Test results</th>
     </tr>
-    [% FOREACH r IN test.results -%]
+    [% FOREACH r IN test -%]
     <tr class="[% r.level FILTER lower %]">
         <td>
             [% r.level %]
         </td>
         <td>
-            [% r.message %]
+            [% r.tag %]
         </td>
+        [% FOREACH n IN [0..arg_count] -%]
         <td>
-            [% r.arg0 %]
+            [% r.args.$n %]
         </td>
-        <td>
-            [% r.arg1 %]
-        </td>
-        <td>
-            [% r.arg2 %]
-        </td>
-        <td>
-            [% r.arg3 %]
-        </td>
+        [% END -%]
     </tr>
     [% END -%]
 </table>

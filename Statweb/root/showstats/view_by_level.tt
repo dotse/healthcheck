@@ -1,4 +1,4 @@
-<h1>Tests in [% tr.domainset.name %] [% tr.name %] with results at level [% level | upper %]</h1>
+<h1>Tests in [% tr.name %] with results at level [% level | upper %]</h1>
 
 <table>
     <tr>
@@ -9,20 +9,16 @@
         <th>Notice</th>
         <th>Info</th>
     </tr>
-    [% FOREACH t IN tests -%]
+    [% FOREACH t IN order -%]
         <tr class="[% loop.parity %]">
             <td>
-            [% IF t.results.size > 0 -%]
-                <a href="[% c.uri_for('/tests', t.id) %]">[% t.domain %]</a>
-            [% ELSE -%]
-                [% t.domain %]
-            [% END -%]
+            <a href="[% c.uri_for('/tests', tr.id, t) %]">[% t %]</a>
             </td>
-            <td class="numeric">[% t.count_critical %]</td>
-            <td class="numeric">[% t.count_error %]</td>
-            <td class="numeric">[% t.count_warning %]</td>
-            <td class="numeric">[% t.count_notice %]</td>
-            <td class="numeric">[% t.count_info %]</td>
+            <td class="numeric">[% tests.$t.CRITICAL %]</td>
+            <td class="numeric">[% tests.$t.ERROR %]</td>
+            <td class="numeric">[% tests.$t.WARNING %]</td>
+            <td class="numeric">[% tests.$t.NOTICE %]</td>
+            <td class="numeric">[% tests.$t.INFO %]</td>
         </tr>
     [% END -%]
 </table>
