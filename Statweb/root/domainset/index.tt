@@ -1,25 +1,16 @@
-<h1>[% dset.name %]</h1>
-[% IF page.last_page > 1 -%]
-<h2>Page [% page.current_page %]/[% page.last_page %]</h2>
-[% END %]
+<h1>[% dset.name | ucfirst %]</h1>
 
-[% IF page.previous_page -%]
-<a href="[% c.uri_for('', dset.id, page.previous_page) %]">Previous</a>
+[% IF prevkey -%]
+<a href="[% c.uri_for('', dset.name, prevkey) %]">Previous</a>
 [% END -%]
 
-[% IF page.next_page -%]
-<a href="[% c.uri_for('', dset.id, page.next_page) %]">Next</a>
+[% IF nextkey -%]
+<a href="[% c.uri_for('', dset.name, nextkey) %]">Next</a>
 [% END -%]
 
-<p class="notice"> Note that if you delete or add a domain in a domainset, all
-calculated statistics for that set will be invalidated and may take some
-considerable time to recalculate. </p>
-
-[% f = page.first -%]
 <ul class="domainset">
-    [% FOREACH row IN rows.all -%]
-    <li>[% f %]: [% row.domain.domain %] (<a href="[% c.uri_for('',dset.id,'delete',row.domain.id) %]">delete</a>)</li>
-    [% f = f + 1 -%]
+    [% FOREACH row IN rows -%]
+    <li>[% row %] (<a href="[% c.uri_for('',dset.name,'delete',row) %]">delete</a>)</li>
     [% END -%]
 </ul>
 
@@ -31,6 +22,6 @@ considerable time to recalculate. </p>
     
 <h2>Initiate cache rebuild</h2>
 <p class="notice">This may in extreme cases take several hours.</p>
-<form method="POST" action="[% c.uri_for('',dset.id,'rebuild') %]">
+<form method="POST" action="[% c.uri_for('',dset.name,'rebuild') %]">
     <input type="submit" value="Rebuild">
 </form>

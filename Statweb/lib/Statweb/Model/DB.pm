@@ -21,6 +21,7 @@ has 'zs' => (
         testrun => 'testrun',
         queue => 'queue',
         asdata => 'asdata',
+        domainset => 'domainset',
     },
 );
 

@@ -23,7 +23,7 @@ Catalyst Controller.
 
 sub index : Chained('/') : CaptureArgs(1) : PathPart('domainset') {
     my ($self, $c, $id) = @_;
-    my $ds = $c->model('DB::Domainset')->find($id);
+    my $ds = $c->model('DB')->domainset($id);
 
     $c->stash(
         {
@@ -36,16 +36,15 @@ sub index : Chained('/') : CaptureArgs(1) : PathPart('domainset') {
 sub first : Chained('index') : Args(0) : PathPart('') {
     my ($self, $c) = @_;
 
-    $c->detach('later', [1]);
+    $c->detach('later', [1,'n']);
 }
 
 sub later : Chained('index') : Args(1) : PathPart('') {
     my ($self, $c, $page) = @_;
 
-    $c->stash->{rows} =
-      $c->stash->{dset}
-      ->search_related('glue', undef, { page => $page, rows => 25 });
-    $c->stash->{page} = $c->stash->{rows}->pager;
+    ($c->stash->{rows}, $c->stash->{nextkey}) =
+      $c->stash->{dset}->page($page);
+    # $c->stash->{prevkey} = $c->stash->{rows}[0];
 }
 
 sub delete : Chained('index') : Args(1) : PathPart('delete') {

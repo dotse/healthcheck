@@ -39,11 +39,18 @@ sub db {
     return $self->SUPER::db( $name );
 }
 
+sub dbproxy {
+    my $self = shift;
+    my $name = shift || 'zonestat-dset';
+
+    return $self->SUPER::dbproxy( $name );
+}
+
 sub id {
     my $self   = shift;
     my $domain = shift;
 
-    return sha1_hex( $self->name . $domain );
+    return sha1_hex( $self->name . ($domain || '') );
 }
 
 sub add {
@@ -70,10 +77,9 @@ sub remove {
 
 sub all {
     my $self = shift;
-    my $ddoc = $self->db->newDesignDoc( '_design/util' );
+    my $ddoc = $self->dbproxy;
 
-    $ddoc->retrieve;
-    return map { $_->{value} } @{ $ddoc->queryView( 'set', key => $self->name, reduce => 'false' )->{rows} };
+    return [map { $_->{value} } @{ $ddoc->util_set( key => $self->name, reduce => 'false' )->{rows} }];
 }
 
 sub clear {
@@ -114,6 +120,24 @@ sub enqueue {
     $self->parent->gather->put_in_queue( map { { domain => $_, priority => 5, source_data => $testrun, } } $self->all );
 
     return $testrun;
+}
+
+sub page {
+    my ($self, $page, $rows) = @_;
+
+    $rows ||= 26;
+    my $dbp = $self->dbproxy('zonestat-dset');
+
+    my $res = $dbp->util_page(startkey => [$self->name, $page], limit => $rows);
+    my @rows = map {$_->{key}[1]} grep {$_->{key}[0] eq $self->name} @{$res->{rows}};
+    my $next;
+    
+    if ($rows == scalar(@rows)) {
+        $next = $rows[-1];
+        @rows = @rows[0..$#rows-1];
+    }
+    
+    return (\@rows, $next);
 }
 
 1;
