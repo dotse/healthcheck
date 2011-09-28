@@ -53,7 +53,7 @@ sub delete : Chained('index') : Args(1) : PathPart('delete') {
     $c->stash->{dset}->remove($domain_id);
 
     $c->res->redirect(
-        $c->uri_for_action('/domainset/first', [$c->stash->{dset}->id]));
+        $c->uri_for_action('/domainset/first', [$c->stash->{dset}->name]));
 }
 
 sub add : Chained('index') : Args(0) : PathPart('add') {
@@ -63,7 +63,7 @@ sub add : Chained('index') : Args(0) : PathPart('add') {
     $c->stash->{dset}->add($domainname);
 
     $c->res->redirect(
-        $c->uri_for_action('/domainset/first', [$c->stash->{dset}->id]));
+        $c->uri_for_action('/domainset/first', [$c->stash->{dset}->name]));
 }
 
 sub rebuild : Chained('index') : Args(0) : PathPart('rebuild') {
@@ -85,7 +85,7 @@ sub rebuild : Chained('index') : Args(0) : PathPart('rebuild') {
     }
 
     $c->res->redirect(
-        $c->uri_for_action('/domainset/first', [$c->stash->{dset}->id]));
+        $c->uri_for_action('/domainset/first', [$c->stash->{dset}->name]));
 }
 
 =head1 AUTHOR

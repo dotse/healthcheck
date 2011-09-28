@@ -15,13 +15,7 @@
 </ul>
 
 <h2>Add new</h2>
-    <form method="POST" action="[% c.uri_for('',dset.id,'add') %]">
+    <form method="POST" action="[% c.uri_for('',dset.name,'add') %]">
         <input type="text" name="domainname" size="63">
         <input type="submit" name="add" value="add">
     </form>
-    
-<h2>Initiate cache rebuild</h2>
-<p class="notice">This may in extreme cases take several hours.</p>
-<form method="POST" action="[% c.uri_for('',dset.name,'rebuild') %]">
-    <input type="submit" value="Rebuild">
-</form>

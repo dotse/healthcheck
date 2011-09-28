@@ -82,6 +82,13 @@ sub all {
     return [map { $_->{value} } @{ $ddoc->util_set( key => $self->name, reduce => 'false' )->{rows} }];
 }
 
+sub all_docs {
+    my $self = shift;
+    my $ddoc = $self->dbproxy;
+
+    return [map { $_->{doc} } @{ $ddoc->util_set( key => $self->name, reduce => 'false', include_docs => 'true' )->{rows} }];
+}
+
 sub clear {
     my $self = shift;
 
