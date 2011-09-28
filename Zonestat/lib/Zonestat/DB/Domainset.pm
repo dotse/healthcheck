@@ -140,4 +140,16 @@ sub page {
     return (\@rows, $next);
 }
 
+sub prevkey {
+    my ($self, $page, $rows) = @_;
+
+    $rows ||= 26;
+    my $dbp = $self->dbproxy('zonestat-dset');
+
+    my $res = $dbp->util_page(startkey => [$self->name, $page], limit => $rows, descending => 1);
+    my @rows = map {$_->{key}[1]} grep {$_->{key}[0] eq $self->name} @{$res->{rows}};
+    
+    return $rows[-1];
+}
+
 1;

@@ -44,7 +44,7 @@ sub later : Chained('index') : Args(1) : PathPart('') {
 
     ($c->stash->{rows}, $c->stash->{nextkey}) =
       $c->stash->{dset}->page($page);
-    # $c->stash->{prevkey} = $c->stash->{rows}[0];
+    $c->stash->{prevkey} = $c->stash->{dset}->prevkey($page);
 }
 
 sub delete : Chained('index') : Args(1) : PathPart('delete') {
