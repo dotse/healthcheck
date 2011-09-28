@@ -50,7 +50,7 @@ sub later : Chained('index') : Args(1) : PathPart('') {
 sub delete : Chained('index') : Args(1) : PathPart('delete') {
     my ($self, $c, $domain_id) = @_;
 
-    $c->stash->{dset}->remove_domain($domain_id);
+    $c->stash->{dset}->remove($domain_id);
 
     $c->res->redirect(
         $c->uri_for_action('/domainset/first', [$c->stash->{dset}->id]));
@@ -59,13 +59,8 @@ sub delete : Chained('index') : Args(1) : PathPart('delete') {
 sub add : Chained('index') : Args(0) : PathPart('add') {
     my ($self, $c) = @_;
     my $domainname = $c->req->params->{domainname};
-    my $domain = $c->model('DB::Domains')->find_or_create({ domain => $domainname });
 
-    $c->stash->{dset}->add_to_glue({ domain_id => $domain->id });
-    my $trs = $c->stash->{dset}->testruns;
-    while (defined(my $tr = $trs->next)) {
-        $tr->invalidate_cache;
-    }
+    $c->stash->{dset}->add($domainname);
 
     $c->res->redirect(
         $c->uri_for_action('/domainset/first', [$c->stash->{dset}->id]));
