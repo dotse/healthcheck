@@ -124,7 +124,7 @@ sub enqueue {
     );
     $trdoc->create;
 
-    $self->parent->gather->put_in_queue( map { { domain => $_, priority => 5, source_data => $testrun, } } $self->all );
+    $self->parent->gather->put_in_queue( map { { domain => $_, priority => 5, source_data => $testrun, } } @{$self->all} );
 
     return $testrun;
 }
