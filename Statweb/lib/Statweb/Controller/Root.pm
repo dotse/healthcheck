@@ -109,8 +109,8 @@ sub clearselection : Global : Arg(0) {
 sub enqueue : Global : Arg(1) {
     my ($self, $c, $dsid) = @_;
 
-    my $ds = $c->model('DB::Domainset')->find($dsid);
-    $c->{zs}->gather->enqueue_domainset($ds);
+    my $ds = $c->model('DB')->domainset($dsid);
+    $ds->enqueue();
     $c->res->redirect('/');
 }
 
