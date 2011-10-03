@@ -50,7 +50,7 @@ sub id {
     my $self   = shift;
     my $domain = shift;
 
-    return sha1_hex( $self->name . ($domain || '') );
+    return ($self->name . '-' . ($domain || '') );
 }
 
 sub add {
@@ -92,10 +92,14 @@ sub all_docs {
 sub clear {
     my $self = shift;
 
-    foreach my $domain ( $self->all ) {
+    foreach my $domain ( @{$self->all} ) {
         my $doc = $self->db->newDoc( $self->id( $domain ) );
-        $doc->retrieve;
-        $doc->delete;
+        try {
+            $doc->retrieve;
+            $doc->delete;
+        } catch {
+            print 'Failure: ' . $_ . "\n";
+        }
     }
 
     return $self;
