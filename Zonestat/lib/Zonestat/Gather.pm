@@ -9,6 +9,7 @@ use base 'Zonestat::Common';
 
 use Carp;
 use Try::Tiny;
+use Net::LibIDN ':all';
 
 our $VERSION = '0.02';
 our $debug   = 0;
@@ -28,7 +29,7 @@ sub single_domain {
     my $id;
 
     my $db   = $self->db( 'zonestat' );
-    my $data = $self->parent->collect->for_domain( $domain );
+    my $data = $self->parent->collect->for_domain( idn_to_ascii( $domain, 'UTF-8' ) );
     $data->{domain} = $domain;
     while ( my ( $k, $v ) = each %$extra ) {
         $data->{$k} = $v unless exists( $data->{$k} );
