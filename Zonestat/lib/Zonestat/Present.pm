@@ -171,6 +171,10 @@ sub top_foo_servers {
         group_level => 2,
     );
 
+    if (@{$tmp->{rows}} == 0) {
+        return @res;
+    }
+
     my %data = %{$tmp->{rows}[0]{value}};
     my %host;
 
@@ -359,7 +363,10 @@ sub mailservers_in_sweden {
 
     my ( $v6count, $v4count, $total ) = @$tmp;
 
-    if ( $ipv6 ) {
+    if ( $total == 0) {
+        return (0,0);
+    }
+    elsif ( $ipv6 ) {
         return ( 100 * ( $v6count / $total ), $v6count );
     }
     else {
