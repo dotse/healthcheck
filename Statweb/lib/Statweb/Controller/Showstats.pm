@@ -200,7 +200,7 @@ sub webpages : Local : Args(0) {
     my $p = $c->{zs}->present;
 
     if ( @trs == 1 ) {
-        $name = $trs[0];
+        $name = $trs[0]->name;
     }
     else {
         $name = scalar( @trs ) . ' testruns';
@@ -311,7 +311,7 @@ sub servers : Local : Args(0) {
     my $p = $c->{zs}->present;
 
     if ( @trs == 1 ) {
-        $name = $trs[0];
+        $name = $trs[0]->name;
     }
     else {
         $name = scalar( @trs ) . ' testruns';

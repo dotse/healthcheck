@@ -43,7 +43,7 @@ sub begin : Private {
     my ($self, $c) = @_;
 
     unless ($c->res->content_type) {
-        $c->res->content_type('text/html;charset=iso-8859-1');
+        $c->res->content_type('text/html;charset=UTF-8');
     }
 
 }

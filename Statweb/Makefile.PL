@@ -20,6 +20,7 @@ requires (qw[
             Catalyst::Plugin::Session::State::Cookie
 
             Catalyst::Plugin::Authentication
+            Catalyst::Plugin::Unicode::Encoding
 
             Catalyst::View::TT
 

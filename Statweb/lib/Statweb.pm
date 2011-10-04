@@ -22,6 +22,7 @@ use Catalyst qw/-Debug
   Session::Store::FastMmap
   Session::State::Cookie
 
+  Unicode::Encoding
   /;
 our $VERSION = '0.01';
 
@@ -37,6 +38,7 @@ our $VERSION = '0.01';
 __PACKAGE__->config(
     name              => 'Statweb',
     'Plugin::Session' => { expires => 86400, },
+    encoding => 'utf-8',
 );
 
 # Start the application
