@@ -50,7 +50,7 @@ sub id {
     my $self   = shift;
     my $domain = shift;
 
-    return ($self->name . '-' . ($domain || '') );
+    return ( $self->name . '-' . ( $domain || '' ) );
 }
 
 sub add {
@@ -79,25 +79,26 @@ sub all {
     my $self = shift;
     my $ddoc = $self->dbproxy;
 
-    return [map { $_->{value} } @{ $ddoc->util_set( key => $self->name, reduce => 'false' )->{rows} }];
+    return [ map { $_->{value} } @{ $ddoc->util_set( key => $self->name, reduce => 'false' )->{rows} } ];
 }
 
 sub all_docs {
     my $self = shift;
     my $ddoc = $self->dbproxy;
 
-    return [map { $_->{doc} } @{ $ddoc->util_set( key => $self->name, reduce => 'false', include_docs => 'true' )->{rows} }];
+    return [ map { $_->{doc} } @{ $ddoc->util_set( key => $self->name, reduce => 'false', include_docs => 'true' )->{rows} } ];
 }
 
 sub clear {
     my $self = shift;
 
-    foreach my $domain ( @{$self->all} ) {
+    foreach my $domain ( @{ $self->all } ) {
         my $doc = $self->db->newDoc( $self->id( $domain ) );
         try {
             $doc->retrieve;
             $doc->delete;
-        } catch {
+        }
+        catch {
             print 'Failure: ' . $_ . "\n";
         }
     }
@@ -128,38 +129,38 @@ sub enqueue {
     );
     $trdoc->create;
 
-    $self->parent->gather->put_in_queue( map { { domain => $_, priority => 5, source_data => $testrun, } } @{$self->all} );
+    $self->parent->gather->put_in_queue( map { { domain => $_, priority => 5, source_data => $testrun, } } @{ $self->all } );
 
     return $testrun;
 }
 
 sub page {
-    my ($self, $page, $rows) = @_;
+    my ( $self, $page, $rows ) = @_;
 
     $rows ||= 26;
-    my $dbp = $self->dbproxy('zonestat-dset');
+    my $dbp = $self->dbproxy( 'zonestat-dset' );
 
-    my $res = $dbp->util_page(startkey => [$self->name, $page], limit => $rows);
-    my @rows = map {$_->{key}[1]} grep {$_->{key}[0] eq $self->name} @{$res->{rows}};
+    my $res = $dbp->util_page( startkey => [ $self->name, $page ], limit => $rows );
+    my @rows = map { $_->{key}[1] } grep { $_->{key}[0] eq $self->name } @{ $res->{rows} };
     my $next;
-    
-    if ($rows == scalar(@rows)) {
+
+    if ( $rows == scalar( @rows ) ) {
         $next = $rows[-1];
-        @rows = @rows[0..$#rows-1];
+        @rows = @rows[ 0 .. $#rows - 1 ];
     }
-    
-    return (\@rows, $next);
+
+    return ( \@rows, $next );
 }
 
 sub prevkey {
-    my ($self, $page, $rows) = @_;
+    my ( $self, $page, $rows ) = @_;
 
     $rows ||= 26;
-    my $dbp = $self->dbproxy('zonestat-dset');
+    my $dbp = $self->dbproxy( 'zonestat-dset' );
 
-    my $res = $dbp->util_page(startkey => [$self->name, $page], limit => $rows, descending => 1);
-    my @rows = map {$_->{key}[1]} grep {$_->{key}[0] eq $self->name} @{$res->{rows}};
-    
+    my $res = $dbp->util_page( startkey => [ $self->name, $page ], limit => $rows, descending => 1 );
+    my @rows = map { $_->{key}[1] } grep { $_->{key}[0] eq $self->name } @{ $res->{rows} };
+
     return $rows[-1];
 }
 

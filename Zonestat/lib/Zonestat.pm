@@ -129,7 +129,7 @@ sub user {
 
 sub asdata {
     my $self = shift;
-    return Zonestat::DB::Asdata->new($self);
+    return Zonestat::DB::Asdata->new( $self );
 }
 
 sub dbconfig {

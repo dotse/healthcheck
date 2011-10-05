@@ -353,23 +353,24 @@ sub dkim_data {
 }
 
 sub whatweb {
-    my $self = shift;
+    my $self   = shift;
     my $domain = shift;
     my $ww     = $self->cget( qw[zonestat whatweb] );
     my %res    = ();
     my $url    = "http://www.$domain";
-    
-    die "No executable whatweb" unless -x $ww;
-    
-    my ($success, $stdout, $stderr) = run_external(120, $ww, '--log-json=/dev/stdout', '--quiet', $url);
-    if ($success) {
-        my $tmp = join(', ', split(/\n/, $stdout));
+
+    return unless -x $ww;
+
+    my ( $success, $stdout, $stderr ) = run_external( 120, $ww, '--log-json=/dev/stdout', '--quiet', $url );
+    if ( $success ) {
+        my $tmp = join( ', ', split( /\n/, $stdout ) );
         my $data;
         try {
-            $data = decode_json("[$tmp]"); # WhatWeb does not always produce valid JSON...
+            $data = decode_json( "[$tmp]" );    # WhatWeb does not always produce valid JSON...
         };
         return $data;
-    } else {
+    }
+    else {
         return;
     }
 }

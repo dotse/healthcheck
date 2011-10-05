@@ -10,14 +10,13 @@ use Data::Dumper;
 
 our $VERSION = '0.2';
 
-## no critic (Subroutines::RequireArgUnpacking)
 sub new {
-    my ($class, @files) = @_;
+    my ( $class, @files ) = @_;
     my $overrides;
 
     if ( @files == 1 ) {
-        my $tmp = Config::Any->load_files({ files => [$files[0]], use_ext => 1, flatten_to_hash => 1 });
-        $overrides = $tmp->{$files[0]};
+        my $tmp = Config::Any->load_files( { files => [ $files[0] ], use_ext => 1, flatten_to_hash => 1 } );
+        $overrides = $tmp->{ $files[0] };
     }
     else {
         $overrides = {@files};

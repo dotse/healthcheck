@@ -163,30 +163,28 @@ sub top_foo_servers {
     my $number = shift || 25;
     my @res;
 
-    my $dbp     = $self->dbproxy( 'zonestat' );
+    my $dbp = $self->dbproxy( 'zonestat' );
 
     my $tmp = $dbp->stat_toplist(
-        startkey => [0+$tr, $kind],
-        endkey => [0+$tr, $kind.'Z'],
+        startkey    => [ 0 + $tr, $kind ],
+        endkey      => [ 0 + $tr, $kind . 'Z' ],
         group_level => 2,
     );
 
-    if (@{$tmp->{rows}} == 0) {
+    if ( @{ $tmp->{rows} } == 0 ) {
         return @res;
     }
 
-    my %data = %{$tmp->{rows}[0]{value}};
+    my %data = %{ $tmp->{rows}[0]{value} };
     my %host;
 
-    foreach my $key (keys %data) {
-        my $tmp = $dbp->stat_server(key => $key, limit => 1);
+    foreach my $key ( keys %data ) {
+        my $tmp = $dbp->stat_server( key => $key, limit => 1 );
         $host{$key} = $tmp->{rows}[0]{value};
     }
 
-    @res = sort {$b->[0] <=> $a->[0]}
-        map {[$data{$_}, $_, $host{$_}{latitude}, 
-              $host{$_}{longitude}, $host{$_}{country},
-              $host{$_}{code}, $host{$_}{city}, $host{$_}{asn}]} keys %data;
+    @res = sort { $b->[0] <=> $a->[0] }
+      map { [ $data{$_}, $_, $host{$_}{latitude}, $host{$_}{longitude}, $host{$_}{country}, $host{$_}{code}, $host{$_}{city}, $host{$_}{asn} ] } keys %data;
 
     return @res;
 }
@@ -363,8 +361,8 @@ sub mailservers_in_sweden {
 
     my ( $v6count, $v4count, $total ) = @$tmp;
 
-    if ( $total == 0) {
-        return (0,0);
+    if ( $total == 0 ) {
+        return ( 0, 0 );
     }
     elsif ( $ipv6 ) {
         return ( 100 * ( $v6count / $total ), $v6count );
@@ -424,22 +422,22 @@ sub pageanalyzer_summary {
 }
 
 sub tests_by_level {
-    my ($self, $level, @trs) = @_;
+    my ( $self, $level, @trs ) = @_;
     my %res;
-    
-    foreach my $tr (map {0+$_} @trs) {
-        my $r = $self->dbproxy('zonestat')->check_bylevel(
-            group => 1,
-            startkey => [uc($level), $tr, ''],
-            endkey => [uc($level), $tr, 'Z'],
+
+    foreach my $tr ( map { 0 + $_ } @trs ) {
+        my $r = $self->dbproxy( 'zonestat' )->check_bylevel(
+            group    => 1,
+            startkey => [ uc( $level ), $tr, '' ],
+            endkey   => [ uc( $level ), $tr, 'Z' ],
         )->{rows};
-        my @domains = map {$_->{key}[2]} @$r;
-        my $view = $self->db('zonestat')->newDesignDoc('_design/check');
+        my @domains = map { $_->{key}[2] } @$r;
+        my $view = $self->db( 'zonestat' )->newDesignDoc( '_design/check' );
         $view->retrieve;
-        $r = $view->bulkGetView('bylevel', [map {[$tr, $_]} @domains]);
-        $res{$tr} = {map {$_->{key}[1] => $_->{value}} @$r};
+        $r = $view->bulkGetView( 'bylevel', [ map { [ $tr, $_ ] } @domains ] );
+        $res{$tr} = { map { $_->{key}[1] => $_->{value} } @$r };
     }
-    
+
     return \%res;
 }
 

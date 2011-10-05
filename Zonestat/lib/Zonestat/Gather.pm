@@ -28,7 +28,7 @@ sub single_domain {
     my $extra  = shift;
     my $id;
 
-    my $db   = $self->db( 'zonestat' );
+    my $db = $self->db( 'zonestat' );
     my $data = $self->parent->collect->for_domain( idn_to_ascii( $domain, 'UTF-8' ) );
     $data->{domain} = $domain;
     while ( my ( $k, $v ) = each %$extra ) {
@@ -52,7 +52,7 @@ sub single_domain {
                 }
                 catch {
                     unless ( /^Storage error: 409 Conflict/ ) {
-                        die( $_ ); # If it's not a conflict, rethrow
+                        die( $_ );    # If it's not a conflict, rethrow
                     }
                 };
             }
