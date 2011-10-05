@@ -25,7 +25,7 @@ use base 'Zonestat::Common';
 
 use DNSCheck;
 use Time::HiRes qw[time];
-use JSON;
+use JSON::XS;
 use XML::Simple;
 use IO::Socket::INET;
 use IO::Socket::INET6;
@@ -121,6 +121,15 @@ SPF-formatted TXT record, if one exists.
 =cut
 
     $res{dkim} = $self->dkim_data( $domain );
+
+=item whatweb
+
+Under this key output from WhatWeb is stored. It's not further used at this
+time.
+
+=cut
+
+    $res{whatweb} = $self->whatweb( $domain );
 
 =item mailservers
 
@@ -341,6 +350,28 @@ sub dkim_data {
         spf_real          => $spf_spf,
         spf_transitionary => $spf_txt,
     };
+}
+
+sub whatweb {
+    my $self = shift;
+    my $domain = shift;
+    my $ww     = $self->cget( qw[zonestat whatweb] );
+    my %res    = ();
+    my $url    = "http://www.$domain";
+    
+    die "No executable whatweb" unless -x $ww;
+    
+    my ($success, $stdout, $stderr) = run_external(120, $ww, '--log-json=/dev/stdout', '--quiet', $url);
+    if ($success) {
+        my $tmp = join(', ', split(/\n/, $stdout));
+        my $data;
+        try {
+            $data = decode_json("[$tmp]"); # WhatWeb does not always produce valid JSON...
+        };
+        return $data;
+    } else {
+        return;
+    }
 }
 
 sub smtp_info_for_address {
