@@ -75,9 +75,9 @@ use vars qw[
 $debug      = 0;
 $verbose    = 0;
 $check      = DNSCheck->new;
-$zs         = Zonestat->new( %{ $check->config } );
-$limit      = $check->config->get( "daemon" )->{maxchild};
-$savelevel  = $check->config->get( "daemon" )->{savelevel} || 'INFO';
+$zs         = Zonestat->new;
+$limit      = $zs->cget( "daemon", "maxchild" );
+$savelevel  = $zs->cget( "daemon", "savelevel" ) || 'INFO';
 $running    = 1;
 $restart    = 0;
 $syslog     = 1;
@@ -123,7 +123,7 @@ sub slog {
             print STDERR "Trying to reconnect to syslogd...\n";
             sleep( 0.5 );
             $tries += 1;
-            openlog( $check->config->get( "syslog" )->{ident}, 'pid', $check->config->get( "syslog" )->{facility} );
+            openlog( $zs->cget( "syslog", "ident" ), 'pid', $zs->cget( "syslog", "facility" ) );
             goto TRY;
         }
         else {
@@ -137,18 +137,17 @@ sub slog {
 }
 
 sub setup {
-    my $errfile = $check->config->get( "daemon" )->{errorlog};
-    my $pidfile = $check->config->get( "daemon" )->{pidfile};
+    my $errfile = $zs->cget( "daemon", "errorlog" );
+    my $pidfile = $zs->cget( "daemon", "pidfile" );
 
     @saved_argv = @ARGV;    # We'll use this if we're asked to restart ourselves
     GetOptions( 'debug' => \$debug, 'verbose' => \$verbose );
-    openlog( $check->config->get( "syslog" )->{ident}, 'pid', $check->config->get( "syslog" )->{facility} );
-    slog 'info', "$0 starting with %d maximum children.", $check->config->get( "daemon" )->{maxchild};
-    slog 'info', 'IPv4 disabled.' unless $check->config->get( "net" )->{ipv4};
-    slog 'info', 'IPv6 disabled.' unless $check->config->get( "net" )->{ipv6};
-    slog 'info', 'SMTP disabled.' unless $check->config->get( "net" )->{smtp};
-    slog 'info', 'Logging as %s to facility %s.', $check->config->get( "syslog" )->{ident}, $check->config->get( "syslog" )->{facility};
-    slog 'info', 'Reading config from %s and %s.', $check->config->get( "configfile" ), $check->config->get( "siteconfigfile" );
+    openlog( $zs->cget( "syslog" )->{ident}, 'pid', $zs->cget( "syslog" )->{facility} );
+    slog 'info', "$0 starting with %d maximum children.", $zs->cget( "daemon" )->{maxchild};
+    slog 'info', 'IPv4 disabled.' unless $zs->cget( "net" )->{ipv4};
+    slog 'info', 'IPv6 disabled.' unless $zs->cget( "net" )->{ipv6};
+    slog 'info', 'SMTP disabled.' unless $zs->cget( "net" )->{smtp};
+    slog 'info', 'Logging as %s to facility %s.', $zs->cget( "syslog" )->{ident}, $zs->cget( "syslog" )->{facility};
 
     detach() unless $debug;
     open STDERR, '>>', $errfile or die "Failed to open error log: $!";
@@ -376,7 +375,7 @@ sub main {
     slog 'info', "Waiting for %d children to exit.", scalar keys %running;
     $exit_timeout = time();
     monitor_children until ( keys %running == 0 );
-    unlink $check->config->get( "daemon" )->{pidfile};
+    unlink $zs->cget( "daemon" )->{pidfile};
     slog 'info', "$0 exiting normally.";
     printf STDERR "%s exiting normally.\n", $0;
     if ( $restart ) {
