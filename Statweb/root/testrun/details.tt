@@ -1,64 +1,51 @@
-[% FOR w IN web -%]
-    <h2>[% w.url %]</h2>
+[% USE Dumper %]
+<h1>[% domain %]</h1>
 
-    <table>
-        <tr>
-            <th>IP Address</th>
-            <td>[% w.ip %]</td>
-        </tr>
-        <tr>
-            <th>Server software</th>
-            <td>[% w.type %] [% w.version %]</td>
-        </tr>
-        [% IF w.https %]
-        <tr>
-            <th>Certificate issuer</th>
-            <td>[% w.issuer %]</td>
-        </tr>
-        [% END %]
-        <tr>
-            <th>Response Code</th>
-            <td>[% w.response_code %]</td>
-        </tr>
-        <tr>
-            <th>Content Type</th>
-            <td>[% w.content_type %]</td>
-        </tr>
-        [% IF w.redirect_count > 0 %]
-        <tr>
-            <th>Redirect chain</th>
-            <td>[% w.redirect_urls %]</td>
-        </tr>
-        <tr>
-            <th>Ending TLD</th>
-            <td>[% w.ending_tld %]</td>
-        </tr>
-        [% END %]
-        <tr>
-            <th><tt>robots.txt</tt></th>
-            <td>
-                [% IF w.robots_txt %]
-                Yes
-                [% ELSE %]
-                No
-                [% END %]
-            </td>
-        </tr>
-        [% IF w.pageanalysis %]
-        <tr>
-            <th>Load Time</th>
-            <td>[% (w.pageanalysis.load_time) / 1000 %]s</td>
-        </tr>
-        <tr>
-            <th>Included URLs</th>
-            <td>
-                <ol>
-                    [% FOR pa IN w.pageanalysis.result_rows %]
-                    <li>[% pa.url %]</li>
-                    [% END %]
-                </ol>
-            </td>
-        </tr>
-        [% END %]
-    </table>
-[% END %]
+<h2>Servers</h2>
+
+<table>
+    <tr>
+        <th>Type</th>
+        <th>Name</th>
+        <th>IP</th>
+        <th>ASN</th>
+        <th>Location</th>
+    </tr>
+    [% FOREACH s IN doc.geoip -%]
+    <tr>
+        <td>[% s.type FILTER ucfirst %]</td>
+        <td>[% s.name %]</td>
+        <td>[% s.address %]</td>
+        <td>[% s.asn.join(", ") %]</td>
+        <td><a href="http://maps.google.com/maps?q=[% s.latitude %]+[% s.longitude %]">[% s.city %] [% s.country %]</a></td>
+    </tr>
+    [% END -%]
+</table>
+
+<h2>DNSCheck results</h2>
+<table id="testinfo">
+    <tr>
+        <th colspan="[% arg_count + 4 %]">Test results</th>
+    </tr>
+    [% start = doc.dnscheck.0.timestamp %]
+    [% FOREACH r IN doc.dnscheck -%]
+    <tr class="[% r.level FILTER lower %]">
+    <td class="numeric">[% r.timestamp - start FILTER format("%0.2f") %]</td>
+        <td>
+            [% r.level %]
+        </td>
+        <td>
+            [% r.tag %]
+        </td>
+        [% FOREACH n IN [0..arg_count] -%]
+        <td>
+            [% r.args.$n %]
+        </td>
+        [% END -%]
+    </tr>
+    [% END -%]
+</table>
+
+<!--
+<pre>[% Dumper.dump(doc) %]</pre>
+-->

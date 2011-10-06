@@ -3,6 +3,7 @@ use Moose;
 use namespace::autoclean;
 
 use POSIX 'strftime';
+use List::Util 'max';
 
 BEGIN {extends 'Catalyst::Controller'; }
 
@@ -84,11 +85,11 @@ sub domain :Chained('index') :CaptureArgs(1) :PathPart('detail') {
 sub details :Chained('domain') :Args(0) :PathPart('') {
     my ($self, $c) = @_;
     
-    my $web = $c->stash->{run}->search_related('webservers', {
-        domain_id => $c->stash->{domain}->id,
-        testrun_id => $c->stash->{run}->id,
-        });
-    $c->stash(web => [$web->all]);
+    my $doc = $c->model('DB')->db('zonestat')->newDoc($c->stash->{run}->id . '-' . $c->stash->{domain});
+    $doc->retrieve;
+    
+    $c->stash->{arg_count} = (max map {scalar(@{$_->{args}})} @{$doc->data->{dnscheck}}) - 1;
+    $c->stash->{doc} = $doc->data;
     $c->stash(template => 'testrun/details.tt');
 }
 
