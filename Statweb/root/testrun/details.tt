@@ -22,6 +22,35 @@
     [% END -%]
 </table>
 
+<h2>PageAnalyzer results</h2>
+[% BLOCK pacontent %]
+    <table>
+        <tr>
+            <th>Total time:</th><td class="numeric">[% data.summary.total_time / 1000 FILTER format("%0.1f") %]s</td>
+        </tr>
+        <tr>
+            <th>Total data:</th><td class="numeric">[% data.summary.total_bytes / (1024) FILTER format("%0.1f") %] kilobytes</td>
+        </tr>
+        <tr>
+            <th>Number of requests:</th><td class="numeric">[% data.summary.total_requests %]</td>
+        </tr>
+        [% FOREACH mt IN data.mime.keys -%]
+        <tr>
+            <td><i>[% mt %]</i></td>
+            <td class="numeric">[% data.mime.$mt %]</td>
+        </tr>
+        [% END -%]
+    </table>
+[% END -%]
+
+    <h3>HTTP</h3>
+    [% PROCESS pacontent data=doc.pageanalyze.http %]
+
+    [% IF doc.pageanalyze.https.summary.total_bytes >1 %]
+    <h3>HTTPS</h3>
+    [% PROCESS pacontent data=doc.pageanalyze.https %]
+    [% END - %]
+
 <h2>DNSCheck results</h2>
 <table id="testinfo">
     <tr>
