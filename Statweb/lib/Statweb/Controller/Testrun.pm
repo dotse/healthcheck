@@ -2,6 +2,8 @@ package Statweb::Controller::Testrun;
 use Moose;
 use namespace::autoclean;
 
+use POSIX 'strftime';
+
 BEGIN {extends 'Catalyst::Controller'; }
 
 =head1 NAME
@@ -23,20 +25,59 @@ Catalyst Controller.
 
 sub index :Chained('/') :CaptureArgs(1) :PathPart('testrun') {
     my ( $self, $c, $run_id ) = @_;
+    
+    my $run = $c->model('DB')->testrun($run_id);
 
-    $c->stash(run =>  $c->model('DB::Testrun')->find($run_id));
+    $c->stash->{run} = $run;
 }
 
-sub show :Chained('index') :Args(0) :PathPart('') {
-    my ($self, $c) = @_;
-    
+sub show :Chained('index') :Args(1) :PathPart('page') {
+    my ($self, $c, $startdomain) = @_;
+
+    my @tests = @{$c->stash->{run}->tests($startdomain)};
+    my $nextkey = splice(@tests, -1) if scalar(@tests)>=26;
+    my @tmp = @{$c->stash->{run}->tests($startdomain, 1)};
+    my $prevkey = splice(@tmp,-1) if scalar(@tmp)>=26;
+
+    foreach my $t (@tests) {
+        if($t->{start}) {
+            $t->{begin} = strftime('%F %T',localtime($t->{start}));
+        } else {
+            $t->{begin} = 'N/A';
+        }
+        
+        $t->{count_critical} = 0;
+        $t->{count_error} = 0;
+        $t->{count_warning} = 0;
+        foreach my $d (@{$t->{dnscheck}}) {
+            if ($d->{level} eq 'CRITICAL') {
+                $t->{count_critical}++
+            } elsif ($d->{level} eq 'ERROR') {
+                $t->{count_error}++
+            } elsif ($d->{level} eq 'WARNING') {
+                $t->{count_warning} ++
+            }
+        }
+    }
+
+    $c->stash->{tests} = \@tests;
+    $c->stash->{nextkey} = $nextkey->{domain} if $nextkey->{testrun} == $c->stash->{run}->id;
+    $c->stash->{prevkey} = $prevkey->{domain} if $prevkey->{testrun} == $c->stash->{run}->id;
     $c->stash(template => 'testrun/show.tt');
 }
 
-sub domain :Chained('index') :CaptureArgs(1) :PathPart('') {
-    my ($self, $c, $domain_id) = @_;
+sub first :Chained('index') :Args(0) :PathPart('') {
+    my ($self, $c) = @_;
     
-    my $domain = $c->model('DB::Domains')->find($domain_id) or die "No domain ($domain_id)!";
+    my $url = $c->uri_for_action('/testrun/show', [$c->stash->{run}->id], '0');
+    print STDERR 'HERE==> ' . $url . "\n";
+    
+    $c->res->redirect($url);
+}
+
+sub domain :Chained('index') :CaptureArgs(1) :PathPart('detail') {
+    my ($self, $c, $domain) = @_;
+    
     $c->stash(domain => $domain);
 }
 

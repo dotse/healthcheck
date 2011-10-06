@@ -1,3 +1,12 @@
+<h1>Testrun [% run.name %]</h1>
+
+[% IF prevkey -%]
+<a href="[% c.uri_for_action('/testrun/show', [run.id], prevkey) %]">Prev</a>
+[% END -%]
+[% IF nextkey -%]
+<a href="[% c.uri_for_action('/testrun/show', [run.id], nextkey) %]">Next</a>
+[% END -%]
+
 <table>
     <tr>
         <th>Domain</th>
@@ -6,12 +15,12 @@
         <th>Error</th>
         <th>Warning</th>
     </tr>
-    [% FOR test IN run.tests -%]
+    [% FOR test IN tests -%]
     <tr class="[% loop.parity %]">
         <td>
-            <a href="[% c.uri_for('/testrun', run.id, test.tested_domain.id) %]">[% test.domain %]</a>
+            <a href="[% c.uri_for_action('/testrun/details', [run.id, test.domain]) %]">[% test.domain %]</a>
         </td>
-        <td>[% test.begin(1) %]</td>
+        <td>[% test.begin %]</td>
         <td class="numeric">[% test.count_critical %]</td>
         <td class="numeric">[% test.count_error %]</td>
         <td class="numeric">[% test.count_warning %]</td>

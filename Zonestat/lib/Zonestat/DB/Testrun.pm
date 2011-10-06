@@ -19,6 +19,22 @@ sub fetch {
     return $self;
 }
 
+sub tests {
+    my ($self, $startdomain, $reverse, $count) = @_;
+    $startdomain ||= '';
+    $count ||= 26;
+    
+    my $res = $self->dbproxy('zonestat')
+        ->test_run(
+            startkey => [0+$self->id, $startdomain],
+            include_docs => 'true',
+            limit => $count,
+            descending => $reverse,
+        );
+    
+    return [grep {$_->{testrun} == $self->id} map {$_->{doc}} @{$res->{rows}}];
+}
+
 sub domainset {
     my $self = shift;
 
