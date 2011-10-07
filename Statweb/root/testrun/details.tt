@@ -22,7 +22,11 @@ Gathering started at [% doc.start FILTER strftime %]
         <td>[% s.type FILTER ucfirst %]</td>
         <td>[% s.name %]</td>
         <td>[% s.address %]</td>
-        <td>[% s.asn.join(", ") %]</td>
+        <td>
+        [% FOREACH as IN s.asn -%]
+            <a target="_blank" href="http://www.peeringdb.com/view.php?asn=[% as %]">[% as %]</a>&nbsp;
+        [% END %]
+        </td>
         <td><a href="http://maps.google.com/maps?q=[% s.latitude %]+[% s.longitude %]">[% s.city %] [% s.country %]</a></td>
     </tr>
     [% END -%]
