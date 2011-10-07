@@ -11,6 +11,7 @@ __PACKAGE__->config(
     TIMER              => 1,
     EVAL_PERL          => 1,
     ENCODING   => 'utf-8',
+    PLUGIN_BASE => 'Statweb::TTPlugin',
 );
 
 =head1 NAME
