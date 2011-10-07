@@ -1,5 +1,11 @@
 [% USE Dumper %]
+[% USE Strftime %]
 <h1>[% domain %]</h1>
+
+Gathering started at [% doc.start FILTER strftime %]
+[%- IF doc.finish -%]
+ and finished at [% doc.finish FILTER strftime %], having run for [% doc.finish - doc.start FILTER format("%0.1f") %] seconds.
+[%- ELSE -%].[%- END -%]
 
 <h2>Servers</h2>
 
@@ -50,6 +56,40 @@
     <h3>HTTPS</h3>
     [% PROCESS pacontent data=doc.pageanalyze.https %]
     [% END - %]
+    
+<h2>Domainkeys Identified Mail</h2>
+    <table>
+        <tr>
+            <th>SPF record</th>
+            <td>
+                [% IF doc.dkim.spf_real -%]
+                [% doc.dkim.spf_real %]
+                [% ELSE -%]
+                None
+                [% END %]
+            </td>
+        </tr>
+        <tr>
+            <th>SPF in TXT record</th>
+            <td>
+                [% IF doc.dkim.spf_transitionary -%]
+                [% doc.dkim.spf_transitionary %]
+                [% ELSE -%]
+                None
+                [% END %]
+            </td>
+        </tr>
+        <tr>
+            <th>ADSP</th>
+            <td>
+                [% IF doc.dkim.adsp -%]
+                [% doc.dkim.adsp %]
+                [% ELSE -%]
+                None
+                [% END %]
+            </td>
+        </tr>
+    </table>
 
 <h2>DNSCheck results</h2>
 <table id="testinfo">
