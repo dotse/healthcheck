@@ -362,7 +362,7 @@ sub whatweb {
     return unless -x $ww;
 
     my ( $success, $stdout, $stderr ) = run_external( 120, $ww, '--log-json=/dev/stdout', '--quiet', $url );
-    if ( $success ) {
+    if ( $success and $stdout ) {
         my $tmp = join( ', ', split( /\n/, $stdout ) );
         my $data;
         try {
@@ -403,7 +403,7 @@ sub mailserver_gather {
     my @res   = ();
     my $scan  = $self->cget( qw[zonestat sslscan] );
 
-    return unless -x $scan;
+    return unless ($scan and -x $scan);
 
     my $cmd = "$scan --starttls --xml=stdout --quiet --no-failed";
     foreach my $server ( @$hosts ) {
@@ -435,7 +435,7 @@ sub sslscan_web {
     my %res    = ();
     my $name   = "www.$domain";
 
-    return \%res unless -x $scan;
+    return \%res unless ($scan and -x $scan);
 
     my $cmd = "$scan --xml=stdout --quiet --no-failed";
     $res{name} = $name;
