@@ -103,7 +103,16 @@ sub get_from_queue {
     my $ddoc = $db->newDesignDoc( '_design/queues' );
     $ddoc->retrieve;
 
-    my $query = $ddoc->queryView( 'fetch', limit => $limit );
+    my $query;
+
+    do {
+        try {
+            $query = $ddoc->queryView( 'fetch', limit => $limit );
+        }
+        catch {    # Failed to get something from the queue. Sleep a bit and try again.
+            sleep( 2 );
+        };
+    } until ( $query != undef );
     foreach my $d ( @{ $query->{rows} } ) {
         my $doc = $db->newDoc( $d->{id}, undef, $d );
         $doc->retrieve;
