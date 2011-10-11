@@ -95,7 +95,7 @@ sub toggletestrun : Global : Arg(1) {
     }
 
     $c->session->{testruns} = \%tr;
-    $c->res->redirect('/');
+    $c->res->redirect($c->uri_for_action('/index'));
 }
 
 sub clearselection : Global : Arg(0) {
@@ -103,7 +103,7 @@ sub clearselection : Global : Arg(0) {
 
     $c->session->{testruns} = {};
 
-    $c->res->redirect('/');
+    $c->res->redirect($c->uri_for_action('/index'));
 }
 
 sub enqueue : Global : Arg(1) {
@@ -111,7 +111,7 @@ sub enqueue : Global : Arg(1) {
 
     my $ds = $c->model('DB')->domainset($dsid);
     $ds->enqueue();
-    $c->res->redirect('/');
+    $c->res->redirect($c->uri_for_action('/index'));
 }
 
 =head2 end

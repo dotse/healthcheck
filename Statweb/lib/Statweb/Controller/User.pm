@@ -29,7 +29,7 @@ sub login : Local : Arg(0) {
     if (defined($username) and defined($password)) {
         if (my $user = $c->model('DB')->zs->user->login($username, $password)) {
             $c->session->{user_id} = $user->id;
-            $c->res->redirect('/');
+            $c->res->redirect($c->uri_for_action('/index'));
             return 1;
         } else {
             $c->stash({ message => 'Username and password do not match.' });
