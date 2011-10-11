@@ -112,7 +112,7 @@ sub get_from_queue {
         catch {    # Failed to get something from the queue. Sleep a bit and try again.
             sleep( 2 );
         };
-    } until ( $query != undef );
+    } until ( defined($query) );
     foreach my $d ( @{ $query->{rows} } ) {
         my $doc = $db->newDoc( $d->{id}, undef, $d );
         $doc->retrieve;
