@@ -112,7 +112,7 @@ sub testruns {
     my $dbp = $self->dbproxy( 'zonestat-testrun' );
     my $res = $dbp->info_dsets( reduce => 'false', key => $self->name );
 
-    return map { $self->parent->testrun( $_ ) } map { $_->{id} } @{ $res->{rows} };
+    return sort {$b->id <=> $a->id} map { $self->parent->testrun( $_ ) } map { $_->{id} } @{ $res->{rows} };
 }
 
 sub enqueue {
