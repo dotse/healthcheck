@@ -2,6 +2,8 @@
 
 BEGIN { $ENV{CATALYST_ENGINE} ||= 'FastCGI' }
 
+use lib '/home/calle/Src/hc_couch/Statweb/blib/lib';
+use lib '/home/calle/Src/hc_couch/Zonestat/blib/lib';
 use strict;
 use warnings;
 use Getopt::Long;
