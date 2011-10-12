@@ -4,9 +4,6 @@ use strict;
 use warnings;
 use parent 'Catalyst::Controller';
 
-use Data::Dumper;
-use Text::CSV_XS;
-
 =head1 NAME
 
 Statweb::Controller::CSV - Catalyst Controller
@@ -25,16 +22,17 @@ Catalyst Controller.
 
 sub auto : Private {
     my ($self, $c) = @_;
-    my $db = $c->model('DB::Testrun');
+    my $db = $c->model('DB');
 
     $c->stash(
         {
             trs => [
-                sort   { $b->tests->count <=> $a->tests->count }
+                sort   { $b->test_count <=> $a->test_count }
                   grep { $_ }
-                  map  { $db->find($_) }
+                  map  { $db->testrun($_) }
                   keys %{ $c->session->{testruns} }
-            ]
+            ],
+            current_view => 'CSV',
         }
     );
 
@@ -46,9 +44,8 @@ sub webserver_software_http : Local : Args(0) {
     $c->stash->{filename} = 'software_http_' . join '-',
       keys %{ $c->session->{testruns} };
 
-    $c->forward('/testruns/webpages_software');
-    $c->stash->{csv_data} = $c->stash->{data}{software}{http};
-    $c->detach('send_csv');
+    $c->forward('/showstats/webpages_software');
+    $c->stash->{data} = $c->stash->{data}{software}{http};
 }
 
 sub webserver_software_https : Local : Args(0) {
@@ -56,9 +53,8 @@ sub webserver_software_https : Local : Args(0) {
     $c->stash->{filename} = 'software_https_' . join '-',
       keys %{ $c->session->{testruns} };
 
-    $c->forward('/testruns/webpages_software');
-    $c->stash->{csv_data} = $c->stash->{data}{software}{https};
-    $c->detach('send_csv');
+    $c->forward('/showstats/webpages_software');
+    $c->stash->{data} = $c->stash->{data}{software}{https};
 }
 
 sub webserver_response_http : Local : Args(0) {
@@ -66,9 +62,8 @@ sub webserver_response_http : Local : Args(0) {
     $c->stash->{filename} = 'response_http_' . join '-',
       keys %{ $c->session->{testruns} };
 
-    $c->forward('/testruns/webpages_response');
-    $c->stash->{csv_data} = $c->stash->{data}{response}{http};
-    $c->detach('send_csv');
+    $c->forward('/showstats/webpages_response');
+    $c->stash->{data} = $c->stash->{data}{response}{http};
 }
 
 sub webserver_response_https : Local : Args(0) {
@@ -76,9 +71,8 @@ sub webserver_response_https : Local : Args(0) {
     $c->stash->{filename} = 'response_https_' . join '-',
       keys %{ $c->session->{testruns} };
 
-    $c->forward('/testruns/webpages_response');
-    $c->stash->{csv_data} = $c->stash->{data}{response}{https};
-    $c->detach('send_csv');
+    $c->forward('/showstats/webpages_response');
+    $c->stash->{data} = $c->stash->{data}{response}{https};
 }
 
 sub webserver_content_http : Local : Args(0) {
@@ -86,9 +80,8 @@ sub webserver_content_http : Local : Args(0) {
     $c->stash->{filename} = 'content_http_' . join '-',
       keys %{ $c->session->{testruns} };
 
-    $c->forward('/testruns/webpages_content');
-    $c->stash->{csv_data} = $c->stash->{data}{content}{http};
-    $c->detach('send_csv');
+    $c->forward('/showstats/webpages_content');
+    $c->stash->{data} = $c->stash->{data}{content}{http};
 }
 
 sub webserver_content_https : Local : Args(0) {
@@ -96,9 +89,8 @@ sub webserver_content_https : Local : Args(0) {
     $c->stash->{filename} = 'content_https_' . join '-',
       keys %{ $c->session->{testruns} };
 
-    $c->forward('/testruns/webpages_content');
-    $c->stash->{csv_data} = $c->stash->{data}{content}{https};
-    $c->detach('send_csv');
+    $c->forward('/showstats/webpages_content');
+    $c->stash->{data} = $c->stash->{data}{content}{https};
 }
 
 sub webserver_charset_http : Local : Args(0) {
@@ -106,9 +98,8 @@ sub webserver_charset_http : Local : Args(0) {
     $c->stash->{filename} = 'charset_http_' . join '-',
       keys %{ $c->session->{testruns} };
 
-    $c->forward('/testruns/webpages_charset');
-    $c->stash->{csv_data} = $c->stash->{data}{charset}{http};
-    $c->detach('send_csv');
+    $c->forward('/showstats/webpages_charset');
+    $c->stash->{data} = $c->stash->{data}{charset}{http};
 }
 
 sub webserver_charset_https : Local : Args(0) {
@@ -116,27 +107,8 @@ sub webserver_charset_https : Local : Args(0) {
     $c->stash->{filename} = 'charset_https_' . join '-',
       keys %{ $c->session->{testruns} };
 
-    $c->forward('/testruns/webpages_charset');
-    $c->stash->{csv_data} = $c->stash->{data}{charset}{https};
-    $c->detach('send_csv');
-}
-
-sub send_csv : Private {
-    my ($self, $c) = @_;
-    my $csv      = Text::CSV_XS->new;
-    my $res      = '';
-    my $filename = $c->stash->{filename};
-
-    foreach my $r (@{ $c->stash->{csv_data} }) {
-        $csv->combine(@$r);
-        $res .= $csv->string;
-        $res .= "\n";
-    }
-
-    $c->res->content_type('text/comma-separated-values');
-    $c->res->header('Content-Disposition',
-        'attachment; filename="' . $filename . '.csv"');
-    $c->res->body($res);
+    $c->forward('/showstats/webpages_charset');
+    $c->stash->{data} = $c->stash->{data}{charset}{https};
 }
 
 =head1 AUTHOR
