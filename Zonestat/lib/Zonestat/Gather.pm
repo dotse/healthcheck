@@ -88,7 +88,7 @@ sub put_in_queue {
             return;
         }
 
-        push @tmp, $db->newDoc( $ref->{domain}, undef, $ref );
+        push @tmp, $db->newDoc( undef, undef, $ref );
     }
 
     return $db->bulkStore( \@tmp );
