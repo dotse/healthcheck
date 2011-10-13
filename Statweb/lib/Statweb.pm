@@ -37,7 +37,7 @@ our $VERSION = '0.01';
 
 __PACKAGE__->config(
     name              => 'Statweb',
-    'Plugin::Session' => { expires => 864000, },
+    'Plugin::Session' => { expires => 864000, cookie_name => 'zonestat2_session'},
     encoding => 'utf-8',
     default_view => 'TT',
 );
