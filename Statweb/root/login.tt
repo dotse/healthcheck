@@ -1,8 +1,28 @@
+[% META title='.SE | Hälsoläget i Sverige' %]
+[% META stylesheet='/static/css/login.css' %]
+[% META description='Hälsoläget på Internet i Sverige' %]
+
+<h1>.SE | Hälsoläget på Internet i Sverige</h1>
+<div>
+<p>.SE värnar om kvaliteten och prestandan på den svenska delen av Internet.
+Hälsoläget-projektet samlar in och mäter olika delar av infrastrukturen på
+Internet i Sverige. Främst mäter vi kvalitet i DNS, men vi mäter även olika
+aspekter av webb-tjänster och e-post. Dessa mätningar gör vi med utgångspunkt
+från innehållet i .SE-zonen. De flesta av våra mätningar kommer från
+IP-adressen 91.226.36.48. Om du som tjänsteleverantör kommer till denna
+sida och har kommentarer om vårt arbete, kontakta gärna hostmaster@iis.se.</p>
+
+<p>Om du vill veta mer om resultatet från dessa mätningar kan du se exempel
+på dessa i vår årliga rapport
+<a href="http://www.iis.se/internet-for-alla/halsolaget">Hälsoläget på
+Internet i Sverige</a>.</p>
+
+</div>
+
+<form method="post" action="[% c.uri_for('/user/login') %]">
 [% IF message -%]
     <h2 class="message">[% message %]</h2>
 [% END -%]
-
-<form method="post" action="[% c.uri_for('/user/login') %]">
     <table>
         <tr>
             <td>Username:</td>

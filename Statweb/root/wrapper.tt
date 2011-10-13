@@ -3,9 +3,15 @@
 
 <html lang="en">
 <head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 	<title>[% template.title OR 'Statweb' %]</title>
+[% IF template.stylesheet -%]
+	<link rel="stylesheet" href="[% c.uri_for(template.stylesheet) %]">
+[% ELSE -%]
 	<link rel="stylesheet" href="[% c.uri_for('/static/css/default.css') %]"/>
+[% END -%]
+[% IF template.description -%]
+	<meta name="description" content="[% template.description %]" />
+[% END -%]
 </head>
 <body>
     <div id="left_side">[% INCLUDE left_side.tt %]</div>
