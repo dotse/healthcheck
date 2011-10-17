@@ -147,6 +147,20 @@ form {
     color: #808;
 }
 
+p.instructions {
+	margin-left: 3em;
+	margin-right: 3em;
+	text-align: justify;
+	font: small Georgia, "Times New Roman", Times, serif;
+}
+
+h2.instructions {
+	color: black;
+	font-size: medium;
+	text-decoration: underline;
+	margin-bottom: 0;
+}
+
 .selected {
     font-weight: bold;
 	list-style-type: disc;

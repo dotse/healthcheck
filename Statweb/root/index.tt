@@ -1,5 +1,34 @@
 <h1>Available domainsets</h1>
 
+<h2 class="instructions">Instructions</h2>
+<p class="instructions">
+    A domainset is a list of domains grouped together for the purposes of
+    statistics gathering and presentation. Each box below shows one such set,
+    and lists all the gathering runs that have been done for it. If you wish
+    to see (and possibly modify) the domains included in a set, click the name
+    at the top of the relevant box. If you want to see the results per domain
+    for a certain gathering run, click the name and date listed in a box. If
+    you want a certain run included in statistics presentation, click the
+    "toggle" link for the run. To deselect it, click the "toggle" link again.
+</p>
+
+<p class="instructions">
+
+    To start gathering statistics for a set of domains, click the "Start
+    Gathering" link for it. This will add the domains in the set to the queue
+    of domains to be gathered, and it will be processed as soon as there is
+    capacity available. This system is currently set to gather [% maxchildren
+    %] domains in parallell.
+
+</p>
+
+<p class="instructions">
+
+    In order to view statistics, use the links in the "Menu" section of the
+    left column. The "Select" item will always take you back to this page.
+
+</p>
+
 <form method="POST" action="/clearselection">
     <input type="submit" name="Clear" value="Unselect all selected">
 </form>

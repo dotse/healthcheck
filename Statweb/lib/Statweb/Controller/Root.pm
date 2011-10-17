@@ -30,7 +30,8 @@ Statweb::Controller::Root - Root Controller for Statweb
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
 
-    $c->stash({ dset => [$c->model('DB')->dset->all_sets] });
+    $c->stash->{dset} = [$c->model('DB')->dset->all_sets];
+    $c->stash->{maxchildren} = $c->model('DB')->zs->cget(qw[daemon maxchild]);
 }
 
 sub default : Path {

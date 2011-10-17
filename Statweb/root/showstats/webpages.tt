@@ -87,6 +87,15 @@
 </table>
 
 <h2>Webserver software</h2>
+<p class="instructions">
+
+    The CSV links at the bottom of the tables below will let you download the
+    data for that table as a CSV file, which you can then import into Excel or
+    some other spreadsheet. In the CSV files, you will get raw numbers rather
+    than percentages, to facilitate more complex calculations.
+
+</p>
+
 <p>
 
     This table (and the next one) simply lists the fractions of the tested
