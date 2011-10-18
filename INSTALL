@@ -1,0 +1,35 @@
+These are the steps needed to install Healthcheck on a pristine Ubuntu Server 10.04LTS machine:
+
+* Install the packages: libcrypt-openssl-random-perl libdbd-mysql-perl
+  libdigest-bubblebabble-perl libio-socket-inet6-perl libmime-lite-perl
+  libmail-rfc822-address-perl libnet-dns-perl libnet-dns-sec-perl
+  libtext-template-perl libyaml-perl libconfig-any-perl libgeo-ip-perl
+  libio-socket-ssl-perl libtext-csv-xs-perl couchdb libmodule-install-perl
+  libjson-any-perl libfile-slurp-perl libfile-copy-recursive-perl
+  libcatalyst-perl libcatalyst-modules-perl libtry-tiny-perl liburi-perl
+  libwww-perl git-core
+
+  The CouchDB version installed this way is ancient (0.10.0), but it should
+  work. If you can arrange to install a more modern version, that is
+  definitely a bonus. An easy way that I've found to work quite well is
+  https://github.com/iriscouch/build-couchdb
+
+* Clone git://github.com/dotse/dnscheck.git and
+  git://github.com/dotse/healthcheck.git into a suitable directory. Go into
+  the healthcheck subdirectory and checkout the couchdb branch.
+
+* Go to the engine subdirectory in the dnscheck directory and do "perl
+  Makefile.PL" and "sudo make install".
+
+* Clone the git repositories git://github.com/cdybedahl/CDBHelper.git and
+  git://github.com/cdybedahl/couchdb-client.git
+
+* Do "perl Makefile.PL && sudo make install" in each of the two repositories.
+
+* Go to the healthcheck/Zonestat directory and do it there too.
+
+* Install the perl module Catalyst::Plugin::Unicode::Encoding, either from
+  CPAN directly or a debian-package built with dh-make-perl.
+
+* Go to the healthcheck/Statweb directory. Run "perl Makefile.PL" and "make".
+  Both should run without errors or complaints.
