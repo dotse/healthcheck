@@ -32,7 +32,7 @@ sub new {
     my $self = bless {}, $class;
 
     unless ( @_ ) {
-        @_ = ( $Config{siteprefix} . '/share/zonestat/config.yaml' );
+        @_ = ( $Config{siteprefix} . '/share/zonestat/config' );
     }
 
     $self->{conf}    = Zonestat::Config->new( @_ );

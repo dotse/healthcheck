@@ -6,7 +6,6 @@ use utf8;
 use warnings;
 
 use Config::Any;
-use Data::Dumper;
 
 our $VERSION = '0.2';
 
@@ -15,8 +14,8 @@ sub new {
     my $overrides;
 
     if ( @files == 1 ) {
-        my $tmp = Config::Any->load_files( { files => [ $files[0] ], use_ext => 1, flatten_to_hash => 1 } );
-        $overrides = $tmp->{ $files[0] };
+        my $tmp = Config::Any->load_stems( { stems => \@files, use_ext => 1, flatten_to_hash => 1 } );
+        ($overrides) = values %$tmp;
     }
     else {
         $overrides = {@files};
