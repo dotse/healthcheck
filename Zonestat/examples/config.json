@@ -1,0 +1,72 @@
+{
+    // Under this key are listed some programes and files needed for
+    // the gathering process. 
+   "zonestat" : {
+       // If you want to use WhatWeb, set this to where the main script is
+      "whatweb" : "/some/proper/path/WhatWeb/whatweb",
+       // The following two keys are for a proprietary tool.
+      "python" : "/opt/local/bin/python",
+      "pageanalyzer" : "/some/proper/path/pageanalyzer",
+       // The plain old OpenSSL binary
+      "openssl" : "/usr/bin/openssl",
+       // A file with root certs, used together with openssl to check
+       // HTTPS certs.
+      "cacertfile" : "/usr/local/etc/cacerts.pem",
+       // A tool to test SSL servers.
+       // http://sourceforge.net/projects/sslscan/
+      "sslscan" : "/some/proper/path/sslscan-win/sslscan"
+   },
+    // Connection information for the CouchDB instance to use. A
+    // number of databases will be created, all with names starting
+    // with "zonestat".
+   "couchdb" : {
+      "url" : "http://127.0.0.1:5984/",
+      "password" : null,
+      "username" : null
+   },
+    // If you use the functionality to import a zone via AXFR, this is
+    // where to store the data on disk.
+   "zone" : {
+      "datafile" : "/var/tmp/interesting.zone"
+   },
+    // How should we log things?
+   "syslog" : {
+      "ident" : "zonestat",
+      "facility" : "local2"
+   },
+    // Network-related information. Not all are used by Zonestat at
+    // the moment.
+   "net" : {
+       // The following three are flags, true if we may use the relevant protocol.
+      "ipv4" : "1",
+      "ipv6" : "1",
+      "smtp" : "1",
+       // The following two should be lists of proper suffixes to look
+       // up AS numbers for IP addresses via a Cymru-compatible DNS
+       // database. See http://asn.cymru.com/
+      "v6root" : [
+         "origin6.asn.cymru.com"
+      ],
+      "v4root" : [
+         "origin.asn.cymru.com"
+      ]
+   },
+    // Settings for the dispatcher. 
+   "daemon" : {
+       // Where to stor the main process PID on startup.
+      "pidfile" : "/var/tmp/zonestat_dispatcher.pid",
+       // What user to change to after opening files, if started as root.
+      "user" : "called",
+       // Where is the GeoIP data file?
+      "geoip" : "/opt/local/share/GeoIP/GeoLiteCity.dat",
+       // Where to write error messages, if we can't send them to syslog for some reason
+      "errorlog" : "/var/tmp/zonestat_errors.log",
+       // Maximum number of concurrent gathering processes. How high
+       // you can set this depends heavily on how many (and how heavy)
+       // gathering tools you use (WhatWeb is the worst, for now), how
+       // many writes per second your database server can take and how
+       // much traffic the ISPs of the domains you're scanning will
+       // accept before they blacklist you.
+      "maxchild" : "20"
+   }
+}
