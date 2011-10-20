@@ -88,6 +88,24 @@ sub rebuild : Chained('index') : Args(0) : PathPart('rebuild') {
         $c->uri_for_action('/domainset/first', [$c->stash->{dset}->name]));
 }
 
+sub create :Local {
+    my ($self, $c) = @_;
+
+    my $up = $c->req->upload('userfile');
+    my $fh = $up->fh;
+    my @domains = <$fh>;
+    chomp(@domains);
+
+    my $name = $c->req->params->{name};
+    die unless $name;
+    my $dset = $c->model('DB')->domainset($name);
+    $dset->clear;
+    $dset->add(@domains);
+
+    $c->res->redirect(
+        $c->uri_for_action('/domainset/first', [$name]));
+}
+
 =head1 AUTHOR
 
 Calle Dybedahl
