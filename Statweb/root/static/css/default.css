@@ -300,3 +300,12 @@ p.notice {
 	border: thin solid gray;
 	background-color: silver;
 }
+
+#footer {
+    float: right;
+    border: thin silver solid;
+    background-color: #eee;
+    margin-bottom: 0;
+    margin-right: 0;
+    padding: 1ex;
+}

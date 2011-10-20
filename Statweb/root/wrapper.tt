@@ -16,5 +16,6 @@
 <body>
     <div id="left_side">[% INCLUDE left_side.tt %]</div>
     <div id="main_bar">[% content %]</div>
+    <p id="footer">In case of questions or problems, contact <a href="mailto:calle.dybedahl@init.se">Calle Dybedahl</a>.</p>
 </body>
 </html>
