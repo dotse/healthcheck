@@ -22,6 +22,7 @@
         <td class="numeric">
             [% IF sizes.${h}.${loop.index} %]
             [% 100 * i / sizes.${h}.${loop.index} FILTER format("%0.1f") %]%
+            ([% i %])
             [% ELSE %]
             N/A
             [% END %]
@@ -111,6 +112,7 @@
     in the HTTP communication with the web servers.
 
 </p>
+<p>The numbers in parentheses are the exact counts the percentages are calculated from.</p>
 
 [% PROCESS table title=titles.software root=data.software h='http' csvaction='/csv/webserver_software_http' -%]
 
