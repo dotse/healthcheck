@@ -47,6 +47,17 @@ sub create {
     return $self;
 }
 
+sub set_password {
+    my ( $self, $user, $new ) = @_;
+
+    my $doc = $self->db('zonestat-user')->newDoc( $user );
+    $doc->retrieve;
+    $doc->data->{password} = sha1_hex( $doc->data->{salt} . $new );
+    $doc->update;
+
+    return;
+}
+
 sub by_id {
     my ( $self, $id ) = @_;
     my $db = $self->db( 'zonestat-user' );
