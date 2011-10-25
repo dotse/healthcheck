@@ -22,8 +22,6 @@ use Zonestat::DB;
 use Zonestat::DB::Queue;
 use Zonestat::DB::Asdata;
 
-use Module::Find;
-
 our $VERSION = '0.04';
 
 ## no critic (Subroutines::RequireArgUnpacking)
@@ -46,26 +44,6 @@ sub new {
     return $self;
 }
 ## use critic
-
-sub plugins {
-    my $self = shift;
-
-    return @{ $self->{plugins} };
-}
-
-sub register_plugins {
-    my $self = shift;
-
-    my @plugins = useall ZonestatPlugin;
-    $self->{plugins} = [@plugins];
-
-    foreach my $mod ( @plugins ) {
-
-        # Do something useful here
-    }
-
-    return;
-}
 
 ## no critic (Subroutines::RequireArgUnpacking)
 sub cget {
