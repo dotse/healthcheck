@@ -159,9 +159,87 @@ Zonestat - gather and present statistics for a DNS zone
 =head1 SYNOPSIS
 
   use Zonestat;
+  my $zs = Zonestat->new;
 
 =head1 DESCRIPTION
 
+This module is the main entry point for the Zonestat system.
+
+=head2 Methods
+
+=over
+
+=item new([$configfile])
+
+Create a new C<Zonestat> object. Takes one optional argument, the suffix-less
+path to the configfile to use.
+
+=item cget(@names)
+
+Retrieve config information. The arguments are a list of descending keys into
+the nested config hash. So, for example, to get the URL to the CouchDB
+instance we should use, we call C<$zs->cget('couchdb','url')>.
+
+=item collect()
+
+Return a properly set up instance of Zonestat::Collect.
+
+=item prepare()
+
+Return a properly set up instance of Zonestat::Prepare.
+
+=item gather()
+
+Return a properly set up instance of Zonestat::Gather.
+
+=item present()
+
+Return a properly set up instance of Zonestat::Present.
+
+=item domainset([$name])
+
+Return a properly set up instance of Zonestat::DB::Domainset. If an argument is
+given, it must be the name of a domainset. An object for that domainset will
+then be returned.
+
+=item testrun()
+
+Return a properly set up instance of Zonestat::DB::Testrun. If an argument is
+given, it must be the id number of a testrun. An object for that testrun will
+then be returned.
+
+=item queue()
+
+Return a properly set up instance of Zonestat::DB::Queue.
+
+=item dbproxy($name)
+
+Takes the name of a database in the configured CouchDB instance, and returns a
+Zonestat::DB object for it.
+
+=item user()
+
+Return a properly set up instance of Zonestat::DB::User.
+
+=item asdata()
+
+Return a properly set up instance of Zonestat::DB::Asdata.
+
+=item dbconfig
+
+Returns the same thing as C<$Zonestat->new->cget('couchdb')>.
+
+=item dbconn
+
+Returns a L<CouchDB::Client> object with a working connection to the
+configured CouchDB instance.
+
+=item db($name)
+
+Returns a L<CouchDB::Client::DB> object for the specified database in the
+configured CouchDB instance.
+
+=back
 
 =head1 SEE ALSO
 
