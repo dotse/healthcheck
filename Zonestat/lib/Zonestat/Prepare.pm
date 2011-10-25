@@ -288,10 +288,49 @@ Zonestat::Prepare - preparatory tasks for statistics gathering
 
 =head1 SYNOPSIS
 
-  use Zonestat::Prepare;
+  use Zonestat;
+  my $prep = Zonestat->new->prepare;
 
 =head1 DESCRIPTION
 
+=head2 Important Note
+
+In order to be able to fetch data from RIPE while being run on a machine
+configured with IPv6, this module will modify the loaded copy of L<Net::FTP>
+to give it IPv6 support. If you use this module in the same script as other
+code that also uses L<Net::FTP>, this may affect their functionality.
+
+=head2 Methods
+
+=over
+
+=item all()
+
+Does fetch_zone() followed by db_import_zone() if it succeeds.
+
+=item fetch_zone()
+
+Fetch a zone via AXFR, protected by a TSIG signature and checking a number of
+flag domains as protection against a faulty transfer. The zone name, what file
+to save it in, the TSIG as well as the flag domains are all specified in the
+Zonestat configuration.
+
+=item db_import_zone()
+
+Read a zone from the configured file and store it in the C<zonestat-zone> data
+base, deleting and recrating the database first.
+
+=item create_random_set()
+
+Create a domainset called "Random" consisting of approximately 1% of the zones
+stored in the C<zonestat-zone> database.
+
+=item update_asn_table_from_ripe()
+
+Download the current AS information file from RIPE and store it in the
+C<zonestat-asdata> database, deleting and recreating it first.
+
+=back
 
 =head1 SEE ALSO
 
