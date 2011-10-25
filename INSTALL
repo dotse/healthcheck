@@ -1,40 +1,64 @@
+=head1 INSTALLATION
+
 These are the steps needed to install Healthcheck on a pristine Ubuntu Server 10.04LTS machine:
 
-* Install and configure the engine part of DNSCheck (ignore the web
-  part). See http://github.com/dotse/dnscheck/
+=over 
 
-* Install the packages: libcrypt-openssl-random-perl libdbd-mysql-perl
-  libdigest-bubblebabble-perl libio-socket-inet6-perl libmime-lite-perl
-  libmail-rfc822-address-perl libnet-dns-perl libnet-dns-sec-perl
-  libtext-template-perl libyaml-perl libconfig-any-perl libgeo-ip-perl
-  libio-socket-ssl-perl libtext-csv-xs-perl couchdb libmodule-install-perl
-  libjson-any-perl libfile-slurp-perl libfile-copy-recursive-perl
-  libcatalyst-perl libcatalyst-modules-perl libtry-tiny-perl liburi-perl
-  libwww-perl git-core
+=item *
 
-  The CouchDB version installed this way is ancient (0.10.0), but it should
-  work. If you can arrange to install a more modern version, that is
-  definitely a bonus. An easy way that I've found to work quite well is
-  https://github.com/iriscouch/build-couchdb
+Install and configure the engine part of DNSCheck (ignore the web part). See
+L<http://github.com/dotse/dnscheck/>
 
-* Clone git://github.com/dotse/healthcheck.git into a suitable
-  directory, the checkout the couchdb branch.
+=item *
 
-* Clone the git repositories git://github.com/cdybedahl/CDBHelper.git and
-  git://github.com/cdybedahl/couchdb-client.git
+Install the packages: libcrypt-openssl-random-perl libdbd-mysql-perl
+libdigest-bubblebabble-perl libio-socket-inet6-perl libmime-lite-perl
+libmail-rfc822-address-perl libnet-dns-perl libnet-dns-sec-perl
+libtext-template-perl libyaml-perl libconfig-any-perl libgeo-ip-perl
+libio-socket-ssl-perl libtext-csv-xs-perl couchdb libmodule-install-perl
+libjson-any-perl libfile-slurp-perl libfile-copy-recursive-perl
+libcatalyst-perl libcatalyst-modules-perl libtry-tiny-perl liburi-perl
+libwww-perl git-core
 
-* Do "perl Makefile.PL && sudo make install" in each of the two repositories.
+The CouchDB version installed this way is ancient (0.10.0), but it should
+work. If you can arrange to install a more modern version, that is definitely
+a bonus. An easy way that I've found to work quite well is
+L<https://github.com/iriscouch/build-couchdb>
 
-* Go to the healthcheck/Zonestat directory and do it there too.
+=item *
 
-* Install the perl module Catalyst::Plugin::Unicode::Encoding, either from
-  CPAN directly or a debian-package built with dh-make-perl.
+Clone git://github.com/dotse/healthcheck.git into a suitable directory, the
+checkout the couchdb branch.
 
-* Go to the healthcheck/Statweb directory. Run "perl Makefile.PL" and "make".
-  Both should run without errors or complaints.
+=item *
+
+Clone the git repositories git://github.com/cdybedahl/CDBHelper.git and
+git://github.com/cdybedahl/couchdb-client.git
+
+=item *
+
+Do "perl Makefile.PL && sudo make install" in each of the two repositories.
+
+=item *
+
+Go to the F<healthcheck/Zonestat> directory and do it there too.
+
+=item *
+
+Install the perl module C<Catalyst::Plugin::Unicode::Encoding>, either from CPAN
+directly or a debian-package built with C<dh-make-perl>.
+
+=item *
+
+Go to the F<healthcheck/Statweb> directory. Run C<perl Makefile.PL> and C<make>.
+Both should run without errors or complaints.
+
+=back
+
+=head1 CONFIGURATION
 
 At this point, the software should be able to run properly. What
-remains is configuration. This resides in the directory share/zonestat
+remains is configuration. This resides in the directory F<share/zonestat>
 in the directory that's set as the site prefix in Perl. You can see
 what directory will be used by running the following at a command
 line: 
@@ -42,16 +66,16 @@ line:
    perl -MConfig -le 'print $Config{siteprefix} . "/share/zonestat"'
 
 The configuration file will be loaded into a hash using the
-Config::Any perl module, so it can be written in a variety of
+L<Config::Any> perl module, so it can be written in a variety of
 different formats, like JSON, YAML or XML. It should be stored in a
 file in the directory mentioned above, and the file should be named
 "config" with a suffix matching its format. So if it's an XML file, it
 should be "config.xml". The example config here is in JSON, so it
-would be in a file called "config.json".
+would be in a file called F<config.json>.
 
 Example config, with explanatory comments:
 
-{
+ {
     // Under this key are listed some programes and files needed for
     // the gathering process. 
    "zonestat" : {
@@ -122,4 +146,22 @@ Example config, with explanatory comments:
        // accept before they blacklist you.
       "maxchild" : "20"
    }
-}
+ }
+
+=head1 RUNNING
+
+The system has two main parts, the web interface and the gathering system. The
+first is a plain old L<Catalyst> application, with no special needs. It does talk
+to the CouchDB database, but it does so via the Zonestat modules, so as long
+as those are correctly configured it should just work. The Statweb application
+has been tested both as a FastCGI application and as running under mod_perl2.
+
+The gathering part mainly consists of the C<zonestat-dispatcher.pl> script. It
+can be copied to and run from wherever you like. When run without arguments it
+will place itself in the background and run as a daemon, logging via syslog.
+It will periodically poll the queue table in the database, and if it finds
+something there it will spawn child processes to do the data collection. The
+children will insert the data into the database.
+
+And that's about it. The L<Statweb> Catalyst application needs to be run by some
+sort of webserver, and the C<zonestat-dispatcher.pl> script needs to be running.
