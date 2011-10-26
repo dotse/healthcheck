@@ -39,8 +39,6 @@ sub new {
     $self->{present} = Zonestat::Present->new( $self );
     $self->{collect} = Zonestat::Collect->new( $self );
 
-    $self->register_plugins;
-
     return $self;
 }
 ## use critic
