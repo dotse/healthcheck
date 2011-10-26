@@ -646,20 +646,21 @@ Return the English description of a given DNSCheck message.
 
 =item pageanalyzer_summary(@trids)
 
-Returns a hash of hashes, with the outer level being keyed on testrun IDs as
-usual. The inner hashes are statistical summations of the L<Pageanalyzer> data
-for the entire testrun. They're fairly large, and we suggest that you print
-one out with L<Data::Dumper> or similar to see what's in there.
+Returns a reference to a hash of hashes, with the outer level being keyed on
+testrun IDs as usual. The inner hashes are statistical summations of the
+L<Pageanalyzer> data for the entire testrun. They're fairly large, and we
+suggest that you print one out with L<Data::Dumper> or similar to see what's
+in there.
 
 =item tests_by_level($level, @trids)
 
 Takes a message level string (C<CRITICAL>, C<ERROR>, C<WARNING>, C<NOTICE>,
-C<INFO>) and a list of testrun IDs. Returns a hash of hashes of hashes. The
-outermost level is keyed on testrun IDs as usual. The keys on the next level
-are the names of all the gathered domains in that testrun with at least one
-message at the given level. The value of each domain is a hash with the five
-severity levels as keys, and the number of messages at that level for that
-domain as values.
+C<INFO>) and a list of testrun IDs. Returns reference to a hash of hashes of
+hashes. The outermost level is keyed on testrun IDs as usual. The keys on the
+next level are the names of all the gathered domains in that testrun with at
+least one message at the given level. The value of each domain is a hash with
+the five severity levels as keys, and the number of messages at that level for
+that domain as values.
 
 This method is quite slow for large testruns and lower severity levels.
 
