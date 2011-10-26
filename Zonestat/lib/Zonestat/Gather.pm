@@ -250,24 +250,52 @@ Zonestat::Gather - gather and store statistics
 
 =over 4
 
-=item ->enqueue_domainset($domainset, [$name])
+=item single_domain($domainname, [$href])
 
-Put all domains in the given domainset object on the gathering queue and
-create a new testrun object for it. If a second argument is given, it will be
-used as the name of the testrun. If no name is given, a name based on the
-current time will be generated.
+Takes a domain name and optionally a reference to a hash with extra
+information. It runs a data collection for the domain, then stores the
+resulting information in the configured CouchDB instance.
 
-=item ->get_server_data($trid, $domainname)
+The extra information hash is mostly used by the dispatcher daemon to store
+which testrun the collection was done for.
 
-Given the ID number of a testrun object and the name of a domain, gather all
-data for that domain and store in the database associated with the given
-testrun.
+=item put_in_queue(@qlist)
 
-=item ->rescan_unknown_servers()
+Takes a list of references to hashes, and uses them to add domains to the
+queue database. The hashes must have two keys, C<domain> and C<priority>. The
+first should be a domain name, and the second a positive integer value.
 
-Walk through the list of all Webserver objects with type 'Unknown' and reapply
-the list of server type regexps. To be used when the list of regexps has been
-extended.
+=item get_from_queue([$limit])
+
+Retrieves a number of documents from the queue database. Optionally takes one
+argument, the maximum number of entries to return. If no limit is specified,
+it defaults to ten. The returned documents will have been marked as "in
+progress" in the queue database.
+
+=item set_active($id, $pid)
+
+Set the queue item with ID C<$id> as active and being gathered by process number C<$pid>.
+
+=item reset_queue_entry($id)
+
+Mark the specified queue entry as not being processed.
+
+=item reset_inprogress()
+
+If any queue entries are currently marked as being in progress, unmark them.
+Used by the dispatcher at startup, in case there is stale information left
+over after a crash.
+
+=item requeue($id)
+
+Requeue the specified queue entry. Normally, this is done by the dispatcher
+after a gathering child fails to exit gracefully. The entry will be returned
+to the queue at a lower priority (that is, with a numerically larger priority
+number), so it will be tried again at the end of the queue. If an item is
+requeued more than five times, it will be marked as failed and removed from
+the queue.
+
+=back
 
 =head1 SEE ALSO
 

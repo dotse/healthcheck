@@ -458,6 +458,212 @@ Zonestat::Present - present gathered statistics
 
 =head1 DESCRIPTION
 
+=head2 Methods
+
+=over
+
+=item total_tested_domains($trid)
+
+Takes the ID number of a testrun and returns the total number of domains in it.
+
+=item number_of_domains_with_message($level, @trids)
+
+Takes a level and a list of testruns IDs, and returns a hash where the keys
+are the IDs and the values hash references. The hashes referred to have
+DNSCheck messages as keys, and the number of domains in that run where the
+message in question was emitted as values. The messages counted are those at
+the given level. C<$level> must be one of C<CRITICAL>, C<ERROR>, C<WARNING>,
+C<NOTICE> and C<INFO>.
+
+=item number_of_servers_with_software($https, @trids)
+
+Takes a flag indicating if results for HTTP (false value) or HTTPS (true
+value) should be returned, and a list of testrun IDs. It returns the same kind
+of nested hash as described above, except with webserver software names and
+counts of them at the inner level.
+
+=item webservers_by_responsecode($https, @trids)
+
+As above, but with protocol response codes instead of webserver software names.
+
+=item webservers_by_contenttype($https, @trids)
+
+As above, but with MIME content types.
+
+=item webservers_by_charset($https, @trids)
+
+As above, but with character encodings.
+
+=item all_domainsets()
+
+Returns a list of the names of all domainsets in the configured CouchDB
+instance.
+
+=item tests_with_max_severity(@trs)
+
+Takes a list of L<Zonestat::DB::Testrun> objects, and returns a hash of
+hashes. The outer keys are testrun IDs. The keys in the inner hashes are the
+severity levels (CRITICAL to DEBUG), and the values the count of domains in
+the run for which that severity was the highest one they had.
+
+=item top_foo_servers($type, $trid, [$limit])
+
+Takes two or three arguments: one of the strings C<nameserver>, C<mailserver>
+or C<webserver>, the ID of a testrun and optionally a maximum number of items
+to return. It returns a list of lists. Each value in the list represents one
+server of the asked-for type, and it's sorted in falling order of the number
+of times each server was seen during the entire gathering run.
+
+Each value in the list is itself a list. The values in the inner list are, in order:
+
+=over
+
+=item *
+
+Count of occurences.
+
+=item *
+
+IP address.
+
+=item *
+
+Latitude.
+
+=item *
+
+Longitude.
+
+=item *
+
+Country name.
+
+=item *
+
+Country ISO code.
+
+=item *
+
+City, if known.
+
+=item *
+
+A reference to a list of the numbers of all the ASs in which the IP address is
+announced.
+
+=back
+
+The C<$limit> argument simply specifies the maximum number of items to return.
+If it's not specified, it defaults to 25.
+
+=item top_dns_servers($trid, [$limit])
+
+Calls C<top_foo_servers> with the first argument being 'nameserver'.
+
+=item top_http_servers($trid, [$limit])
+
+Calls C<top_foo_servers> with the first argument being 'webserver'.
+
+=item top_smtp_servers($trid, [$limit])
+
+Calls C<top_foo_servers> with the first argument being 'mailserver'.
+
+=item nameservers_per_asn($v6flag, @trids)
+
+Takes a true/false value to indicate wether to use IPv6 (true) or IPv4
+(false), and a list of testrun IDs. Returns a hash of hashes, with the outer
+keys being testrun IDs. The inner hashes have AS numbers as keys, and the
+number nameservers seen in that AS as values.
+
+=item ipv6_percentage_for_testrun($trid)
+
+Takes a testrun ID, and returns a two-value list. The first value is the
+percentage of domains with some kind of IPv6 presence, and the second value
+the absolute number of domains with IPv6 presence.
+
+=item multihome_percentage_for_testrun($trid, $v6flag)
+
+Takes a testrun ID and a flag for IPv6/IPv4 (true/false), and returns the
+percentage and absolute count of the domains in the testrun that is announced
+in more than one AS.
+
+=item dnssec_percentage_for_testrun($trid)
+
+Takes a testrun ID, and returns the percentage and absolute number of domains
+in the testrun that is signed with DNSSEC.
+
+=item recursing_percentage_for_testrun($trid)
+
+Takes a testrun ID, and returns the precentage and absolute count of domains
+with at least one authoritative nameserver that's open for recursing queries.
+
+=item adsp_percentage_for_testrun($trid)
+
+Takes a testrun ID, and returns the percentage and absolute count of domains
+using ADSP.
+
+=item spf_percentage_for_testrun($trid)
+
+Takes a testrun ID, and returns the percentage and absolute count of domains
+using SPF.
+
+=item starttls_percentage_for_testrun($trid)
+
+Takes a testrun ID, and returns the percentage and absolute count of domains
+with at least one mailserver using STARTTLS.
+
+=item nameserver_count($trid, $v6flag)
+
+Takes a testrun ID and a true/false flag for IPv6/IPv4, and returns the number
+of unique nameservers seen in the testrun with the indicated class of address.
+
+=item mailservers_in_sweden($trid, $v6flag)
+
+Takes a testrun ID and a true/false flag for IPv6/IPv4, and returns the
+percentage and absolute number of mailservers in the testrun which GeoIP
+claims are suituated in Sweden.
+
+=item webserver_count($trid, $httpsflag)
+
+Takes a testrun ID and a true/false flag indicating https/https, and returns
+the number of domains in the testrun that replied sensibly to a request with
+the given protocol.
+
+=item message_bands(@trids)
+
+Takes a list of testrun IDs. Returns a hash of hashes of hashes. The keys of
+the outermost level are the testrun IDs. Below that are three keys, the
+strings C<CRITICAL>, C<ERROR> and C<WARNING>. Below each of those are four
+keys, the strings C<0>, C<1>, C<2> and C<3+>. The values for each of those
+keys are the count of domains in the relevant testrun that has the indicated
+number of messages and the given level. So, for example,
+C<$result{17}{"ERROR"}{"3+"}> would be the number of domains in testrun 17
+that had three or more DNSCheck messages at level ERROR.
+
+=item lookup_desc($dnscheck_message)
+
+Return the English description of a given DNSCheck message.
+
+=item pageanalyzer_summary(@trids)
+
+Returns a hash of hashes, with the outer level being keyed on testrun IDs as
+usual. The inner hashes are statistical summations of the L<Pageanalyzer> data
+for the entire testrun. They're fairly large, and we suggest that you print
+one out with L<Data::Dumper> or similar to see what's in there.
+
+=item tests_by_level($level, @trids)
+
+Takes a message level string (C<CRITICAL>, C<ERROR>, C<WARNING>, C<NOTICE>,
+C<INFO>) and a list of testrun IDs. Returns a hash of hashes of hashes. The
+outermost level is keyed on testrun IDs as usual. The keys on the next level
+are the names of all the gathered domains in that testrun with at least one
+message at the given level. The value of each domain is a hash with the five
+severity levels as keys, and the number of messages at that level for that
+domain as values.
+
+This method is quite slow for large testruns and lower severity levels.
+
+=back
 
 =head1 SEE ALSO
 
