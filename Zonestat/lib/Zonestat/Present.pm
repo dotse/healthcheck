@@ -186,6 +186,10 @@ sub top_foo_servers {
     @res = sort { $b->[0] <=> $a->[0] }
       map { [ $data{$_}, $_, $host{$_}{latitude}, $host{$_}{longitude}, $host{$_}{country}, $host{$_}{code}, $host{$_}{city}, $host{$_}{asn} ] } keys %data;
 
+    if (@res > $number) {
+        splice(@res, $number);
+    }
+
     return @res;
 }
 
