@@ -63,4 +63,40 @@ sub test_count {
     }
 }
 
+=head1 NAME
+
+Zonestat::DB::Testrun - database interface class for testruns
+
+=head1 SYNOPSIS
+
+my $tr = Zonestat->new->testrun(17);
+
+=head1 DESCRIPTION
+
+=head2 Methods
+
+=over
+
+=item tests($startdomain, $reverse, $count)
+
+Fetch data objects for a sequential number of domains in this run.
+C<$startdomain> is where to start, C<$reverse> is a true/false flag indicating
+the sorting direction and C<$count> is the maximum number od documents to
+return.
+
+=item domainset()
+
+The C<Zonestat::DB::Domainset> object this run belongs to.
+
+=item name()
+
+The name of this run, generated from the name of the domainset it belongs to
+and the time the run was put into the gathering queue.
+
+=item test_count()
+
+The number of gathered domains in this run.
+
+=back
+
 1;

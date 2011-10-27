@@ -165,3 +165,86 @@ sub prevkey {
 }
 
 1;
+
+=head1 NAME
+
+Zonestat::DB::Domainset - database interface class for domainsets
+
+=head1 SYNOPSIS
+
+my $ds = Zonestat->new->domainset($name);
+
+=head1 DESCRIPTION
+
+=head2 Class Methods
+
+=over
+
+=item all_sets()
+
+Returns a list with the names of all domainsets currently in the database.
+
+=back
+
+=head2 Instance Methods
+
+=over
+
+=item name()
+
+Returns the name of the domainset.
+
+=item db()
+
+Returns a L<CouchDB::Client::DB> object for the C<zonestat-dset> database.
+
+=item dbproxy
+
+Returns a Zonestat database proxy object for C<zonestat-dset>.
+
+=item id($domainname)
+
+Returns the ID for a domain in this set. Yes, it's a badly named method.
+
+=item add(@domainnames)
+
+Takes a list of domain names and adds them to the set. If a name is already in
+the set, it will be silently ignored.
+
+=item remove($domainname)
+
+Takes a single domain name and removes it from the set, if it's there.
+
+=item all()
+
+Returns a list with all the domain names in this set.
+
+=item all_docs()
+
+Returns a list of all the full data hashes for the domains in this set.
+
+=item clear()
+
+Remove all domains from the set.
+
+=item testruns()
+
+Returns a list with all the L<Zonestat::DB::Testrun> objects relatede to this domainset.
+
+=item enqueue()
+
+Put all the domains in this set on the gathering queue.
+
+=item page($start, [$rows])
+
+Utility method. Returns a two-element list. The first is a list of domain
+names in this set, starting with the one given in C<$start>. There will be a
+maximum of C<$rows> (defaulting to 25). The second element is the proper
+domain name to use as C<$start> to get the following batch of names.
+
+=item prevkey($start, [$rows])
+
+Takes the same arguments as L<page()>, but the returns only the proper domain
+name to use as the C<$start> argument in order to get the preceeding batch of names.
+
+=back

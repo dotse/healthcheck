@@ -16,3 +16,23 @@ sub length {
 }
 
 1;
+
+=head1 NAME
+
+Zonestat::DB::Queue - database interface class for the gathering queue
+
+=head1 SYNOPSIS
+
+my $q = Zonestat->new->queue;
+
+=head1 DESCRIPTION
+
+=head2 Methods
+
+=over
+
+=item length()
+
+Return the number of domains currently waiting to be gathered or being gathered.
+
+=back

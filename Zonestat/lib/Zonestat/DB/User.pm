@@ -98,4 +98,57 @@ sub id {
     return $self->{user}{name};
 }
 
+=head1 NAME
+
+Zonestat::DB::User - interface to the user database
+
+=head1 SYNOPSIS
+
+  my $user = Zonestat->new->user->login($username, $password);
+
+=head1 DESCRIPTION
+
+=head2 Class Methods
+
+=over
+
+=item login($username, $password)
+
+If there is a user in the database that matches the given username and
+password, an object for that user is returned. If not, C<undef> is returned.
+
+=item by_id($username)
+
+If there is a user by the given name, an object for it is returned. If not,
+C<undef> is returned.
+
+=item create($usernamename, $password, $displayname, $email)
+
+Create a new user with the given information. If a user with the same username
+already exists, an exception will be thrown.
+
+=item set_password($username, $password)
+
+Set the password of the given user.
+
+=back
+
+=head2 Instance Methods
+
+=over
+
+=item name()
+
+Return the stored real-world name.
+
+=item email()
+
+Return the user's email address.
+
+=item username()
+
+Return the user's username.
+
+=back
+
 1;
