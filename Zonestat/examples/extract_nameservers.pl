@@ -1,5 +1,13 @@
 #!/usr/bin/env perl
 
+=pod
+
+This script was used during development. It's left as an example of how one
+can mess around with the CouchDB data from Perl. It is not in any way useful
+in itself.
+
+=cut
+
 use strict;
 use warnings;
 

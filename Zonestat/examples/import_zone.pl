@@ -1,5 +1,12 @@
 #!/usr/bin/perl
 
+=pod
+
+Runs a zone import followed by generation of a random subset. Almost certainly
+not useful if you're not .SE.
+
+=cut
+
 use warnings;
 use strict;
 
