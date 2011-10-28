@@ -85,29 +85,15 @@ sub for_domain {
     $hosts{webservers}  = get_webservers( $domain );
     $hosts{mailservers} = get_mailservers( $domain );
 
-
     $res{dkim} = $self->dkim_data( $domain );
-
-
     $res{whatweb} = $self->whatweb( $domain );
-
-
     $res{mailservers} = $self->mailserver_gather( $hosts{mailservers} );
-
-
     $res{sslscan_web} = $self->sslscan_web( $domain );
-
-
     $res{pageanalyze} = $self->pageanalyze( $domain );
-
-
     $res{webinfo} = $self->webinfo( $domain );
-
-
     $res{geoip} = $self->geoip( \%hosts );
-
-
     $res{finish} = time();
+
     return \%res;
 }
 
@@ -205,13 +191,11 @@ sub mailserver_gather {
     my @res   = ();
     my $scan  = $self->cget( qw[zonestat sslscan] );
 
-    return unless ($scan and -x $scan);
-
     my $cmd = "$scan --starttls --xml=stdout --quiet --no-failed";
     foreach my $server ( @$hosts ) {
         my $tmp = $self->smtp_info_for_address( $server->{name} );
         $tmp->{name} = $server->{name};
-        if ( $tmp->{starttls} ) {
+        if ( $tmp->{starttls} and $scan and -x $scan) {
             my $sslscan;
             my ( $success, $stdout, $stderr ) = run_external( 600, $cmd . ' ' . $server->{name} );
             try {
