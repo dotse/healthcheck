@@ -1,5 +1,12 @@
 #!/opt/local/bin/perl
 
+=pod
+
+Takes no arguments of any sort. Iterates over all databases in the configured
+CouchDB instance and starts compactions for them.
+
+=cut
+
 use Zonestat;
 use HTTP::Request;
 

@@ -1,5 +1,12 @@
 #!/usr/bin/env perl
 
+=pod
+
+Iterates over all domainsets, and deletes any testruns they have with no
+gathered domains in them. Do not run while a gathering run is in progress.
+
+=cut
+
 use strict;
 use warnings;
 

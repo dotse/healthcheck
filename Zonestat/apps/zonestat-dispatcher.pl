@@ -421,14 +421,9 @@ information to standard output (it still goes to syslog as well).
 
 =head1 CONFIGURATION
 
-L<dnscheck-dispatcher> shares configuration files with the L<DNSCheck> perl
-modules. Or, to be more precise, it creates such an object and then queries
-its configuration object for its configuration information. It also uses the
-L<DNSCheck> object to get its database connection.
-
-There are two keys in the configuration YAML files that are of interest for
-the dispatcher. The first one is C<syslog>. It has the subkeys C<ident>, which
-specifies the name the daemon will use when talking to syslogd, and
+There are two keys in the Zonestat configuration files that are of interest
+for the dispatcher. The first one is C<syslog>. It has the subkeys C<ident>,
+which specifies the name the daemon will use when talking to syslogd, and
 C<facility>, which specifies the syslog facility to use.
 
 The second one is C<daemon>. It has the subkeys C<pidfile>, C<errorlog>,

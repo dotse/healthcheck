@@ -1,5 +1,13 @@
 #!/usr/bin/env perl
 
+=pod
+
+Reload the names in a domainset from a file. Takes two arguments exactly, the
+name of the domainset and the name of the file with the domainnames to load
+into it.
+
+=cut
+
 use 5.10.0;
 
 use strict;
