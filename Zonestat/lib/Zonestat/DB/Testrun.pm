@@ -63,6 +63,8 @@ sub test_count {
     }
 }
 
+1;
+
 =head1 NAME
 
 Zonestat::DB::Testrun - database interface class for testruns
@@ -98,5 +100,3 @@ and the time the run was put into the gathering queue.
 The number of gathered domains in this run.
 
 =back
-
-1;
