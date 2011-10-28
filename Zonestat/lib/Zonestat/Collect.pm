@@ -191,12 +191,12 @@ sub mailserver_gather {
     my @res   = ();
     my $scan  = $self->cget( qw[zonestat sslscan] );
 
-    my $cmd = "$scan --starttls --xml=stdout --quiet --no-failed";
     foreach my $server ( @$hosts ) {
         my $tmp = $self->smtp_info_for_address( $server->{name} );
         $tmp->{name} = $server->{name};
         if ( $tmp->{starttls} and $scan and -x $scan) {
             my $sslscan;
+            my $cmd = "$scan --starttls --xml=stdout --quiet --no-failed";
             my ( $success, $stdout, $stderr ) = run_external( 600, $cmd . ' ' . $server->{name} );
             try {
                 $sslscan = XMLin( $stdout );
