@@ -55,7 +55,7 @@ Statweb - Catalyst based application
 
 =head1 DESCRIPTION
 
-[enter your description here]
+This is a web interface to the Zonestat modules.
 
 =head1 SEE ALSO
 

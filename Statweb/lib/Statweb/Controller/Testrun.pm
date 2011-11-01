@@ -7,23 +7,6 @@ use List::Util 'max';
 
 BEGIN {extends 'Catalyst::Controller'; }
 
-=head1 NAME
-
-Statweb::Controller::Testrun - Catalyst Controller
-
-=head1 DESCRIPTION
-
-Catalyst Controller.
-
-=head1 METHODS
-
-=cut
-
-
-=head2 index
-
-=cut
-
 sub index :Chained('/') :CaptureArgs(1) :PathPart('testrun') {
     my ( $self, $c, $run_id ) = @_;
     
@@ -71,7 +54,6 @@ sub first :Chained('index') :Args(0) :PathPart('') {
     my ($self, $c) = @_;
     
     my $url = $c->uri_for_action('/testrun/show', [$c->stash->{run}->id], '0');
-    print STDERR 'HERE==> ' . $url . "\n";
     
     $c->res->redirect($url);
 }
@@ -93,6 +75,41 @@ sub details :Chained('domain') :Args(0) :PathPart('') {
     $c->stash(template => 'testrun/details.tt');
 }
 
+
+=head1 NAME
+
+Statweb::Controller::Testrun - Catalyst Controller
+
+=head1 DESCRIPTION
+
+Catalyst Controller.
+
+=head1 METHODS
+
+=over
+
+=item index
+
+Top of action chain. Gets the testrun id from the URL and sticks the
+corresponding object in the stash.
+
+=item show
+
+Show one page of results in the testrun.
+
+=item first
+
+Forward to C<show> as first page.
+
+=item domain
+
+Intermediate step in chain, gets a domain off the URL and into the stash.
+
+=item details
+
+Displays details for a domain.
+
+=back
 
 =head1 AUTHOR
 

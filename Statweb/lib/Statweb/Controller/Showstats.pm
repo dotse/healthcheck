@@ -8,22 +8,6 @@ use Data::Dumper;
 use Time::HiRes qw[time];
 use List::Util qw[max];
 
-=head1 NAME
-
-Statweb::Controller::Showstats - Catalyst Controller
-
-=head1 DESCRIPTION
-
-Catalyst Controller.
-
-=head1 METHODS
-
-=cut
-
-=head2 index
-
-=cut
-
 my %http_response_code = (
     100 => q{Continue},
     101 => q{Switching Protocols},
@@ -407,6 +391,64 @@ sub auto : Private {
 
     return 1;
 }
+
+=head1 NAME
+
+Statweb::Controller::Showstats - Catalyst Controller
+
+=head1 DESCRIPTION
+
+Main workhorse controller for all of Statweb.
+
+=head1 METHODS
+
+=over
+
+=item index
+
+Detaches to C<default>.
+
+=item default
+
+Puts quite a lot of stuff in the stash, and displays the page with various statistics.
+
+=item webpages
+
+Forwards to the following five actions in order to populate the stash, then
+displays a single page aggregating the information.
+
+=item webpages_software
+
+=item webpages_response
+
+=item webpages_content
+
+=item webpages_charset
+
+=item webpages_pageanalyzer
+
+=item _reshuffle
+
+Helper that does sorting for the five actions above.
+
+=item dnscheck
+
+Display the page with DNSCheck result statistics.
+
+=item servers
+
+Display the page with server statistics.
+
+=item view_by_level
+
+Display domains in a certain testrun that had results at a given severity
+level.
+
+=item auto
+
+Populate stash with testruns, for all the other actions.
+
+=back
 
 =head1 AUTHOR
 

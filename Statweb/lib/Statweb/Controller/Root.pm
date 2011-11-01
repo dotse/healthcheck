@@ -11,22 +11,6 @@ use Data::Dumper;
 #
 __PACKAGE__->config->{namespace} = '';
 
-=head1 NAME
-
-Statweb::Controller::Root - Root Controller for Statweb
-
-=head1 DESCRIPTION
-
-[enter your description here]
-
-=head1 METHODS
-
-=cut
-
-=head2 index
-
-=cut
-
 sub index : Path : Args(0) {
     my ($self, $c) = @_;
 
@@ -115,14 +99,58 @@ sub enqueue : Global : Arg(1) {
     $c->res->redirect($c->uri_for_action('/index'));
 }
 
-=head2 end
-
-Attempt to render a view, if needed.
-
-=cut
-
 sub end : ActionClass('RenderView') {
 }
+
+=head1 NAME
+
+Statweb::Controller::Root - Root Controller for Statweb
+
+=head1 DESCRIPTION
+
+Controller for the first logged-in page of Statweb.
+
+=head1 ACTIONS
+
+=over
+
+=item index
+
+Main index page, showing all domainsets and all testruns.
+
+=item default
+
+404 handler.
+
+=item begin
+
+Set the default content-type to C<text/html> and the character encoding to UTF-8.
+
+=item auto
+
+Limit view of pages to logged-in users.
+
+=item left_bar
+
+Put data in the stash that's needed to display the common left bar on all pages.
+
+=item toggletestrun
+
+Include or remove a testrun from being shown on the statistics pages.
+
+=item clearselection
+
+Remove all testruns from the list of included runs.
+
+=item enqueue
+
+Put all the domain names in a domainset on the gathering queue.
+
+=item end
+
+Default handler to hand over to the TT view.
+
+=back
 
 =head1 AUTHOR
 

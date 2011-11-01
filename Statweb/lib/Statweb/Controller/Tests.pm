@@ -6,22 +6,6 @@ use parent 'Catalyst::Controller';
 
 use List::Util qw[max];
 
-=head1 NAME
-
-Statweb::Controller::Tests - Catalyst Controller
-
-=head1 DESCRIPTION
-
-Catalyst Controller.
-
-=head1 METHODS
-
-=cut
-
-=head2 index
-
-=cut
-
 sub index : Path : Args(2) {
     my ($self, $c, $trid, $domain) = @_;
     my $test = $c->model('DB')->db('zonestat')->newDoc($trid . '-' . $domain);
@@ -38,6 +22,20 @@ sub index : Path : Args(2) {
         }
     );
 }
+
+=head1 NAME
+
+Statweb::Controller::Tests - Catalyst Controller
+
+=head1 DESCRIPTION
+
+Catalyst Controller.
+
+=head1 METHODS
+
+=head2 index
+
+Show the DNSCheck results for a certain domain in a certain testrun.
 
 =head1 AUTHOR
 

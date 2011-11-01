@@ -4,22 +4,6 @@ use strict;
 use warnings;
 use parent 'Catalyst::Controller';
 
-=head1 NAME
-
-Statweb::Controller::CSV - Catalyst Controller
-
-=head1 DESCRIPTION
-
-Catalyst Controller.
-
-=head1 METHODS
-
-=cut
-
-=head2 index
-
-=cut
-
 sub auto : Private {
     my ($self, $c) = @_;
     my $db = $c->model('DB');
@@ -110,6 +94,45 @@ sub webserver_charset_https : Local : Args(0) {
     $c->forward('/showstats/webpages_charset');
     $c->stash->{data} = $c->stash->{data}{charset}{https};
 }
+
+=head1 NAME
+
+Statweb::Controller::CSV - Catalyst Controller
+
+=head1 DESCRIPTION
+
+Catalyst Controller.
+
+=head1 ACTIONS
+
+=over
+
+=item auto
+
+Extracts the relevant testrun objects from the session, and sets the default
+view to CSV.
+
+=item webserver_software_http
+
+This, and all the following, action simply forwards to the corresponding
+action in L<Statweb::Controller::Showstats> and sends the data returned out as
+CSV.
+
+=item webserver_software_https
+
+=item webserver_response_http
+
+=item webserver_response_https
+
+=item webserver_content_http
+
+=item webserver_content_https
+
+=item webserver_charset_http
+
+=item webserver_charset_https
+
+=back
 
 =head1 AUTHOR
 

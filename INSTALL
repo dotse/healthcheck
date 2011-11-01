@@ -148,6 +148,19 @@ Example config, with explanatory comments:
    }
  }
 
+=head2 Modifying the DNSCheck configuration
+
+In order to make the DNSCheck system record all the information we need, we
+have to adjust the severity level of two of its messages. Go to the directory
+where it stores its configuration files (it should be a sibling directory to
+the one used by Zonestat) and see if there is a file called
+C<site_policy.yaml>. If there isn't create it. If there is, edit it. In either
+case, it should contain the following entries:
+
+ loglevels:
+  DNS:NAMESERVER_FOUND: info
+  DNS:FIND_MX_RESULT: info
+
 =head1 RUNNING
 
 The system has two main parts, the web interface and the gathering system. The

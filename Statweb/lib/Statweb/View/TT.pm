@@ -20,7 +20,7 @@ Statweb::View::TT - TT View for Statweb
 
 =head1 DESCRIPTION
 
-TT View for Statweb.
+TT View for Statweb. Nothing exciting here.
 
 =head1 SEE ALSO
 

@@ -5,22 +5,6 @@ use warnings;
 use parent 'Catalyst::Controller';
 use Zonestat;
 
-=head1 NAME
-
-Statweb::Controller::Domainset - Catalyst Controller
-
-=head1 DESCRIPTION
-
-Catalyst Controller.
-
-=head1 METHODS
-
-=cut
-
-=head2 index
-
-=cut
-
 sub index : Chained('/') : CaptureArgs(1) : PathPart('domainset') {
     my ($self, $c, $id) = @_;
     my $ds = $c->model('DB')->domainset($id);
@@ -66,28 +50,6 @@ sub add : Chained('index') : Args(0) : PathPart('add') {
         $c->uri_for_action('/domainset/first', [$c->stash->{dset}->name]));
 }
 
-sub rebuild : Chained('index') : Args(0) : PathPart('rebuild') {
-    my ($self, $c) = @_;
-
-    my $trs = $c->stash->{dset}->testruns;
-    my $pr  = Zonestat->new->present;
-
-    if (fork() == 0) {
-        if (fork() == 0) {
-            while (defined(my $tr = $trs->next)) {
-                $tr->invalidate_cache;
-                $pr->build_cache_for_testrun($tr);
-            }
-            exit(0);
-        } else {
-            exit(0);
-        }
-    }
-
-    $c->res->redirect(
-        $c->uri_for_action('/domainset/first', [$c->stash->{dset}->name]));
-}
-
 sub create :Local {
     my ($self, $c) = @_;
 
@@ -105,6 +67,43 @@ sub create :Local {
     $c->res->redirect(
         $c->uri_for_action('/domainset/first', [$name]));
 }
+
+=head1 NAME
+
+Statweb::Controller::Domainset - Catalyst Controller
+
+=head1 DESCRIPTION
+
+Catalyst Controller.
+
+=head1 ACTIONS
+
+=item index
+
+Start of the delegation chain for all pages working with one particular
+domainset. Picks that domainset out of the URL and puts the right object in
+the stash.
+
+=item first
+
+Catches display of domainset without a page number. Adds the number 1 and sends the request on to C<later>.
+
+=item later
+
+Displays one page of domain names in a set.
+
+=item delete
+
+Remove a domain name from the set.
+
+=item add
+
+Add a domain name to the set.
+
+=item create
+
+Create a new domainset, with domain names taken from an uploaded file with one
+name per line.
 
 =head1 AUTHOR
 
