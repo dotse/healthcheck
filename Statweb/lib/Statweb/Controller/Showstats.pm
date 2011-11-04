@@ -241,12 +241,14 @@ sub dnscheck : Local : Args(0) {
     my $p        = $c->{zs}->present;
     my %errors   = $p->number_of_domains_with_message( 'ERROR', map { 0 + $_->id } @trs );
     my %warnings = $p->number_of_domains_with_message( 'WARNING', map { 0 + $_->id } @trs );
-    my @eorder =
+    my @eorder;
+    @eorder =
       sort { $errors{ $trs[0]->id }{$b} <=> $errors{ $trs[0]->id }{$a} }
-      keys %{ $errors{ $trs[0]->id } };
-    my @worder =
+      keys %{ $errors{ $trs[0]->id } } if defined($trs[0]);
+    my @worder;
+    @worder =
       sort { $warnings{ $trs[0]->id }{$b} <=> $warnings{ $trs[0]->id }{$a} }
-      keys %{ $warnings{ $trs[0]->id } };
+      keys %{ $warnings{ $trs[0]->id } } if defined($trs[0]);
     my %descriptions;
 
     foreach my $m ( @eorder, @worder ) {
@@ -338,9 +340,13 @@ sub servers : Local : Args(0) {
             }
         }
     }
-    my @asv4order = sort { $ns_per_asn_v4{ $trs[0]->id }{$b} <=> $ns_per_asn_v4{ $trs[0]->id }{$a} } keys %{ $ns_per_asn_v4{ $trs[0]->id } };
+    my @asv4order;
+    @asv4order = sort { $ns_per_asn_v4{ $trs[0]->id }{$b} <=> $ns_per_asn_v4{ $trs[0]->id }{$a} } keys %{ $ns_per_asn_v4{ $trs[0]->id } }
+        if defined($trs[0]);
     splice @asv4order, 20 if @asv4order > 20;
-    my @asv6order = sort { $ns_per_asn_v6{ $trs[0]->id }{$b} <=> $ns_per_asn_v6{ $trs[0]->id }{$a} } keys %{ $ns_per_asn_v6{ $trs[0]->id } };
+    my @asv6order;
+    @asv6order = sort { $ns_per_asn_v6{ $trs[0]->id }{$b} <=> $ns_per_asn_v6{ $trs[0]->id }{$a} } keys %{ $ns_per_asn_v6{ $trs[0]->id } }
+        if defined($trs[0]);
     splice @asv6order, 20 if @asv6order > 20;
 
     $c->stash(
