@@ -1,17 +1,3 @@
-Run script/statweb_server.pl to test the application.
+THIS VERSION IS OBSOLETE.
 
-Installed from CPAN on healthcheck.iis.se:
-
- * Bundle::CPAN
- * Catalyst::Devel
- * Algorithm::C3
- * DBIx::Class
- * parent
- * Catalyst::Plugin::Session
- * Catalyst::Plugin::Session::Store::FastMmap
- * Catalyst::Plugin::Session::State::Cookie
- * CHI
- * Catalyst::Model::DBIC::Schema
- * Catalyst::View::TT
- * Template::Provider::Encoding
- * Catalyst::Engine::Apache
+Check out the "couchdb" branch instead.

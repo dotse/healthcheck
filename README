@@ -1,29 +1,3 @@
-This is a tool used at .SE to check the general health of a DNS zone.
+THIS VERSION IS OBSOLETE.
 
-The system is split into two major parts: an "engine" part that takes care of
-the gathering and manipulation of information, and a web GUI that presents
-information to an end user. The parts are implemented as separate sets of Perl
-modules. The engine part are the Zonestat modules, and the web GUI are the
-Statweb modules. The latter is a Catalyst application, and thus has a lot of
-prerequisite modules that are not needed when not using the GUI. The Zonestat
-modules also have a whole bunch of prereqs, and those really are required to
-use the system at all.
-
-The single biggest prerequisite, and the one that needs most manual work to
-install, is DNSCheck. For historical reasons, Zonestat is quite intimately
-connected to DNSCheck. The Zonestat database schema is a modified version of
-the DNSCheck one, and the two also share configuration files. So the
-installation process, in brief, goes like this:
-
-1) Install DNSCheck. Adjust its config with at least database connection
-   information. Load the DNSCheck schema file into the database.
-
-2) Install Zonestat. Adjust the DNSCheck config files as necessary. Load the
-   Zonestat modifications to the DNSCheck database schema.
-   
-3) Install Statweb. Install necessary modules to run Catalyst applications in
-   your webserver (Apache is the only tested one, but it should work with
-   anything). Configure web server to run the Statweb application.
-   
-   
-For more information, see Github: https://github.com/dotse/healthcheck
+Check out the "couchdb" branch instead.
