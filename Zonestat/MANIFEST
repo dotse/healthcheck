@@ -1,6 +1,4 @@
-apps/compact.sh
 apps/compact_couchdb.pl
-apps/dns2db_import.pl
 apps/rebuild_couchdb.pl
 apps/zonestat-dispatcher.pl
 Changes
@@ -67,8 +65,6 @@ couchdb/zonestat/_design/web/views/servertype/reduce.js
 couchdb_load.PL
 db/create_tables.sql
 db/modify_tables.sql
-examples/couchdb.pl
-examples/error_report.pl
 examples/gather_domains.pl
 examples/import_zone.pl
 examples/mozcert.pl
