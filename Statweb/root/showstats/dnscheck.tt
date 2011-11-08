@@ -79,6 +79,9 @@
                 [% FOREACH n IN [0, 1, 2, "3+"] -%]
                     <td class="numeric">
                         [% band.${tr.id}.$level.$n -%]
+                        [% IF sizes.${tr.id} > 0 -%]
+                        ([% 100*(band.${tr.id}.$level.$n)/(sizes.${tr.id}) FILTER format("%0.2f") -%]%)
+                        [% END -%]
                     </td>
                 [% END -%]
                 </tr>
