@@ -18,6 +18,7 @@ WriteMakefile(
         CouchDB::Helper => 0,
         Config::Any => 0.20,
         JSON::XS => 0,
+        Net::LibIDN => 0,
     }, 
     ($] >= 5.005 ?     
       (ABSTRACT_FROM  => 'lib/Zonestat.pm', # retrieve abstract from module
