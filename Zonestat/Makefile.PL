@@ -24,3 +24,12 @@ WriteMakefile(
       (ABSTRACT_FROM  => 'lib/Zonestat.pm', # retrieve abstract from module
        AUTHOR         => 'Calle Dybedahl <calle@init.se>') : ()),
 );
+
+sub MY::postamble {
+    return <<EOF;
+coverage:
+	cover -delete
+	HARNESS_PERL_SWITCHES=-MDevel::Cover=+ignore,Mock make test
+	cover
+EOF
+}
