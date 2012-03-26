@@ -2,3 +2,4 @@ test: data
 
 dbi:
     user: zonestat
+    host: "127.0.0.1"
