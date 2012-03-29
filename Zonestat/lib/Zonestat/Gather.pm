@@ -10,6 +10,7 @@ use base 'Zonestat::Common';
 use Carp;
 use Try::Tiny;
 use Net::LibIDN ':all';
+use IO::Handle;
 
 our $VERSION = '0.02';
 our $debug   = 0;
