@@ -54,15 +54,18 @@ sub create :Local {
     my ($self, $c) = @_;
 
     my $up = $c->req->upload('userfile');
-    my $fh = $up->fh;
-    my @domains = <$fh>;
-    chomp(@domains);
+    my @domains;
+    if ($up) {
+        my $fh = $up->fh;
+        @domains = <$fh>;
+        chomp(@domains);
+    }
 
     my $name = $c->req->params->{name};
     die unless $name;
     my $dset = $c->model('DB')->domainset($name);
     $dset->clear;
-    $dset->add(@domains);
+    $dset->add(@domains) if @domains;
 
     $c->res->redirect(
         $c->uri_for_action('/domainset/first', [$name]));
