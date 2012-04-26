@@ -8,12 +8,13 @@ use warnings;
 use base 'Zonestat::Common';
 
 use YAML 'LoadFile';
+use File::ShareDir 'dist_file';
 use Config;
 use Storable qw[freeze thaw];
 
 our $VERSION = '0.01';
 
-my $locale = LoadFile $Config{siteprefix} . '/share/dnscheck/locale/en.yaml';
+my $locale = LoadFile dist_file('DNSCheck', 'en.yaml');
 
 sub total_tested_domains {
     my $self = shift;

@@ -1,4 +1,4 @@
-use 5.008008;
+use 5.008009;
 use ExtUtils::MakeMaker;
 
 
@@ -7,7 +7,7 @@ WriteMakefile(
     VERSION_FROM      => 'lib/Zonestat.pm', # finds $VERSION
     PREREQ_PM         => {
         YAML => 0,
-        DNSCheck => 1.00,
+        DNSCheck => 1.3,
         HTTP::Request => 0,
         IO::Socket::SSL => 0,
         Text::CSV_XS => 0,
