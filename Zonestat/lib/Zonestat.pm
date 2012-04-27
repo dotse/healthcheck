@@ -38,6 +38,10 @@ sub new {
     $self->{gather}  = Zonestat::Gather->new( $self );
     $self->{present} = Zonestat::Present->new( $self );
     $self->{collect} = Zonestat::Collect->new( $self );
+    
+    if ($self->cget(qw[couchdb dbprefix])) {
+        $self->{dbprefix} = $self->cget(qw[couchdb dbprefix])
+    }
 
     return $self;
 }
@@ -93,6 +97,10 @@ sub queue {
 sub dbproxy {
     my $self = shift;
     my $name = shift;
+    
+    if ($self->{dbprefix}) {
+        $name =~ s/zonestat/$self->{dbprefix}/e;
+    }
 
     return Zonestat::DB->new( $self, $name );
 }
@@ -135,6 +143,10 @@ sub db {
     my $name = shift;
 
     confess "Database must have a name" unless $name;
+
+    if ($self->{dbprefix}) {
+        $name =~ s/zonestat/$self->{dbprefix}/e;
+    }
 
     unless ( $self->{db}{$name} ) {
         my $db = $self->dbconn->newDB( $name );
