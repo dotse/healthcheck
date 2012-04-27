@@ -16,7 +16,7 @@ WriteMakefile(
         XML::Simple => 0,
         CouchDB::Client => 0.10,
         CouchDB::Helper => 0,
-        Config::Any => 0.20,
+        Config::Any => 0.18,
         JSON::XS => 0,
         Net::LibIDN => 0,
     }, 

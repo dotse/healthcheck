@@ -8,9 +8,7 @@ BEGIN { use_ok( 'Zonestat::Config' ) }
 
 #########################
 
-use Config;
-
-my $conf = Zonestat::Config->new($Config{siteprefix} . '/share/zonestat/config');
+my $conf = Zonestat::Config->new('examples/config');
 ok( defined( $conf ), 'Object exists.' );
 ok( ref( $conf ) eq 'Zonestat::Config', 'Object is of class ' . ref( $conf ) );
 

@@ -10,7 +10,7 @@ BEGIN { use_ok( 'Zonestat' => ['t/Config']) }
 
 #########################
 
-my $p = Zonestat->new->gather;
+my $p = Zonestat->new('examples/config')->gather;
 ok( defined( $p ) );
 ok( ref( $p ) eq 'Zonestat::Gather' );
 

@@ -1,0 +1,24 @@
+Source: libzonestat-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 7)
+Build-Depends-Indep: perl, libio-socket-ssl-perl, libyaml-perl,
+  libnet-libidn-perl, libxml-simple-perl, libjson-xs-perl,
+  libcouchdb-client-perl (>= 0.1), libgeo-ip-perl,
+  libwww-perl (>= 5.824), libtext-csv-xs-perl,
+  libconfig-any-perl (>= 0.18), libcouchdb-helper-perl,libdnscheck-perl
+Maintainer: Calle Dybedahl <calle@ubuntu.localdomain>
+Standards-Version: 3.8.3
+Homepage: http://search.cpan.org/dist/Zonestat/
+
+Package: libzonestat-perl
+Architecture: all
+Depends: ${perl:Depends}, ${misc:Depends}, libio-socket-ssl-perl,
+  libyaml-perl, libnet-libidn-perl, libxml-simple-perl,
+  libjson-xs-perl, libcouchdb-client-perl (>= 0.1),
+  libgeo-ip-perl, libwww-perl (>= 5.824), libtext-csv-xs-perl,
+  libconfig-any-perl (>= 0.18)
+Description: gather and present statistics for a DNS zone
+ Zonestat is the main entry point for the Zonestat system.
+ .
+ This description was automagically extracted from the module by dh-make-perl.
