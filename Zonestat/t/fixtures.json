@@ -1,0 +1,28 @@
+{
+   "zonestat-queue" : [
+      {
+         "data" : {
+            "domain" : "foo.bar",
+            "inprogress" : 1,
+            "priority" : 2
+         },
+         "id" : "95390bcb1a22c781134f722e259f6042"
+      },
+      {
+         "data" : {
+            "domain" : "example.org",
+            "inprogress" : 1,
+            "priority" : 1
+         },
+         "id" : "95390bcb1a22c781134f722e259f65ec"
+      },
+      {
+         "data" : {
+            "domain" : "gazonk.baz",
+            "inprogress" : 1,
+            "priority" : 3
+         },
+         "id" : "95390bcb1a22c781134f722e259f727b"
+      }
+   ]
+}
