@@ -9,6 +9,8 @@ use Zonestat;
 use File::Slurp;
 use JSON::XS;
 
+use Test::More;
+
 my $zs  = Zonestat->new( 't/Config' );
 my $dbc = $zs->dbconn;
 
@@ -21,15 +23,13 @@ foreach my $dbname ( keys %$fix ) {
     $realname =~ s/^zonestat/$prefix/;
     my $db = $dbc->newDB($realname);
     if($dbc->dbExists($realname)) {
-        print "$realname exists\n";
         $db->delete;
-    } else {
-        print "$realname does not exist.\n";
     }
-    $db->create;
+    ok($db->create, "$realname created");
     foreach my $data ( @{ $fix->{$dbname} } ) {
-        print $data->{id} . "\n";
         my $doc = $db->newDoc($data->{id}, undef, $data->{data});
-        $doc->create;
+        ok($doc->create, $data->{id} . ' saved');
     }
 }
+
+done_testing;
