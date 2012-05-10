@@ -1,28 +1,274 @@
 {
+   "zonestat" : [
+      {
+         "data" : {
+            "views" : {
+               "bands" : {
+                  "map" : "function(doc){\n    if(doc.dnscheck) {\n        var count = {\n            \"CRITICAL\": 0,\n            \"ERROR\": 0,\n            \"WARNING\": 0,\n            \"NOTICE\": 0,\n            \"INFO\": 0,\n            \"DEBUG\": 0\n        };\n        \n        doc.dnscheck.forEach(function(e){\n            count[e.level] += 1;\n        });\n        \n        var result = {\n            \"CRITICAL\": {\"0\": 0, \"1\":0, \"2\":0, \"3+\":0 },\n            \"ERROR\": {\"0\": 0, \"1\":0, \"2\":0, \"3+\":0 },\n            \"WARNING\": {\"0\": 0, \"1\":0, \"2\":0, \"3+\":0 },\n        };\n        \n        [\"CRITICAL\", \"ERROR\", \"WARNING\"].forEach(function(l){\n            if(count[l] == 0) {\n                result[l][\"0\"] = 1;\n            } else if(count[l] == 1) {\n                result[l][\"1\"] = 1;\n            } else if(count[l] == 2) {\n                result[l][\"2\"] = 1;\n            } else if(count[l] >2) {\n                result[l][\"3+\"] = 1;\n            } \n        });\n        \n        emit(doc.testrun, result);\n    }\n}",
+                  "reduce" : "function(keys,values,rereduce){\n    var result = {\n        \"CRITICAL\": {\"0\": 0, \"1\":0, \"2\":0, \"3+\":0 },\n        \"ERROR\": {\"0\": 0, \"1\":0, \"2\":0, \"3+\":0 },\n        \"WARNING\": {\"0\": 0, \"1\":0, \"2\":0, \"3+\":0 },\n    };\n    \n    values.forEach(function(e){\n        [\"CRITICAL\", \"ERROR\", \"WARNING\"].forEach(function(l){\n            [\"0\", \"1\", \"2\", \"3+\"].forEach(function(b){\n                result[l][b] += e[l][b];\n            });\n        });\n    });\n    \n    return result;\n}"
+               },
+               "bylevel" : {
+                  "map" : "function(doc){\n    var count = {\n            \"CRITICAL\": 0,\n            \"ERROR\": 0,\n            \"WARNING\": 0,\n            \"NOTICE\": 0,\n            \"INFO\": 0\n        };\n\n    for (var dc in doc.dnscheck) {\n        count[doc.dnscheck[dc].level] += 1;\n    }\n\n    emit([doc.testrun, doc.domain], count);\n    if(count[\"CRITICAL\"] > 0) {\n        emit([\"CRITICAL\", doc.testrun, doc.domain], undefined);\n    }\n    if(count[\"ERROR\"] > 0) {\n        emit([\"ERROR\", doc.testrun, doc.domain], undefined);\n    }\n    if(count[\"WARNING\"] > 0) {\n        emit([\"WARNING\", doc.testrun, doc.domain], undefined);\n    }\n    if(count[\"NOTICE\"] > 0) {\n        emit([\"NOTICE\", doc.testrun, doc.domain], undefined);\n    }\n    if(count[\"INFO\"] > 0) {\n        emit([\"INFO\", doc.testrun, doc.domain], undefined);\n    }\n}",
+                  "reduce" : "function(keys,values,rereduce) {\n    var count = {\n            \"CRITICAL\": 0,\n            \"ERROR\": 0,\n            \"WARNING\": 0,\n            \"NOTICE\": 0,\n            \"INFO\": 0\n        };\n\n    for (var v in values) {\n        if(values[v]) {\n            count[\"CRITICAL\"] += values[v][\"CRITICAL\"];\n            count[\"ERROR\"] += values[v][\"ERROR\"];\n            count[\"WARNING\"] += values[v][\"WARNING\"];\n            count[\"NOTICE\"] += values[v][\"NOTICE\"];\n            count[\"INFO\"] += values[v][\"INFO\"];\n        } else {\n            count = null;\n        }\n    }\n    \n    return count;\n}"
+               },
+               "criticalcount" : {
+                  "map" : "function(doc){\n    if(doc.dnscheck) {\n        for(i in doc.dnscheck) {\n            if(doc.dnscheck[i].level == 'CRITICAL') {\n                emit([doc.testrun, doc.dnscheck[i].tag], 1);                    \n            }\n        }\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce){\n    return sum(values);\n}"
+               },
+               "errorcount" : {
+                  "map" : "function(doc){\n    if(doc.dnscheck) {\n        for(i in doc.dnscheck) {\n            if(doc.dnscheck[i].level == 'ERROR') {\n                emit([doc.testrun, doc.dnscheck[i].tag], 1);                    \n            }\n        }\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce){\n    return sum(values);\n}"
+               },
+               "maxseverity" : {
+                  "map" : "function(doc){\n    var value = {\n        \"CRITICAL\": 5,\n        \"ERROR\": 4,\n        \"WARNING\": 3,\n        \"NOTICE\": 2,\n        \"INFO\": 1,\n        \"DEBUG\": 0\n        };\n    \n    var max = \"DEBUG\";\n    \n    if(doc.dnscheck) {\n        for(i in doc.dnscheck) {\n            if(value[doc.dnscheck[i].level] > value[max]) {\n                max = doc.dnscheck[i].level;\n            }\n        }\n    }\n    \n    emit([doc.testrun, max], 1);\n}",
+                  "reduce" : "function(keys, values, rereduce){\n    return sum(values);\n}"
+               },
+               "messagecount" : {
+                  "map" : "function(doc){\n    if(doc.dnscheck) {\n        for(i in doc.dnscheck) {\n            emit([doc.testrun, doc.dnscheck[i].level, doc.dnscheck[i].tag], 1);\n        }\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce){\n    return sum(values);\n}"
+               },
+               "warningcount" : {
+                  "map" : "function(doc){\n    if(doc.dnscheck) {\n        for(i in doc.dnscheck) {\n            if(doc.dnscheck[i].level == 'WARNING') {\n                emit([doc.testrun, doc.dnscheck[i].tag], 1);                    \n            }\n        }\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce){\n    return sum(values);\n}"
+               },
+               "withmsg" : {
+                  "map" : "function(doc){\n    var tmp = {};\n    \n    if(doc.dnscheck) {\n        doc.dnscheck.forEach(function(e){\n            tmp[e.tag] = e.level;\n        });\n        for(t in tmp) {\n            emit([doc.testrun, tmp[t], t], 1);\n        }\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    return sum(values);\n}"
+               }
+            }
+         },
+         "id" : "_design/check"
+      },
+      {
+         "data" : {
+            "views" : {
+               "mime" : {
+                  "map" : "function(doc){\n    if(doc.pageanalyze.http.mime) {\n        for(var e in doc.pageanalyze.http.mime) {\n            emit([doc.testrun, 'http', e], doc.pageanalyze.http.mime[e]);\n        }\n    }\n    if(doc.pageanalyze.https.mime) {\n        for(var e in doc.pageanalyze.https.mime) {\n            emit([doc.testrun, 'https', e], doc.pageanalyze.https.mime[e]);\n        }\n    }\n}",
+                  "reduce" : "_sum"
+               },
+               "summary" : {
+                  "map" : "function(doc){\n    if(doc.pageanalyze.http) {\n        emit([doc.testrun, 'http'], doc.pageanalyze.http.summary);\n    }\n    if(doc.pageanalyze.https) {\n        emit([doc.testrun, 'https'], doc.pageanalyze.https.summary);\n    }\n}",
+                  "reduce" : "// \"average_compression_ratio_percent\":20.8378357341649,\"compressed_resources\":11,\n// \"effective_compression_ratio_percent\":74.7202007651954\n\nfunction(keys, values, rereduce) {\n    return {\n        \"total_bytes\": stats(values.map(function(e){return e.total_bytes;}), rereduce, 1024),\n        \"total_time\": stats(values.map(function(e){return e.total_time}), rereduce, 1000),\n        \"total_requests\": stats(values.map(function(e){return e.total_requests}), rereduce),\n        \"external_resources\": stats(values.map(function(e){return e.external_resources}), rereduce),\n        \"average_compression_ratio_percent\": stats(values.map(function(e){return e.average_compression_ratio_percent}), rereduce),\n        \"compressed_resources\": stats(values.map(function(e){return e.compressed_resources}), rereduce),\n        \"effective_compression_ratio_percent\": stats(values.map(function(e){return e.effective_compression_ratio_percent}), rereduce)\n    };\n}\n\nfunction stats(values, rereduce, scale) {\n    // This computes the standard deviation of the mapped results\n    var stdDeviation=0.0;\n    var count=0;\n    var total=0.0;\n    var sqrTotal=0.0\n    var max=-Infinity;\n    var min=Infinity;\n    \n    if(scale == null) {\n        scale = 1;\n    }\n\n    if (!rereduce) {\n        // This is the reduce phase, we are reducing over emitted values from\n        // the map functions.\n        for(var i in values) {\n            var kb = values[i] / scale;\n            total = total + kb;\n            sqrTotal = sqrTotal + (kb * kb);\n            if(kb > max) {\n                max = kb;\n            }\n            if(kb < min) {\n                min = kb;\n            }\n        }\n        count = values.length;\n    }\n    else {\n        // This is the rereduce phase, we are re-reducing previosuly\n        // reduced values.\n        for(var i in values) {\n            count = count + values[i].count;\n            total = total + values[i].total;\n            sqrTotal = sqrTotal + values[i].sqrTotal;\n            if(values[i].max > max) {\n                max = values[i].max;\n            }\n            if(values[i].min < min) {\n                min = values[i].min;\n            }\n        }\n    }\n\n    var variance =  (sqrTotal - ((total * total)/count)) / count;\n    stdDeviation = Math.sqrt(variance);\n\n    // the reduce result. It contains enough information to be rereduced\n    // with other reduce results.\n    return {\"stdDeviation\":stdDeviation,\"count\":count,\n    \"total\":total,\"sqrTotal\":sqrTotal, \"average\": (total/count),\n    \"max\": max, \"min\":min };\n}"
+               }
+            }
+         },
+         "id" : "_design/pageanalyze"
+      },
+      {
+         "data" : {
+            "views" : {
+               "adsp" : {
+                  "map" : "function(doc){\n    if(doc.dkim) {\n        if(doc.dkim.adsp) {\n            emit(doc.testrun, [1,1]);\n        } else {\n            emit(doc.testrun, [0,1]);\n        }\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    var tmp = [0, 0];\n    \n    for each(e in values) {\n        tmp[0] += e[0];\n        tmp[1] += e[1];\n    }\n    \n    return tmp;\n}"
+               },
+               "data" : {
+                  "map" : "function(doc){\n    if(doc.geoip){\n        doc.geoip.forEach(function(e){\n            emit([doc.testrun, e.type, e.address, e.latitude, e.longitude, e.country, e.code, e.city, e.asn, e.name], 1);\n        });\n    }\n}",
+                  "reduce" : "_sum"
+               },
+               "dnssec_capable" : {
+                  "map" : "function(doc){\n    var dnssec = 0;\n    \n    if(doc.dnscheck){\n        for each (e in doc.dnscheck){\n            if (e.tag == \"DNSSEC:DS_FOUND\") {\n                dnssec = 1;\n            }\n        }\n        emit(doc.testrun, [dnssec, 1]);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    var tmp = [0, 0];\n    \n    for each(e in values) {\n        tmp[0] += e[0];\n        tmp[1] += e[1];\n    }\n    \n    return tmp;\n}"
+               },
+               "ipv6_capable" : {
+                  "map" : "function(doc){\n    var v6 = null;\n    \n    if(doc.geoip){\n        for each (e in doc.geoip){\n            if(e.ipversion == \"6\") {\n                v6 = true;\n            }\n            if (v6 == null && e.ipversion == \"4\") {\n                v6 = false;\n            }\n        }\n        if(v6 == null) {\n            return;\n        } else if(v6) {\n            emit(doc.testrun, [1, 1]);\n        } else {\n            emit(doc.testrun, [0, 1]);\n        }\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    var tmp = [0, 0];\n    \n    for each(e in values) {\n        tmp[0] += e[0];\n        tmp[1] += e[1];\n    }\n    \n    return tmp;\n}"
+               },
+               "multihomed" : {
+                  "map" : "function(doc){\n    var v4multihomed = 0;\n    var v6multihomed = 0;\n    \n    if(doc.dnscheck){\n        for each (e in doc.dnscheck){\n            if(e.tag == \"CONNECTIVITY:ASN_COUNT_OK\") {\n                v4multihomed = true;\n            } else if(e.tag == \"CONNECTIVITY:V6_ASN_COUNT_OK\") {\n                v6multihomed = true;\n            }\n        }\n        \n        emit(doc.testrun, [v6multihomed, v4multihomed, 1]);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    var tmp = [0, 0, 0];\n    \n    for each(e in values) {\n        tmp[0] += e[0];\n        tmp[1] += e[1];\n        tmp[2] += e[2];\n    }\n    \n    return tmp;\n}"
+               },
+               "mx_in_sweden" : {
+                  "map" : "function(doc){\n    var v4mx = 0;\n    var v6mx = 0;\n    var total = 0;\n    \n    if(doc.geoip){\n        for each (e in doc.geoip){\n            if(e.type == \"mailserver\") {\n                total += 1;\n                if (e.ipversion == \"4\" && e.code == \"SE\") {\n                    v4mx += 1;\n                } else if (e.ipversion == \"6\" && e.code == \"SE\") {\n                    v6mx += 1;\n                }\n            }\n        }\n        \n        emit(doc.testrun, [v6mx, v4mx, total]);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    var tmp = [0, 0, 0];\n    \n    for each(e in values) {\n        tmp[0] += e[0];\n        tmp[1] += e[1];\n        tmp[2] += e[2];\n    }\n    \n    return tmp;\n}"
+               },
+               "ns_count" : {
+                  "map" : "function(doc){\n    var v4ns = 0;\n    var v6ns = 0;\n    \n    if(doc.geoip){\n        for each (e in doc.geoip){\n            if(e.type == \"nameserver\") {\n                emit([doc.testrun, e.ipversion, e.address], 1);\n            }\n        }    \n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    return true;\n}"
+               },
+               "ns_per_asn" : {
+                  "map" : "function(doc){\n    var res = {};\n    \n    if(doc.geoip) {\n        doc.geoip.forEach(function(e){\n            if(e.type == 'nameserver'){\n                e.asn.forEach(function(asn){\n                    if (res[e.ipversion] == null) {\n                        res[e.ipversion] = {};\n                    };\n                    if(res[e.ipversion][asn] == null) {\n                        res[e.ipversion][asn] = 0;\n                    }\n                    res[e.ipversion][asn] = res[e.ipversion][asn] + 1;\n                });\n            }\n        });\n        for(ipv in res) {\n            for(asn in res[ipv]){\n                emit([ipv, doc.testrun, asn], res[ipv][asn]);\n            }\n        }\n    }\n}",
+                  "reduce" : "_sum"
+               },
+               "recursing" : {
+                  "map" : "function(doc){\n    var recursing = 0;\n    \n    if(doc.dnscheck){\n        for each (e in doc.dnscheck){\n            if (e.tag == \"NAMESERVER:RECURSIVE\") {\n                recursing = 1;\n            }\n        }\n        emit(doc.testrun, [recursing, 1]);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    var tmp = [0, 0];\n    \n    for each(e in values) {\n        tmp[0] += e[0];\n        tmp[1] += e[1];\n    }\n    \n    return tmp;\n}"
+               },
+               "spf" : {
+                  "map" : "function(doc){\n    if(doc.dkim) {\n        if(doc.dkim.spf_real || doc.dkim.spf_transitionary) {\n            emit(doc.testrun, [1,1]);\n        } else {\n            emit(doc.testrun, [0,1]);\n        }\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    var tmp = [0, 0];\n    \n    for each(e in values) {\n        tmp[0] += e[0];\n        tmp[1] += e[1];\n    }\n    \n    return tmp;\n}"
+               },
+               "starttls" : {
+                  "map" : "function(doc){\n    var starttls = 0;\n    \n    if(doc.mailservers) {\n        for each (e in doc.mailservers) {\n            if(e.starttls) {\n                starttls = 1;\n                break;\n            }\n        }\n        emit(doc.testrun, [starttls, 1]);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    var tmp = [0, 0];\n    \n    for each(e in values) {\n        tmp[0] += e[0];\n        tmp[1] += e[1];\n    }\n    \n    return tmp;\n}"
+               },
+               "web" : {
+                  "map" : "function(doc){\n    if (doc.webinfo.http && doc.webinfo.https) {\n        emit(doc.testrun, {http:1, https:1});\n    } else if (doc.webinfo.http) {\n        emit(doc.testrun, {http:1, https:0});\n    } else if (doc.webinfo.https) {\n        emit(doc.testrun, {http:0, https:1});\n    } else {\n        emit(doc.testrun, {http:0, https:0});\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    var tmp = {http:0, https:0};\n\n    for each(e in values) {\n        tmp.http += e.http;\n        tmp.https += e.https;\n    }\n    \n    return tmp;\n}"
+               }
+            }
+         },
+         "id" : "_design/server"
+      },
+      {
+         "data" : {
+            "views" : {
+               "domainswithipv6" : {
+                  "map" : "function(doc){\n    for(n in doc.mailservers) {\n        if (doc.mailservers[n].ip.indexOf(':') >= 0) {\n            emit([doc.testrun, doc.domain], 1);\n        };\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce){\n    return sum(values);\n}"
+               }
+            }
+         },
+         "id" : "_design/smtp"
+      },
+      {
+         "data" : {
+            "views" : {
+               "cacert" : {
+                  "map" : "function(doc){\n    if (doc.sslscan_web.data.ssltest.certificate['X509v3-Extensions'].extension['X509v3 Basic Constraints'].content == 'CA:TRUE') {\n        emit([doc.testrun, doc.domain], 1);\n    };\n}"
+               },
+               "cn" : {
+                  "map" : "function(doc){\n    if (doc.sslscan_web.data.ssltest.certificate.subject) {\n        emit([doc.testrun, doc.domain], doc.sslscan_web.data.ssltest.certificate.subject.match( /\\/CN=([^/]+)/ )[1]);\n    };\n}"
+               }
+            }
+         },
+         "id" : "_design/ssl"
+      },
+      {
+         "data" : {
+            "views" : {
+               "server" : {
+                  "map" : "function(doc){\n    if(doc.geoip){\n        doc.geoip.forEach(function(e){\n            emit(e.address, e);\n        });\n    }\n}"
+               },
+               "toplist" : {
+                  "map" : "function(doc){\n    if(doc.geoip){\n        doc.geoip.forEach(function(e){\n            var h = {};\n            h[e.address] = 1;\n            emit([doc.testrun, e.type, e.address], h);\n        });\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    var COUNT = 25;\n    var sum = {};\n\n    for(var v in values) {\n        for(var k in values[v]) {\n            if (sum[k] == null) {\n                sum[k] = values[v][k];\n            } else {\n                sum[k] += values[v][k];                    \n            }\n        }\n    }\n    \n    var keys = [];\n    for(var k in sum) {\n        keys.push(k);\n    }\n\n    var pairs = keys.map(function(n){return [n, sum[n]]});\n    var sorted_pairs = pairs.sort(function(a,b){return b[1]-a[1]});\n\n    var tmp = {};\n    var keep;\n    if(rereduce) {\n        keep = sorted_pairs.splice(0,COUNT);\n        sorted_pairs = keep.concat(sorted_pairs.filter(function(n){return n[0]==keys[keys.length-1][2]})) // return n[0]>keys[keys.length-1][2]\n    }\n    \n    for(var n in sorted_pairs){\n        tmp[sorted_pairs[n][0]] = sorted_pairs[n][1];\n    }\n\n    return tmp;\n}"
+               }
+            }
+         },
+         "id" : "_design/stat"
+      },
+      {
+         "data" : {
+            "views" : {
+               "count" : {
+                  "map" : "function(doc){\n    emit(doc.testrun, 1);\n}",
+                  "reduce" : "function(keys, values, rereduce){\n    return sum(values);\n}"
+               },
+               "failed" : {
+                  "map" : "function(doc){\n    if(doc.failed){\n        emit(doc.testrun, doc.domain);\n    }\n}"
+               },
+               "run" : {
+                  "map" : "function(doc){\n    emit([doc.testrun, doc.domain], null);\n}"
+               }
+            }
+         },
+         "id" : "_design/test"
+      },
+      {
+         "data" : {
+            "views" : {
+               "charset" : {
+                  "map" : "function(doc){\n    if(doc.webinfo.http) {\n        emit([doc.testrun, 'http', doc.webinfo.http.charset], 1);\n    }\n    if(doc.webinfo.https) {\n        emit([doc.testrun, 'https', doc.webinfo.https.charset], 1);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    return sum(values);\n}"
+               },
+               "contenttype" : {
+                  "map" : "function(doc){\n    if(doc.webinfo.http) {\n        emit([doc.testrun, 'http', doc.webinfo.http.content_type], 1);\n    }\n    if(doc.webinfo.https) {\n        emit([doc.testrun, 'https', doc.webinfo.https.content_type], 1);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    return sum(values);\n}"
+               },
+               "response" : {
+                  "map" : "function(doc){\n    if(doc.webinfo.http) {\n        emit([doc.testrun, 'http', doc.webinfo.http.response_code], 1);\n    }\n    if(doc.webinfo.https) {\n        emit([doc.testrun, 'https', doc.webinfo.https.response_code], 1);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    return sum(values);\n}"
+               },
+               "servertype" : {
+                  "map" : "function(doc){\n    if(doc.webinfo.http) {\n        emit([doc.testrun, 'http', doc.webinfo.http.type], 1);\n    }\n    if(doc.webinfo.https) {\n        emit([doc.testrun, 'https', doc.webinfo.https.type], 1);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    return sum(values);\n}"
+               }
+            }
+         },
+         "id" : "_design/web"
+      },
+      {
+         "data" : {
+            "views" : {
+               "all" : {
+                  "map" : "function(doc){\n    if(doc.whatweb && doc.whatweb.length > 0) {\n        emit([doc.testrun, doc.domain], doc.whatweb);\n    }\n}"
+               }
+            }
+         },
+         "id" : "_design/whatweb"
+      }
+   ],
+   "zonestat-dset" : [
+      {
+         "data" : {
+            "views" : {
+               "page" : {
+                  "map" : "function(doc) {\n    emit([doc.set, doc.domain], null);\n}"
+               },
+               "set" : {
+                  "map" : "function(doc) {\n    emit(doc.set, doc.domain);\n}",
+                  "reduce" : "function(keys, values, rereduce){\n    if (rereduce) {\n        return sum(values);\n    } else {\n        return values.length;\n    }\n}"
+               }
+            }
+         },
+         "id" : "_design/util"
+      }
+   ],
+   "zonestat-nameserver" : [
+      {
+         "data" : {
+            "views" : {
+               "count" : {
+                  "map" : "function(doc){\n    emit([doc.testrun, doc.ipversion, doc.address], 1);\n}",
+                  "reduce" : "_sum"
+               }
+            }
+         },
+         "id" : "_design/ns"
+      }
+   ],
    "zonestat-queue" : [
       {
          "data" : {
-            "domain" : "foo.bar",
-            "inprogress" : 1,
-            "priority" : 2
+            "views" : {
+               "fetch" : {
+                  "map" : "function(doc){\n    if(doc.inprogress) {\n        return;\n    } else {\n        emit(doc.priority, doc.domain);\n    }\n}"
+               },
+               "inprogress" : {
+                  "map" : "function(doc){\n    if (doc.inprogress) {\n        emit(doc.tester_pid, doc.domain);\n    };\n}"
+               },
+               "stats" : {
+                  "map" : "function(doc){\n    if(doc.inprogress) {\n        emit('inprogress',1);\n    } else {\n        emit(doc.priority,1);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce){\n    return sum(values);\n}"
+               }
+            }
          },
-         "id" : "95390bcb1a22c781134f722e259f6042"
-      },
+         "id" : "_design/queues"
+      }
+   ],
+   "zonestat-testrun" : [
       {
          "data" : {
-            "domain" : "example.org",
-            "inprogress" : 1,
-            "priority" : 1
+            "views" : {
+               "dsets" : {
+                  "map" : "function(doc){\n    if(doc.domainset) {\n        emit(doc.domainset,1);\n    }\n}",
+                  "reduce" : "function(keys, values, rereduce) {\n    return sum(values);\n}"
+               }
+            }
          },
-         "id" : "95390bcb1a22c781134f722e259f65ec"
-      },
+         "id" : "_design/info"
+      }
+   ],
+   "zonestat-zone" : [
       {
          "data" : {
-            "domain" : "gazonk.baz",
-            "inprogress" : 1,
-            "priority" : 3
+            "views" : {
+               "random" : {
+                  "map" : "function(doc){\n    if(Math.random() <= 0.01) {\n        emit(doc.id, null);\n    }\n}"
+               }
+            }
          },
-         "id" : "95390bcb1a22c781134f722e259f727b"
+         "id" : "_design/select"
       }
    ]
 }

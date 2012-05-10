@@ -16,7 +16,7 @@ foreach my $db (@{$dbc->listDBs}) {
     foreach my $r (map {$_->{id}} @{$db->listDocIdRevs}) {
         my $doc = $db->newDoc($r);
         $doc->retrieve;
-        next if $doc->id =~ /_design/;
+        # next if $doc->id =~ /_design/;
         push @{$res{$i->{db_name}}}, {id => $doc->id, data => $doc->data};
     }
 }
