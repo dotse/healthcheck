@@ -1,10 +1,14 @@
 use Test::More;
-BEGIN { use_ok( 'Zonestat'  => ['t/Config']) }
+BEGIN { use_ok( 'Zonestat' ) }
 
 #########################
 
-my $p = Zonestat->new->present;
-ok( defined( $p ) );
-ok( ref( $p ) eq 'Zonestat::Present' );
+my $zs = new_ok('Zonestat'  => ['t/Config']);
+is($zs->cget(qw[couchdb dbprefix]), 'zstat');
+
+my $p = $zs->present;
+isa_ok( $p, 'Zonestat::Present' );
+
+is($p->total_tested_domains, 0, 'No tested domains.');
 
 done_testing;

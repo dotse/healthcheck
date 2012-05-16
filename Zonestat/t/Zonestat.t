@@ -1,5 +1,5 @@
 use Test::More;
-BEGIN { use_ok( 'Zonestat'  => ['t/Config']) }
+BEGIN { use_ok( 'Zonestat' ) }
 
 #########################
 
