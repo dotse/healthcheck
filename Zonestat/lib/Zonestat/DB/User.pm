@@ -89,7 +89,7 @@ sub email {
 sub username {
     my $self = shift;
 
-    return $self->{user}{username};
+    return $self->{user}{name};
 }
 
 sub id {
