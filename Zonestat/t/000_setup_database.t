@@ -32,4 +32,6 @@ foreach my $dbname ( keys %$fix ) {
     }
 }
 
+$zs->prepare->update_asn_table_from_ripe;
+
 done_testing;
