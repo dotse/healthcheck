@@ -19,6 +19,7 @@ WriteMakefile(
         JSON::XS => 0,
         Net::LibIDN => 0,
         Try::Tiny => 0,
+        Module::Find => 0,
     }, 
     ($] >= 5.005 ?     
       (ABSTRACT_FROM  => 'lib/Zonestat.pm', # retrieve abstract from module

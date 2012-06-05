@@ -7,6 +7,8 @@ use warnings;
 
 use base 'Zonestat::Common';
 
+use Module::Find 'useall';
+
 use DNSCheck;
 use Time::HiRes qw[time];
 use JSON::XS;
@@ -29,10 +31,12 @@ use Symbol 'gensym';
 use IO::File;
 use IO::Select;
 
-my $debug = 0;
-my $dc    = DNSCheck->new;
-my $dns   = $dc->dns;
-my $asn   = $dc->asn;
+our $debug = 0;
+our $dc    = DNSCheck->new;
+our $dns   = $dc->dns;
+our $asn   = $dc->asn;
+
+my @plugins = useall Zonestat::Collect;
 
 our $VERSION = '0.1';
 
@@ -85,59 +89,21 @@ sub for_domain {
     $hosts{webservers}  = get_webservers( $domain );
     $hosts{mailservers} = get_mailservers( $domain );
 
-    $res{dkim} = $self->dkim_data( $domain );
     $res{whatweb} = $self->whatweb( $domain );
     $res{mailservers} = $self->mailserver_gather( $hosts{mailservers} );
     $res{sslscan_web} = $self->sslscan_web( $domain );
     $res{pageanalyze} = $self->pageanalyze( $domain );
     $res{webinfo} = $self->webinfo( $domain );
     $res{geoip} = $self->geoip( \%hosts );
+    
+    foreach my $p (@plugins) {
+        my ($k, $v) = $p->collect($domain);
+        $res{$k} = $v;
+    }
+    
     $res{finish} = time();
 
     return \%res;
-}
-
-sub dkim_data {
-    my $self   = shift;
-    my $domain = shift;
-
-    my $adsp;
-    my $spf_spf;
-    my $spf_txt;
-
-    # DKIM/ADSP
-    my $packet = $dns->query_resolver( '_adsp._domainkey.' . $domain, 'IN', 'TXT' );
-
-    if ( defined( $packet ) and $packet->header->ancount > 0 ) {
-        my $rr = ( $packet->answer )[0];
-        if ( $rr->type eq 'TXT' ) {
-            $adsp = $rr->txtdata;
-        }
-    }
-
-    # SPF, "real" kind
-    $packet = $dns->query_resolver( $domain, 'IN', 'SPF' );
-    if ( defined( $packet ) and $packet->header->ancount > 0 ) {
-        my $rr = ( grep { $_->type eq 'SPF' } $packet->answer )[0];
-        if ( $rr ) {
-            $spf_spf = $rr->txtdata;
-        }
-    }
-
-    # SPF, transitionary kind
-    $packet = $dns->query_resolver( $domain, 'IN', 'TXT' );
-    if ( defined( $packet ) and $packet->header->ancount > 0 ) {
-        my $rr = ( grep { $_->type eq 'TXT' } $packet->answer )[0];
-        if ( $rr and $rr->txtdata =~ /^v=spf/ ) {
-            $spf_txt = $rr->txtdata;
-        }
-    }
-
-    return {
-        adsp              => $adsp,
-        spf_real          => $spf_spf,
-        spf_transitionary => $spf_txt,
-    };
 }
 
 sub whatweb {
