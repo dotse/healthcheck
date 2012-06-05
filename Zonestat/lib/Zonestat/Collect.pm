@@ -88,8 +88,6 @@ sub for_domain {
     my %hosts = extract_hosts( $domain, $res{dnscheck} );
     $hosts{webservers}  = get_webservers( $domain );
     $hosts{mailservers} = get_mailservers( $domain );
-
-    $res{whatweb} = $self->whatweb( $domain );
     $res{mailservers} = $self->mailserver_gather( $hosts{mailservers} );
     $res{sslscan_web} = $self->sslscan_web( $domain );
     $res{pageanalyze} = $self->pageanalyze( $domain );
@@ -97,36 +95,13 @@ sub for_domain {
     $res{geoip} = $self->geoip( \%hosts );
     
     foreach my $p (@plugins) {
-        my ($k, $v) = $p->collect($domain);
+        my ($k, $v) = $p->collect($domain, $self);
         $res{$k} = $v;
     }
     
     $res{finish} = time();
 
     return \%res;
-}
-
-sub whatweb {
-    my $self   = shift;
-    my $domain = shift;
-    my $ww     = $self->cget( qw[zonestat whatweb] );
-    my %res    = ();
-    my $url    = "http://www.$domain";
-
-    return unless -x $ww;
-
-    my ( $success, $stdout, $stderr ) = run_external( 120, $ww, '--log-json=/dev/stdout', '--quiet', $url );
-    if ( $success and $stdout ) {
-        my $tmp = join( ', ', split( /\n/, $stdout ) );
-        my $data;
-        try {
-            $data = decode_json( "[$tmp]" );    # WhatWeb does not always produce valid JSON...
-        };
-        return $data;
-    }
-    else {
-        return;
-    }
 }
 
 sub smtp_info_for_address {
