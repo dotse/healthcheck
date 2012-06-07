@@ -13,6 +13,7 @@ WriteMakefile(
         Text::CSV_XS => 0,
         Geo::IP => 0,
         HTTP::Response => 5.824,
+        LWP::Protocol::https => 0,
         XML::Simple => 0,
         CouchDB::Client => 0.10,
         Config::Any => 0.18,
