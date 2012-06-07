@@ -1,9 +1,11 @@
 package Zonestat::Collect::Whatweb;
 
-our $debug = $Zonestat::Collect::debug;
-our $dc    = $Zonestat::Collect::dc;
-our $dns   = $Zonestat::Collect::dns;
-our $asn   = $Zonestat::Collect::asn;
+use strict;
+use warnings;
+
+use Zonestat::Util;
+use JSON::XS;
+use Try::Tiny;
 
 sub collect {
     my ($self, $domain, $parent) = @_;
@@ -20,7 +22,7 @@ sub whatweb {
 
     return unless -x $ww;
 
-    my ( $success, $stdout, $stderr ) = Zonestat::Collect::run_external( 120, $ww, '--log-json=/dev/stdout', '--quiet', $url );
+    my ( $success, $stdout, $stderr ) = run_external( 120, $ww, '--log-json=/dev/stdout', '--quiet', $url );
     if ( $success and $stdout ) {
         my $tmp = join( ', ', split( /\n/, $stdout ) );
         my $data;
