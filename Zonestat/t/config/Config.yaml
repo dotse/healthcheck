@@ -9,3 +9,6 @@ couchdb:
     username: ~
     password: ~
     dbprefix: "zstat"
+
+daemon:
+    geoip: "t/config/GeoLiteCity.dat"

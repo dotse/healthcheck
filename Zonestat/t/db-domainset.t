@@ -1,7 +1,7 @@
 use Test::More;
 BEGIN { use_ok( 'Zonestat' ) }
 
-my $zs = new_ok('Zonestat'  => ['t/Config']);
+my $zs = new_ok('Zonestat'  => ['t/config/Config']);
 
 my $ds = $zs->domainset;
 isa_ok($ds, 'Zonestat::DB::Domainset');

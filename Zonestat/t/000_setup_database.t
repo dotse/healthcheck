@@ -11,7 +11,7 @@ use JSON::XS;
 
 use Test::More;
 
-my $zs  = Zonestat->new( 't/Config' );
+my $zs  = Zonestat->new( 't/config/Config' );
 my $dbc = $zs->dbconn;
 
 my $prefix = $zs->cget( qw[couchdb dbprefix] );

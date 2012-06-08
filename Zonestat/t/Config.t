@@ -15,6 +15,6 @@ ok( $conf->get( qw[couchdb url] ) eq 'gurkmos', 'Can modify key.' );
 $conf = Zonestat::Config->new( dbi => { password => 'foobar' } );
 ok( $conf->get( qw[dbi password] ) eq 'foobar', 'Can change defaults.' );
 
-$conf = Zonestat::Config->new( 't/Config' );
+$conf = Zonestat::Config->new( 't/config/Config' );
 ok( $conf->get( 'test' )       eq 'data',     'Can set values from file.' );
 ok( $conf->get( qw[dbi user] ) eq 'zonestat', 'Can change defaults from file.' );
