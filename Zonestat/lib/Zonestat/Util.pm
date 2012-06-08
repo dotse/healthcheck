@@ -6,6 +6,7 @@ use IPC::Open3;
 use Symbol 'gensym';
 use IO::File;
 use IO::Select;
+use POSIX ':signal_h';
 
 our @EXPORT = qw[run_external];
 

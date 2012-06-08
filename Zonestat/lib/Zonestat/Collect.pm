@@ -51,8 +51,11 @@ sub for_domain {
     $res{geoip} = $self->geoip( \%hosts );
     
     foreach my $p (@plugins) {
-        my ($k, $v) = $p->collect($domain, $self);
-        $res{$k} = $v;
+        my @results = $p->collect($domain, $self);
+        while (@results) {
+            my ($k, $v) = splice(@results, 0, 2);
+            $res{$k} = $v;
+        }
     }
     
     $res{finish} = time();
