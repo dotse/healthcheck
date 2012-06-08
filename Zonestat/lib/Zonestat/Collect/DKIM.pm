@@ -1,11 +1,12 @@
 package Zonestat::Collect::DKIM;
 
 use base 'Zonestat::Collect';
+use DNSCheck;
 
 our $debug = $Zonestat::Collect::debug;
-our $dc    = $Zonestat::Collect::dc;
-our $dns   = $Zonestat::Collect::dns;
-our $asn   = $Zonestat::Collect::asn;
+our $dc    = DNSCheck->new;
+our $dns   = $dc->dns;
+our $asn   = $dc->asn;
 
 sub collect {
     my ($self, $domain) = @_;
