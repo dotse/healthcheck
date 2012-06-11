@@ -1,10 +1,10 @@
 package Zonestat::Collect::DKIM;
 
 use base 'Zonestat::Collect';
-use DNSCheck;
+use Zonestat::Util;
 
 our $debug = $Zonestat::Collect::debug;
-our $dc    = DNSCheck->new;
+our $dc    = dnscheck();
 our $dns   = $dc->dns;
 our $asn   = $dc->asn;
 

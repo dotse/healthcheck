@@ -5,7 +5,6 @@ use warnings;
 use utf8;
 
 use Zonestat::Util;
-use DNSCheck;
 use XML::Simple;
 use Time::HiRes 'time';
 use Geo::IP;
@@ -14,14 +13,14 @@ use Net::SMTP;
 use Try::Tiny;
 
 our $debug = $Zonestat::Collect::debug;
-our $dc    = DNSCheck->new;
+our $dc    = dnscheck;
 our $dns   = $dc->dns;
 our $asn   = $dc->asn;
 
 sub collect {
     my ($self, $domain, $parent) = @_;
     my %res;
-    my $dc     = DNSCheck->new;
+    my $dc     = dnscheck();
     
     $dc->zone->test( $domain );
     $res{dnscheck} = dnscheck_log_cleanup( $dc->logger->export );

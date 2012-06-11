@@ -7,8 +7,14 @@ use Symbol 'gensym';
 use IO::File;
 use IO::Select;
 use POSIX ':signal_h';
+use DNSCheck;
 
-our @EXPORT = qw[run_external];
+our @EXPORT = qw[run_external dnscheck];
+
+# Returns a suitably configured DNSCheck object
+sub dnscheck {
+    return DNSCheck->new;
+}
 
 # Runs an external command, with a timeout, and collecting both stdout and stderr from it.
 sub run_external {
