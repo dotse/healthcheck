@@ -12,3 +12,7 @@ couchdb:
 
 daemon:
     geoip: "t/config/GeoLiteCity.dat"
+
+zonestat:
+    python: "t/bin/pageanalyze_mock.pl"
+    pageanalyzer: "/tmp"
