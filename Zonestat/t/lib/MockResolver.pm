@@ -222,38 +222,7 @@ our @INC = ();
 our $VERSION = 4711;
 
 sub new {
-    my $class = shift;
-    my %arg = @_;
-
-    return bless {host => $arg{Host}};
+    return; # Just pretend we couldn't connect.
 }
-
-sub message {
-    my $self = shift;
-    
-    my $msg = shift @{$data->{'_smtp'}{$self->{host}}};
-    
-    if (defined($msg)) {
-        push @{$data->{'_smtp'}{$self->{host}}}, $msg;
-        return $msg;
-    }
-    else {
-        croak 'SMTP::message ==> ' . $self->{host};
-    }
-}
-
-sub banner {
-    goto &message;
-}
-
-sub status {goto &message;}
-
-sub mail {;}
-
-sub recipient {;}
-
-sub reset {;}
-
-sub quit {;}
 
 1;

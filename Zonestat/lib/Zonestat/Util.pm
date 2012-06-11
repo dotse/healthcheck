@@ -13,7 +13,9 @@ our @EXPORT = qw[run_external dnscheck];
 
 # Returns a suitably configured DNSCheck object
 sub dnscheck {
-    return DNSCheck->new;
+    my $dc = DNSCheck->new;
+
+    return $dc;
 }
 
 # Runs an external command, with a timeout, and collecting both stdout and stderr from it.
