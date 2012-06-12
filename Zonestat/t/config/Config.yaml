@@ -17,3 +17,4 @@ zonestat:
     python: "t/bin/pageanalyze_mock.pl"
     pageanalyzer: "/tmp"
     sslscan: "t/bin/sslscan_mock.pl"
+    whatweb: "t/bin/whatweb_mock.pl"
