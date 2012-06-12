@@ -20,7 +20,7 @@ sub whatweb {
     my %res    = ();
     my $url    = "http://www.$domain";
 
-    return unless -x $ww;
+    return unless ($ww and -x $ww);
 
     my ( $success, $stdout, $stderr ) = run_external( 120, $ww, '--log-json=/dev/stdout', '--quiet', $url );
     if ( $success and $stdout ) {
