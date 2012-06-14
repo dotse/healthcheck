@@ -28,10 +28,10 @@ foreach my $dbname ( keys %$fix ) {
     ok($db->create, "$realname created");
     foreach my $data ( @{ $fix->{$dbname} } ) {
         my $doc = $db->newDoc($data->{id}, undef, $data->{data});
-        ok($doc->create, $data->{id} . ' saved');
+        $doc->create;
     }
 }
 
-$zs->prepare->update_asn_table_from_ripe;
+# $zs->prepare->update_asn_table_from_ripe;
 
 done_testing;
