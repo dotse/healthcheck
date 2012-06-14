@@ -1,6 +1,27 @@
 package MockWeb;
+no warnings 'redefine';
+
+use Zonestat::Collect::Webinfo;
+use Carp;
+
+*Zonestat::Collect::Webinfo::_https_test = sub {
+    return bless {};
+};
+
+sub can {
+    return 1;
+}
+
+sub peer_certificate {
+    return "Peer Certificate Issuer"
+}
+
+###
+### Start faking LWP::UserAgent
+###
 
 package LWP::UserAgent;
+no warnings 'redefine';
 
 use JSON::XS;
 our $res = decode_json join('', <DATA>);
