@@ -46,14 +46,70 @@ is_deeply( { $p->tests_with_max_severity( $zs->testrun( 1 ) ) }, { 1 => { 'ERROR
 
 my @dns = $p->top_dns_servers( 1 );
 is( scalar( @dns ), 17, 'Right number of DNS servers' );
-is_deeply( $dns[1], [ 2, '194.17.45.54', '56.3667', '13.4832', 'Sweden', 'SE', "Sk\x{c3}\x{83}\x{c2}\x{a5}nes Fagerhult", [ '3301' ] ], 'Sensible content in DNS server list' );
+is_deeply( $dns[1], [ 2, '194.17.45.54', '56.3667', '13.4832', 'Sweden', 'SE', "Sk\x{c3}\x{83}\x{c2}\x{a5}nes Fagerhult", ['3301'] ], 'Sensible content in DNS server list' );
 
 my @smtp = $p->top_smtp_servers( 1 );
 is( scalar( @smtp ), 11, 'Right number of SMTP servers.' );
-is_deeply( $smtp[0], [ 4, '212.247.7.222', '59.3333', '18.0500', 'Sweden', 'SE', 'Stockholm', [ '1257' ] ], 'Sensible content in SMTP server list' );
+is_deeply( $smtp[0], [ 4, '212.247.7.222', '59.3333', '18.0500', 'Sweden', 'SE', 'Stockholm', ['1257'] ], 'Sensible content in SMTP server list' );
 
 my @http = $p->top_http_servers( 1 );
 is( scalar( @http ), 4, 'Right number of HTTP servers' );
-is_deeply( $http[1], [ 1, '193.11.1.138', '59.3333', '18.0500', 'Sweden', 'SE', 'Stockholm', [ '1653' ] ], 'Sensible content in HTTP list.' );
+is_deeply( $http[1], [ 1, '193.11.1.138', '59.3333', '18.0500', 'Sweden', 'SE', 'Stockholm', ['1653'] ], 'Sensible content in HTTP list.' );
+
+is_deeply { $p->nameservers_per_asn( 0, 1 ) },
+  {
+    '1' => {
+        '1257'  => 4,
+        '1653'  => 1,
+        '2119'  => 1,
+        '21195' => 2,
+        '3301'  => 4,
+        '50273' => 2
+    }
+  },
+  'Nameservers per ASN looks OK';
+
+is_deeply { $p->multihome_percentage_for_testrun( 1 ) }, { 100 => 5 }, 'Multihomed percentage looks OK';
+
+is_deeply { $p->dnssec_percentage_for_testrun( 1 ) },    { 80  => 4 }, 'DNSSEC percentage looks OK';
+is_deeply { $p->recursing_percentage_for_testrun( 1 ) }, { 0   => 0 }, 'Recursing percentage looks OK';
+is_deeply { $p->adsp_percentage_for_testrun( 1 ) },      { 20  => 1 }, 'ADSP percentage looks OK';
+is_deeply { $p->spf_percentage_for_testrun( 1 ) },       { 100 => 5 }, 'SPF percentage looks OK';
+is_deeply { $p->starttls_percentage_for_testrun( 1 ) },  { 80  => 4 }, 'STARTTLS percentage looks OK';
+
+is( $p->nameserver_count( 1 ), 11, 'Sensible number of nameservers' );
+is_deeply( [ $p->mailservers_in_sweden( 1 ) ], [ 58.3333333333333, 14 ], 'Sensible number if Swedish mailservers' );
+is( $p->webserver_count( 1 ), 5, 'Sensible number of webservers' );
+
+is_deeply { $p->message_bands( 1 ) },
+  {
+    '1' => {
+        'CRITICAL' => {
+            '0'  => 5,
+            '1'  => 0,
+            '2'  => 0,
+            '3+' => 0
+        },
+        'ERROR' => {
+            '0'  => 3,
+            '1'  => 0,
+            '2'  => 2,
+            '3+' => 0
+        },
+        'WARNING' => {
+            '0'  => 4,
+            '1'  => 1,
+            '2'  => 0,
+            '3+' => 0
+        }
+    }
+  },
+  'DNSCheck message bands look OK';
+
+is( $p->lookup_desc( 'NAMESERVER:NO_TCP' ), 'The name server failed to answer queries sent over TCP.  This is probably due to the name server not correctly set up or due to misconfgured filtering in a firewall. It is a rather common misconception that DNS does not need TCP unless they provide zone transfers - perhaps the name server administrator is not aware that TCP usually is a requirement.', 'Looked-up message description looks OK' );
+
+is $p->pageanalyzer_summary( 1 )->{1}{external_resources}{total}, 55, 'Pageanalyzer summary structure makes some sort of sense';
+
+is $p->tests_by_level( 'ERROR', 1 )->{1}{'nic.se'}{'ERROR'}, 2, 'Tests by level structure makes some sort of sense';
 
 done_testing;
