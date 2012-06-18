@@ -26,10 +26,12 @@ foreach my $dbname ( keys %$fix ) {
         $db->delete;
     }
     ok($db->create, "$realname created");
+    my @docs;
     foreach my $data ( @{ $fix->{$dbname} } ) {
         my $doc = $db->newDoc($data->{id}, undef, $data->{data});
-        $doc->create;
+        push @docs, $doc;
     }
+    $db->bulkStore(\@docs);
 }
 
 # $zs->prepare->update_asn_table_from_ripe;
