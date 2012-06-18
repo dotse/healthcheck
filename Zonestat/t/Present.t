@@ -70,6 +70,7 @@ is_deeply { $p->nameservers_per_asn( 0, 1 ) },
   'Nameservers per ASN looks OK';
 
 is_deeply { $p->multihome_percentage_for_testrun( 1 ) }, { 100 => 5 }, 'Multihomed percentage looks OK';
+is_deeply { $p->ipv6_percentage_for_testrun( 1 ) },      { 60  => 3 }, 'IPv6 percentage looks OK';
 
 is_deeply { $p->dnssec_percentage_for_testrun( 1 ) },    { 80  => 4 }, 'DNSSEC percentage looks OK';
 is_deeply { $p->recursing_percentage_for_testrun( 1 ) }, { 0   => 0 }, 'Recursing percentage looks OK';
@@ -111,5 +112,14 @@ is( $p->lookup_desc( 'NAMESERVER:NO_TCP' ), 'The name server failed to answer qu
 is $p->pageanalyzer_summary( 1 )->{1}{external_resources}{total}, 55, 'Pageanalyzer summary structure makes some sort of sense';
 
 is $p->tests_by_level( 'ERROR', 1 )->{1}{'nic.se'}{'ERROR'}, 2, 'Tests by level structure makes some sort of sense';
+
+eval { $p->unknown_server_strings};
+like($@, qr/Not ported/, 'Unimplemented method explodes');
+
+eval { $p->all_dnscheck_tests};
+like($@, qr/Not ported/, 'Unimplemented method explodes');
+
+eval { $p->domainset_being_tested};
+like($@, qr/Not ported/, 'Unimplemented method explodes');
 
 done_testing;
