@@ -23,4 +23,6 @@ is_deeply([map {delete $_->{_id}; delete $_->{id}; delete $_->{_rev}; $_} $p->ge
     {domain => 'gazonk.baz', priority  => 3, inprogress => 1},
     ], 'Expected queue items returned in expected order.');
 
+ok($p->run_id >= 2, 'New run id OK');
+
 done_testing;
