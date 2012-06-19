@@ -38,7 +38,7 @@ is($ts->prevkey($next,3), 'handelsbanken.se', 'Previous page key OK');
 my $db = $zs->db('zonestat-queue');
 foreach my $doc (@{$db->listDocs}) {
     $doc->retrieve;
-    if($doc->data->{source_data} == $tr_id) {
+    if($doc->data->{source_data} and $doc->data->{source_data} == $tr_id) {
         ok($doc->delete, $doc->id . " deleted");
     }
 }

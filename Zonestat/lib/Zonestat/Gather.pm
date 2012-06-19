@@ -63,7 +63,7 @@ sub single_domain {
     }
 
     my $res;
-    if ( $db->docExists( $id ) ) {
+    if ( $id and $db->docExists( $id ) ) {
         $res = $db->newDoc( $id )->retrieve;
         $res->data( $data );
         $res->update;
