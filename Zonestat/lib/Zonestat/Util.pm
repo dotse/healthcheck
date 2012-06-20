@@ -14,6 +14,11 @@ our @EXPORT = qw[run_external dnscheck];
 # Returns a suitably configured DNSCheck object
 sub dnscheck {
     my $dc = DNSCheck->new;
+    my $c = $dc->config->{loglevels};
+    $c->{'DNS:NAMESERVER_FOUND'} = 'info';
+    $c->{'DNS:FIND_MX_RESULT'} = 'info';
+    $c->{'SMTP:BANNER'} = 'info';
+    $c->{'NSTIME:AVERAGE'} = 'info';
 
     return $dc;
 }
