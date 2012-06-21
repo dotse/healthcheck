@@ -9,7 +9,10 @@ isa_ok($tr, 'Zonestat::DB::Testrun');
 ok($tr->fetch, 'Can fetch data.');
 
 is($tr->test_count, 5, 'Expected number of tests in the run.');
+
+$ENV{TZ} = 'CET'; # Next test is timezone dependent.
 is($tr->name, 'testset 2012-06-14 14:50', 'Name looks OK');
+
 is($tr->domainset, 'testset', 'Domainset name OK');
 
 is_deeply(
