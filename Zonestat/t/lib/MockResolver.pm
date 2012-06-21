@@ -38,6 +38,10 @@ sub mockup {
     my ($name, $type, $class, $server) = @_;
     my $d;
     
+    if ($name eq '') {
+        $name = '.'
+    }
+    
     if (!$data->{$name}{$type}{$class}) {
         return;
     }

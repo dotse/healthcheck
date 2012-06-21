@@ -20,9 +20,9 @@
                "i.ns.se 172800 IN AAAA 2001:67c:1010:5:0:0:0:53",
                "j.ns.se 172800 IN AAAA 2001:500:2c:0:0:0:0:1",
                "ns.nic.se 86400 IN A 212.247.7.228",
-               "ns.nic.se 86400 IN AAAA 2a00:801:f0:53:0:0:0:53",
                "ns2.nic.se 86400 IN A 194.17.45.54",
                "ns3.nic.se 86400 IN A 212.247.8.152",
+               "ns.nic.se 86400 IN AAAA 2a00:801:f0:53:0:0:0:53",
                "ns3.nic.se 86400 IN AAAA 2a00:801:f0:211:0:0:0:152",
                "ns.nic.se 3600 IN A 212.247.7.228",
                "ns.nic.se 3600 IN AAAA 2a00:801:f0:53:0:0:0:53",
@@ -34,18 +34,18 @@
                "se 172800 IN NS c.ns.se.",
                "se 172800 IN NS e.ns.se.",
                "se 172800 IN NS b.ns.se.",
-               "se 172800 IN NS a.ns.se.",
-               "se 172800 IN NS d.ns.se.",
                "se 172800 IN NS f.ns.se.",
+               "se 172800 IN NS a.ns.se.",
                "se 172800 IN NS i.ns.se.",
-               "se 172800 IN NS g.ns.se.",
+               "se 172800 IN NS d.ns.se.",
                "se 172800 IN NS j.ns.se.",
+               "se 172800 IN NS g.ns.se.",
                "iis.se 86400 IN NS ns.nic.se.",
                "iis.se 86400 IN NS ns2.nic.se.",
                "iis.se 86400 IN NS ns3.nic.se.",
                "iis.se 3600 IN NS ns2.nic.se.",
-               "iis.se 3600 IN NS ns3.nic.se.",
-               "iis.se 3600 IN NS ns.nic.se."
+               "iis.se 3600 IN NS ns.nic.se.",
+               "iis.se 3600 IN NS ns3.nic.se."
             ],
             "header" : {
                "cd" : 0,
@@ -57,6 +57,310 @@
                "qr" : 1,
                "aa" : 1,
                "rd" : 0
+            }
+         }
+      }
+   },
+   "m.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "m.root-servers.net 76783 IN A 202.12.27.33"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "answer" : [
+               "m.root-servers.net 76785 IN AAAA 2001:dc3:0:0:0:0:0:35"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "k.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "k.root-servers.net 76783 IN A 193.0.14.129"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "answer" : [
+               "k.root-servers.net 76785 IN AAAA 2001:7fd:0:0:0:0:0:1"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "g.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "g.root-servers.net 76783 IN A 192.112.36.4"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "authority" : [
+               "root-servers.net 892 IN SOA a.root-servers.net. nstld.verisign-grs.com. (\n\t\t\t\t\t2011060800\t; Serial\n\t\t\t\t\t14400\t; Refresh\n\t\t\t\t\t7200\t; Retry\n\t\t\t\t\t1209600\t; Expire\n\t\t\t\t\t3600000 )\t; Minimum TTL"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "a.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "a.root-servers.net 76783 IN A 198.41.0.4"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "answer" : [
+               "a.root-servers.net 76783 IN AAAA 2001:503:ba3e:0:0:0:2:30"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "f.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "f.root-servers.net 76783 IN A 192.5.5.241"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "answer" : [
+               "f.root-servers.net 76785 IN AAAA 2001:500:2f:0:0:0:0:f"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "b.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "b.root-servers.net 76783 IN A 192.228.79.201"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "authority" : [
+               "root-servers.net 892 IN SOA a.root-servers.net. nstld.verisign-grs.com. (\n\t\t\t\t\t2011060800\t; Serial\n\t\t\t\t\t14400\t; Refresh\n\t\t\t\t\t7200\t; Retry\n\t\t\t\t\t1209600\t; Expire\n\t\t\t\t\t3600000 )\t; Minimum TTL"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "h.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "h.root-servers.net 76783 IN A 128.63.2.53"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "answer" : [
+               "h.root-servers.net 76785 IN AAAA 2001:500:1:0:0:0:803f:235"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "d.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "d.root-servers.net 76783 IN A 128.8.10.90"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "answer" : [
+               "d.root-servers.net 76783 IN AAAA 2001:500:2d:0:0:0:0:d"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
             }
          }
       }
@@ -93,17 +397,17 @@
                "ns3.nic.se 60 IN AAAA 2a00:801:f0:211:0:0:0:152"
             ],
             "authority" : [
-               "se 172800 IN NS g.ns.se.",
                "se 172800 IN NS f.ns.se.",
-               "se 172800 IN NS a.ns.se.",
-               "se 172800 IN NS j.ns.se.",
                "se 172800 IN NS b.ns.se.",
-               "se 172800 IN NS e.ns.se.",
+               "se 172800 IN NS a.ns.se.",
+               "se 172800 IN NS g.ns.se.",
                "se 172800 IN NS d.ns.se.",
-               "se 172800 IN NS c.ns.se.",
+               "se 172800 IN NS j.ns.se.",
                "se 172800 IN NS i.ns.se.",
-               "iis.se 86400 IN NS ns2.nic.se.",
+               "se 172800 IN NS e.ns.se.",
+               "se 172800 IN NS c.ns.se.",
                "iis.se 86400 IN NS ns.nic.se.",
+               "iis.se 86400 IN NS ns2.nic.se.",
                "iis.se 86400 IN NS ns3.nic.se.",
                "iis.se 3600 IN NS ns3.nic.se.",
                "iis.se 3600 IN NS ns2.nic.se.",
@@ -139,25 +443,25 @@
                "i.ns.se 172800 IN AAAA 2001:67c:1010:5:0:0:0:53",
                "j.ns.se 172800 IN AAAA 2001:500:2c:0:0:0:0:1",
                "ns.nic.se 86400 IN A 212.247.7.228",
+               "ns.nic.se 86400 IN AAAA 2a00:801:f0:53:0:0:0:53",
                "ns2.nic.se 86400 IN A 194.17.45.54",
                "ns3.nic.se 86400 IN A 212.247.8.152",
-               "ns.nic.se 86400 IN AAAA 2a00:801:f0:53:0:0:0:53",
                "ns3.nic.se 86400 IN AAAA 2a00:801:f0:211:0:0:0:152"
             ],
             "authority" : [
-               "se 172800 IN NS b.ns.se.",
-               "se 172800 IN NS c.ns.se.",
-               "se 172800 IN NS e.ns.se.",
-               "se 172800 IN NS a.ns.se.",
-               "se 172800 IN NS g.ns.se.",
-               "se 172800 IN NS j.ns.se.",
                "se 172800 IN NS d.ns.se.",
-               "se 172800 IN NS i.ns.se.",
+               "se 172800 IN NS j.ns.se.",
+               "se 172800 IN NS a.ns.se.",
+               "se 172800 IN NS e.ns.se.",
+               "se 172800 IN NS b.ns.se.",
                "se 172800 IN NS f.ns.se.",
-               "iis.se 86400 IN NS ns.nic.se.",
-               "iis.se 86400 IN NS ns2.nic.se.",
+               "se 172800 IN NS g.ns.se.",
+               "se 172800 IN NS c.ns.se.",
+               "se 172800 IN NS i.ns.se.",
                "iis.se 86400 IN NS ns3.nic.se.",
-               "iis.se 3600 IN SOA ns.nic.se. hostmaster.iis.se. (\n\t\t\t\t\t1339399801\t; Serial\n\t\t\t\t\t10800\t; Refresh\n\t\t\t\t\t3600\t; Retry\n\t\t\t\t\t1814400\t; Expire\n\t\t\t\t\t14400 )\t; Minimum TTL"
+               "iis.se 86400 IN NS ns2.nic.se.",
+               "iis.se 86400 IN NS ns.nic.se.",
+               "iis.se 3600 IN SOA ns.nic.se. hostmaster.iis.se. (\n\t\t\t\t\t1340201702\t; Serial\n\t\t\t\t\t10800\t; Refresh\n\t\t\t\t\t3600\t; Retry\n\t\t\t\t\t1814400\t; Expire\n\t\t\t\t\t14400 )\t; Minimum TTL"
             ],
             "header" : {
                "cd" : 0,
@@ -169,6 +473,269 @@
                "qr" : 1,
                "aa" : 1,
                "rd" : 0
+            }
+         }
+      }
+   },
+   "j.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "j.root-servers.net 76783 IN A 192.58.128.30"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "answer" : [
+               "j.root-servers.net 76785 IN AAAA 2001:503:c27:0:0:0:2:30"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "." : {
+      "NS" : {
+         "IN" : {
+            "additional" : [
+               "d.root-servers.net 76784 IN A 128.8.10.90",
+               "d.root-servers.net 76784 IN AAAA 2001:500:2d:0:0:0:0:d",
+               "e.root-servers.net 76784 IN A 192.203.230.10",
+               "f.root-servers.net 76784 IN A 192.5.5.241",
+               "f.root-servers.net 76786 IN AAAA 2001:500:2f:0:0:0:0:f",
+               "g.root-servers.net 76784 IN A 192.112.36.4",
+               "h.root-servers.net 76784 IN A 128.63.2.53",
+               "h.root-servers.net 76786 IN AAAA 2001:500:1:0:0:0:803f:235",
+               "i.root-servers.net 76784 IN A 192.36.148.17",
+               "i.root-servers.net 76786 IN AAAA 2001:7fe:0:0:0:0:0:53",
+               "j.root-servers.net 76784 IN A 192.58.128.30",
+               "j.root-servers.net 76786 IN AAAA 2001:503:c27:0:0:0:2:30",
+               "k.root-servers.net 76784 IN A 193.0.14.129",
+               "e.root-servers.net 76783 IN A 192.203.230.10",
+               "f.root-servers.net 76783 IN A 192.5.5.241",
+               "f.root-servers.net 76785 IN AAAA 2001:500:2f:0:0:0:0:f",
+               "g.root-servers.net 76783 IN A 192.112.36.4",
+               "h.root-servers.net 76783 IN A 128.63.2.53",
+               "h.root-servers.net 76785 IN AAAA 2001:500:1:0:0:0:803f:235",
+               "i.root-servers.net 76783 IN A 192.36.148.17",
+               "i.root-servers.net 76785 IN AAAA 2001:7fe:0:0:0:0:0:53",
+               "j.root-servers.net 76783 IN A 192.58.128.30",
+               "j.root-servers.net 76785 IN AAAA 2001:503:c27:0:0:0:2:30",
+               "k.root-servers.net 76783 IN A 193.0.14.129",
+               "k.root-servers.net 76785 IN AAAA 2001:7fd:0:0:0:0:0:1",
+               "l.root-servers.net 76783 IN A 199.7.83.42"
+            ],
+            "answer" : [
+               ". 76784 IN NS d.root-servers.net.",
+               ". 76784 IN NS e.root-servers.net.",
+               ". 76784 IN NS f.root-servers.net.",
+               ". 76784 IN NS g.root-servers.net.",
+               ". 76784 IN NS h.root-servers.net.",
+               ". 76784 IN NS i.root-servers.net.",
+               ". 76784 IN NS j.root-servers.net.",
+               ". 76784 IN NS k.root-servers.net.",
+               ". 76784 IN NS l.root-servers.net.",
+               ". 76784 IN NS m.root-servers.net.",
+               ". 76784 IN NS a.root-servers.net.",
+               ". 76784 IN NS b.root-servers.net.",
+               ". 76784 IN NS c.root-servers.net.",
+               ". 76783 IN NS e.root-servers.net.",
+               ". 76783 IN NS f.root-servers.net.",
+               ". 76783 IN NS g.root-servers.net.",
+               ". 76783 IN NS h.root-servers.net.",
+               ". 76783 IN NS i.root-servers.net.",
+               ". 76783 IN NS j.root-servers.net.",
+               ". 76783 IN NS k.root-servers.net.",
+               ". 76783 IN NS l.root-servers.net.",
+               ". 76783 IN NS m.root-servers.net.",
+               ". 76783 IN NS a.root-servers.net.",
+               ". 76783 IN NS b.root-servers.net.",
+               ". 76783 IN NS c.root-servers.net.",
+               ". 76783 IN NS d.root-servers.net."
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "e.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "e.root-servers.net 76783 IN A 192.203.230.10"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "authority" : [
+               "root-servers.net 892 IN SOA a.root-servers.net. nstld.verisign-grs.com. (\n\t\t\t\t\t2011060800\t; Serial\n\t\t\t\t\t14400\t; Refresh\n\t\t\t\t\t7200\t; Retry\n\t\t\t\t\t1209600\t; Expire\n\t\t\t\t\t3600000 )\t; Minimum TTL"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "i.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "i.root-servers.net 76783 IN A 192.36.148.17"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "answer" : [
+               "i.root-servers.net 76785 IN AAAA 2001:7fe:0:0:0:0:0:53"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "c.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "c.root-servers.net 76783 IN A 192.33.4.12"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "authority" : [
+               "root-servers.net 892 IN SOA a.root-servers.net. nstld.verisign-grs.com. (\n\t\t\t\t\t2011060800\t; Serial\n\t\t\t\t\t14400\t; Refresh\n\t\t\t\t\t7200\t; Retry\n\t\t\t\t\t1209600\t; Expire\n\t\t\t\t\t3600000 )\t; Minimum TTL"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      }
+   },
+   "l.root-servers.net" : {
+      "A" : {
+         "IN" : {
+            "answer" : [
+               "l.root-servers.net 76783 IN A 199.7.83.42"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
+            }
+         }
+      },
+      "AAAA" : {
+         "IN" : {
+            "answer" : [
+               "l.root-servers.net 76785 IN AAAA 2001:500:3:0:0:0:0:42"
+            ],
+            "header" : {
+               "cd" : 0,
+               "rcode" : "NOERROR",
+               "tc" : 0,
+               "opcode" : "QUERY",
+               "ad" : 0,
+               "ra" : 1,
+               "qr" : 1,
+               "aa" : 0,
+               "rd" : 1
             }
          }
       }
