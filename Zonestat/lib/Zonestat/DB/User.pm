@@ -18,7 +18,7 @@ sub login {
     return unless ( $name and $pwd );
 
     my $user = $self->by_id( $name );
-    return unless $user;
+    return unless $user && $user->{user} && $user->{user}{password};
 
     if ( sha1_hex( $user->{user}{salt} . $pwd ) eq $user->{user}{password} ) {
         return $user;

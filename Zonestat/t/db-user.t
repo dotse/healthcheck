@@ -27,4 +27,10 @@ $u->set_password('testuser', 'newpassword');
 $loggedin = $u->login('testuser', 'newpassword');
 is_deeply($user, $loggedin, 'Logged in with new password after changing it.');
 
+my $nobody = $zs->user->login('nosuchuser', 'justsomething');
+is($nobody, undef);
+
+my $some = $zs->user->login('someuser', 'somepwd');
+isa_ok($some, 'Zonestat::DB::User');
+
 done_testing();
