@@ -34,7 +34,9 @@ foreach my $dbname ( keys %$fix ) {
     $db->bulkStore(\@docs);
 }
 
-ok $zs->user->create('someuser', 'somepwd', 'Some User', 'some@example.org');
+eval {
+    ok $zs->user->create('someuser', 'somepwd', 'Some User', 'some@example.org');
+};
 
 # $zs->prepare->update_asn_table_from_ripe;
 
