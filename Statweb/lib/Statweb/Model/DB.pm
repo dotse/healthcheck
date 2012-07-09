@@ -26,7 +26,7 @@ has 'zs' => (
 );
 
 sub _build_zs {
-    return Zonestat->new;
+    return Zonestat->new($ENV{ZONESTAT_CONFIG_FILE});
 }
 
 

@@ -1,6 +1,8 @@
 use Test::More;
 use Test::WWW::Mechanize::Catalyst;
 
+$ENV{ZONESTAT_CONFIG_FILE} = 't/config/Config';
+
 my $mech = Test::WWW::Mechanize::Catalyst->new( catalyst_app => 'Statweb');
 
 $mech->get_ok('/');
