@@ -1,0 +1,20 @@
+test: data
+
+dbi:
+    user: zonestat
+    host: "127.0.0.1"
+
+couchdb:
+    url: "http://127.0.0.1:5984/"
+    username: ~
+    password: ~
+    dbprefix: "zstat"
+
+daemon:
+    geoip: "t/config/GeoLiteCity.dat"
+
+zonestat:
+    python: "t/bin/pageanalyze_mock.pl"
+    pageanalyzer: "/tmp"
+    sslscan: "t/bin/sslscan_mock.pl"
+    whatweb: "t/bin/whatweb_mock.pl"
