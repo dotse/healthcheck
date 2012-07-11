@@ -45,8 +45,8 @@ sub show :Chained('index') :Args(1) :PathPart('page') {
     }
 
     $c->stash->{tests} = \@tests;
-    $c->stash->{nextkey} = $nextkey->{domain} if $nextkey->{testrun} == $c->stash->{run}->id;
-    $c->stash->{prevkey} = $prevkey->{domain} if $prevkey->{testrun} == $c->stash->{run}->id;
+    $c->stash->{nextkey} = $nextkey->{domain} if ($nextkey->{testrun} and $nextkey->{testrun} == $c->stash->{run}->id);
+    $c->stash->{prevkey} = $prevkey->{domain} if ($prevkey->{testrun} and $prevkey->{testrun} == $c->stash->{run}->id);
     $c->stash(template => 'testrun/show.tt');
 }
 
