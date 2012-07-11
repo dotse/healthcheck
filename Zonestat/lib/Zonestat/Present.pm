@@ -108,7 +108,7 @@ sub webservers_by_charset {
             startkey => [ 0 + $tr, $protocol, undef ],
             endkey   => [ 0 + $tr, $protocol, 'zzzzzzzzzzzzzzzzzzzz' ],
         );
-        $res{$tr} = { map { $_->{key}[2] => $_->{value} } @{ $tmp->{rows} } };
+        $res{$tr} = { map { ($_->{key}[2] || 0) => $_->{value} } @{ $tmp->{rows} } };
     }
 
     return %res;

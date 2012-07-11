@@ -46,7 +46,7 @@ sub auto : Private {
     }
 
     $c->forward('left_bar');
-    $c->{zs}   = Zonestat->new;
+    $c->{zs}   = Zonestat->new($ENV{ZONESTAT_CONFIG_FILE});
     $c->{user} = $c->{zs}->user($c->session->{user_id});
 }
 

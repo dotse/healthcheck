@@ -115,7 +115,7 @@
             [% FOREACH tr IN trs -%]
                 <td class="numeric">
                     <a href="[% c.uri_for('view_by_level',level,tr.id) %]">
-                        [% 0 + severity.${tr.id}.$level %]
+                        [% 0 + (severity.${tr.id}.$level || 0 ) %]
                     </a>
                 </td>
             [% END -%]
