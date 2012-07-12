@@ -24,6 +24,10 @@ is_deeply [ sort map { $_->url } $mech->followable_links ], [ 'http://localhost/
 $mech->content_lacks( '<li class="selected">' );
 $mech->get_ok( '/toggletestrun/1' );
 $mech->content_contains( '<li class="selected">' );
+$mech->get_ok('/clearselection');
+$mech->content_lacks( '<li class="selected">' );
+$mech->get_ok( '/toggletestrun/1' );
+$mech->content_contains( '<li class="selected">' );
 
 $mech->get_ok( '/testrun/1' );
 $mech->content_contains( '<h1>Testrun testset 2012-06-14 14:50</h1>' );
@@ -43,6 +47,9 @@ $mech->text_contains( 'Top 25 Nameservers for each runtestset 2012-06-14 14:50Co
 
 $mech->get_ok( '/showstats/webpages' );
 $mech->text_contains( 'Apache 40.0%' );
+
+$mech->get_ok('/showstats/view_by_level/error/1');
+$mech->content_contains('<td class="numeric">137</td>');
 
 $mech->get_ok('/csv/webserver_software_http');
 $mech->content_contains('"Microsoft IIS",1');
@@ -75,6 +82,25 @@ is($mech->ct, 'text/comma-separated-values', 'Correct Content-Type');
 $mech->get_ok('/csv/webserver_charset_https');
 $mech->content_contains('utf-8,1');
 is($mech->ct, 'text/comma-separated-values', 'Correct Content-Type');
+
+$mech->get_ok('/domainset/testset');
+$mech->text_contains('handelsbanken.se');
+$mech->get_ok('/domainset/testset/delete/handelsbanken.se');
+$mech->text_lacks('handelsbanken.se');
+$mech->post_ok('/domainset/testset/add',{domainname => 'handelsbanken.se'});
+$mech->text_contains('handelsbanken.se');
+$mech->post_ok('/domainset/create', {name => 'newset'});
+$mech->content_contains('newset');
+
+$mech->get_ok('/tests/1/handelsbanken.se');
+$mech->content_contains('SOA:TTL_OK');
+
+$mech->get_ok('/enqueue/testset');
+$mech->text_contains('Queue Length5');
+
+$mech->get('/supercalifragilisticexpialidocious');
+ok(!$mech->success, 'Failed to get non-existant URL');
+is($mech->status, 404, 'Response to above is 404');
 
 $mech->get_ok( '/user/logout' );
 $mech->title_like( qr'.SE | H..?lsol..?get i Sverige' );
