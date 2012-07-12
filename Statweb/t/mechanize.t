@@ -44,6 +44,38 @@ $mech->text_contains( 'Top 25 Nameservers for each runtestset 2012-06-14 14:50Co
 $mech->get_ok( '/showstats/webpages' );
 $mech->text_contains( 'Apache 40.0%' );
 
+$mech->get_ok('/csv/webserver_software_http');
+$mech->content_contains('"Microsoft IIS",1');
+is($mech->ct, 'text/comma-separated-values', 'Correct Content-Type');
+
+$mech->get_ok('/csv/webserver_software_https');
+$mech->content_contains('Apache,1');
+is($mech->ct, 'text/comma-separated-values', 'Correct Content-Type');
+
+$mech->get_ok('/csv/webserver_response_http');
+$mech->content_contains('200,5');
+is($mech->ct, 'text/comma-separated-values', 'Correct Content-Type');
+
+$mech->get_ok('/csv/webserver_response_https');
+$mech->content_contains('200,2');
+is($mech->ct, 'text/comma-separated-values', 'Correct Content-Type');
+
+$mech->get_ok('/csv/webserver_content_http');
+$mech->content_contains('text/html,5');
+is($mech->ct, 'text/comma-separated-values', 'Correct Content-Type');
+
+$mech->get_ok('/csv/webserver_content_https');
+$mech->content_contains('text/html,2');
+is($mech->ct, 'text/comma-separated-values', 'Correct Content-Type');
+
+$mech->get_ok('/csv/webserver_charset_http');
+$mech->content_contains('utf-8,4');
+is($mech->ct, 'text/comma-separated-values', 'Correct Content-Type');
+
+$mech->get_ok('/csv/webserver_charset_https');
+$mech->content_contains('utf-8,1');
+is($mech->ct, 'text/comma-separated-values', 'Correct Content-Type');
+
 $mech->get_ok( '/user/logout' );
 $mech->title_like( qr'.SE | H..?lsol..?get i Sverige' );
 $mech->text_contains( 'Username:' );
