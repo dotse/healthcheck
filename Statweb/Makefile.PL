@@ -36,3 +36,12 @@ catalyst;
 install_script glob('script/*.pl');
 auto_install;
 WriteAll;
+
+sub MY::postamble {
+    return <<EOF;
+coverage:
+	cover -delete
+	HARNESS_PERL_SWITCHES=-MDevel::Cover=+ignore,Zonestat make test
+	cover
+EOF
+}
