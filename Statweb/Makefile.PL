@@ -28,6 +28,7 @@ requires (qw[
             Data::Dumper
             List::Util
             Text::CSV_XS
+            Test::WWW::Mechanize::Catalyst
             ]);
 
 catalyst;
