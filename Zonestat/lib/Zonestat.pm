@@ -29,7 +29,7 @@ sub new {
     my $class = shift;
     my $self = bless {}, $class;
 
-    unless ( @_ ) {
+    unless ( @_ and $_[0] ) {
         @_ = ( $Config{siteprefix} . '/share/zonestat/config' );
     }
 
