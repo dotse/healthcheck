@@ -106,6 +106,13 @@ sub webinfo {
             $ip =~ s/:\d+$//;
         }
 
+        # Store headers in raw form
+        my $headers_aref = [];
+        $res->headers->scan( sub {
+            my ($name, $content) = @_;
+            push @{$headers_aref}, [$name, $content];
+        } );
+
         my $issuer;
 
         if ( $https and $ssl ) {
@@ -131,6 +138,7 @@ sub webinfo {
                         ending_tld     => $tld,
                         robots_txt     => $robots,
                         ip             => $ip,
+                        headers        => $headers_aref,
                     };
 
                     next DOMAIN;
@@ -154,6 +162,8 @@ sub webinfo {
         $tmp{robots_txt}     = $robots;
         $tmp{ip}             = $ip;
         $tmp{issuer}         = $issuer;
+        $tmp{headers}        = $headers_aref;
+
         $res{ $https ? 'https' : 'http' } = \%tmp;
     }
 
