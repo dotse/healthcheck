@@ -119,7 +119,13 @@ sub asdata {
 sub dbconfig {
     my $self = shift;
 
-    return $self->{conf}->get( 'couchdb' );
+    my $c = $self->{conf}->get( 'couchdb' );
+
+    if (!$c) { # If we can't find a config, default to localhost
+        return {url => 'http://127.0.0.1:5984/'};
+    }
+
+    return $c;
 }
 
 sub dbconn {
