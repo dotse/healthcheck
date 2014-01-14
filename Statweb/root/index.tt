@@ -29,7 +29,7 @@
 
 </p>
 
-<form method="POST" action="/clearselection">
+<form method="POST" action="[% c.uri_for('/clearselection') %]">
     <input type="submit" name="Clear" value="Unselect all selected">
 </form>
 
@@ -56,7 +56,7 @@
                         [% ELSE -%]
                         <li class="unselected">
                         [% END -%]
-                            <a href="[% c.uri_for('/testrun', tr.id) %]">[% tr.name %]</a>, [% tr.test_count -%] tests.
+                            <a href="[% c.uri_for('/testrun', tr.id) %]">[% tr.name %]</a>.
                             <a href="[% c.uri_for('/toggletestrun', tr.id) %]">(toggle)</a>
                         </li>
                         [% END -%]
