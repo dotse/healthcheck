@@ -15,7 +15,4 @@ is($stdout, '');
 is($stderr, '');
 ok(time() - $before < 3);
 
-my $dc = dnscheck();
-$dc->smtp->test('something');
-
 done_testing;

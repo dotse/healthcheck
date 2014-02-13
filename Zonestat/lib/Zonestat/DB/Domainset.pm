@@ -6,8 +6,14 @@ use warnings;
 
 use base 'Zonestat::DB::Common';
 
-use Digest::SHA1 qw[sha1_hex];
+use Digest;
 use Try::Tiny;
+
+sub sha1_hex {
+    my ($string) = @_;
+
+    return Digest->new("SHA1")->add($string)->hexdigest;
+}
 
 sub all_sets {
     my $self = shift;

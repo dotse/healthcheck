@@ -6,11 +6,17 @@ use utf8;
 use warnings;
 
 use base 'Zonestat::DB::Common';
-use Digest::SHA1 'sha1_hex';
+use Digest;
 use Try::Tiny;
 use Carp;
 
 our $VERSION = '0.02';
+
+sub sha1_hex {
+    my ($string) = @_;
+
+    return Digest->new("SHA1")->add($string)->hexdigest;
+}
 
 sub login {
     my ( $self, $name, $pwd ) = @_;

@@ -1,9 +1,6 @@
 use Test::More;
 use lib 't/lib';
 
-use MockResolver 'collect-dnscheck';
-# use MockBootstrap 'collect-dnscheck';
-
 BEGIN{
     use_ok('Zonestat');
     use_ok('Zonestat::Collect::DNSCheck');
@@ -16,8 +13,8 @@ my ($name1, $data1, $name2, $data2, $name3, $data3) = Zonestat::Collect::DNSChec
 is($name1, 'dnscheck');
 is($name2, 'mailservers');
 is($name3, 'geoip');
-ok(scalar(@$data1) > 170);
-is(scalar(@$data2), 4);
-is(scalar(@$data3), 14);
+ok(scalar(@$data1) >= 150, 'enough dnscheck');
+ok(scalar(@$data2) >= 4, 'correct mailservers');
+ok(scalar(@$data3) >= 14, 'correct geoip');
 
 done_testing;

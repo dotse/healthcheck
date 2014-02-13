@@ -17,6 +17,15 @@ our $dc    = dnscheck;
 our $dns   = $dc->dns;
 our $asn   = $dc->asn;
 
+sub lookup {
+    my ( $ip ) = @_;
+
+    my @aslist = $asn->asdata();
+    my $as = $aslist[0][0][0];
+
+    return $as;
+}
+
 sub collect {
     my ($self, $domain, $parent) = @_;
     my %res;
@@ -77,7 +86,7 @@ sub extract_hosts {
                 domain  => $r->{args}[0],
                 name    => $r->{args}[2],
                 address => $r->{args}[3],
-                asn     => $asn->lookup( $r->{args}[3] ),
+                asn     => lookup( $r->{args}[3] ),
               };
         }
     }
@@ -185,7 +194,7 @@ sub geoip {
               {
                 address   => $ns->{address},
                 ipversion => $ipversion,
-                asn       => $asn->lookup( $ns->{address} ),
+                asn       => lookup( $ns->{address} ),
                 type      => 'nameserver',
                 country   => $g->country_name,
                 code      => $g->country_code,
@@ -200,7 +209,7 @@ sub geoip {
               {
                 address   => $ns->{address},
                 ipversion => $ipversion,
-                asn       => $asn->lookup( $ns->{address} ),
+                asn       => lookup( $ns->{address} ),
                 type      => 'nameserver',
                 country   => undef,
                 code      => undef,
@@ -223,7 +232,7 @@ sub geoip {
                   {
                     address   => $addr,
                     ipversion => $ipversion,
-                    asn       => $asn->lookup( $addr ),
+                    asn       => lookup( $addr ),
                     type      => 'mailserver',
                     country   => $g->country_name,
                     code      => $g->country_code,
@@ -238,7 +247,7 @@ sub geoip {
                   {
                     address   => $addr,
                     ipversion => $ipversion,
-                    asn       => $asn->lookup( $addr ),
+                    asn       => lookup( $addr ),
                     type      => 'mailserver',
                     country   => undef,
                     code      => undef,
@@ -261,7 +270,7 @@ sub geoip {
               {
                 address   => $ws->{address},
                 ipversion => $ipversion,
-                asn       => $asn->lookup( $ws->{address} ),
+                asn       => lookup( $ws->{address} ),
                 type      => 'webserver',
                 country   => $g->country_name,
                 code      => $g->country_code,
@@ -276,7 +285,7 @@ sub geoip {
               {
                 address   => $ws->{address},
                 ipversion => $ipversion,
-                asn       => $asn->lookup( $ws->{address} ),
+                asn       => lookup( $ws->{address} ),
                 type      => 'webserver',
                 country   => undef,
                 code      => undef,
