@@ -1,42 +1,7 @@
 #!/usr/bin/env perl
 
-BEGIN { $ENV{CATALYST_ENGINE} ||= 'FastCGI' }
-
-use lib '/home/calle/Src/hc_couch/Statweb/blib/lib';
-use lib '/home/calle/Src/hc_couch/Zonestat/blib/lib';
-use strict;
-use warnings;
-use Getopt::Long;
-use Pod::Usage;
-use FindBin;
-use lib "$FindBin::Bin/../lib";
-use Statweb;
-
-my $help = 0;
-my ($listen, $nproc, $pidfile, $manager, $detach, $keep_stderr);
-
-GetOptions(
-    'help|?'      => \$help,
-    'listen|l=s'  => \$listen,
-    'nproc|n=i'   => \$nproc,
-    'pidfile|p=s' => \$pidfile,
-    'manager|M=s' => \$manager,
-    'daemon|d'    => \$detach,
-    'keeperr|e'   => \$keep_stderr,
-);
-
-pod2usage(1) if $help;
-
-Statweb->run(
-    $listen,
-    {
-        nproc       => $nproc,
-        pidfile     => $pidfile,
-        manager     => $manager,
-        detach      => $detach,
-        keep_stderr => $keep_stderr,
-    }
-);
+use Catalyst::ScriptRunner;
+Catalyst::ScriptRunner->run('Statweb', 'FastCGI');
 
 1;
 
@@ -49,26 +14,27 @@ statweb_fastcgi.pl - Catalyst FastCGI
 statweb_fastcgi.pl [options]
 
  Options:
-   -? -help      display this help and exits
-   -l -listen    Socket path to listen on
+   -? --help      display this help and exit
+   -l --listen   socket path to listen on
                  (defaults to standard input)
                  can be HOST:PORT, :PORT or a
                  filesystem path
-   -n -nproc     specify number of processes to keep
+   -n --nproc    specify number of processes to keep
                  to serve requests (defaults to 1,
-                 requires -listen)
-   -p -pidfile   specify filename for pid file
-                 (requires -listen)
-   -d -daemon    daemonize (requires -listen)
-   -M -manager   specify alternate process manager
+                 requires --listen)
+   -p --pidfile  specify filename for pid file
+                 (requires --listen)
+   -d --daemon   daemonize (requires --listen)
+   -M --manager  specify alternate process manager
                  (FCGI::ProcManager sub-class)
                  or empty string to disable
-   -e -keeperr   send error messages to STDOUT, not
+   -e --keeperr  send error messages to STDOUT, not
                  to the webserver
+   --proc_title  Set the process title (if possible)
 
 =head1 DESCRIPTION
 
-Run a Catalyst application as fastcgi.
+Run a Catalyst application as FastCGI.
 
 =head1 AUTHORS
 
