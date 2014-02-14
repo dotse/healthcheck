@@ -45,7 +45,7 @@ $mech->text_like( qr/ADDRESS:PTR_NOT_FOUND[^%]+20\.00%/ ) if $version >= 0.58;
 
 $mech->get_ok( '/showstats/servers' );
 $mech->title_is( 'Mail-, HTTP- and DNS-server Statistics' );
-$mech->text_contains( 'Top 25 Nameservers for each runtestset 2012-06-14 14:50CountReverse lookupLocation22a00:801:f0:211:0:0:0:152' ) if $version >= 0.58;
+$mech->text_contains( 'Top 25 Nameservers for each runtestset 2012-06-14 ' ) if $version >= 0.58;
 
 $mech->get_ok( '/showstats/webpages' );
 $mech->text_contains( 'Apache 40.0%' ) if $version >= 0.58;

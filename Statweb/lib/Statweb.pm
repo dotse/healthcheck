@@ -22,7 +22,6 @@ use Catalyst qw/
   Session::Store::FastMmap
   Session::State::Cookie
 
-  Unicode::Encoding
   /;
 our $VERSION = '0.01';
 
