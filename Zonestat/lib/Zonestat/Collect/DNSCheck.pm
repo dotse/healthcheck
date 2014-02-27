@@ -20,7 +20,7 @@ our $asn   = $dc->asn;
 sub lookup {
     my ( $ip ) = @_;
 
-    my @aslist = $asn->asdata($ip);
+    my @aslist = $asn->asdata( $ip );
     my $as = $aslist[0][0][0];
 
     return $as;
