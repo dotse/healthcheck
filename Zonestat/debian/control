@@ -6,7 +6,7 @@ Build-Depends-Indep: perl, libio-socket-ssl-perl, libyaml-perl,
   libnet-libidn-perl, libxml-simple-perl, libjson-xs-perl,
   libcouchdb-client-perl (>= 0.1), libgeo-ip-perl,
   libwww-perl (>= 5.824), libtext-csv-xs-perl,
-  libconfig-any-perl (>= 0.18), libdnscheck-perl
+  libconfig-any-perl (>= 0.18), libdnscheck-perl, libmodule-find-perl,libdigest-sha1-perl
 Maintainer: Calle Dybedahl <calle@ubuntu.localdomain>
 Standards-Version: 3.8.3
 Homepage: http://github.com/dotse/healthcheck
@@ -17,7 +17,7 @@ Depends: ${perl:Depends}, ${misc:Depends}, libio-socket-ssl-perl,
   libyaml-perl, libnet-libidn-perl, libxml-simple-perl,
   libjson-xs-perl, libcouchdb-client-perl (>= 0.1),
   libgeo-ip-perl, libwww-perl (>= 5.824), libtext-csv-xs-perl,
-  libconfig-any-perl (>= 0.18), couchdb (>= 1.4.0)
+  libconfig-any-perl (>= 0.18), couchdb (>= 1.4.0), libmodule-find-perl,libdigest-sha1-perl
 Description: gather and present statistics for a DNS zone
  Zonestat is the main entry point for the Zonestat system.
  .

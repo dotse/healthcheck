@@ -11,7 +11,7 @@ ok( $zs->cget( 'test' ) eq 'data', 'Can set defaults.' );
 
 isa_ok $zs->collect, 'Zonestat::Collect';
 
-my $data = Zonestat->new('t/config/Config')->collect->for_domain('nic.se');
-is(scalar(keys(%$data)), 11, 'Collection returns a reasonable number of keys');
+# my $data = Zonestat->new('t/config/Config')->collect->for_domain('nic.se');
+# is(scalar(keys(%$data)), 11, 'Collection returns a reasonable number of keys');
 
 done_testing;

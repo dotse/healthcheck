@@ -1,0 +1,15 @@
+Source: libstatweb-perl
+Section: perl
+Priority: optional
+Build-Depends: debhelper (>= 7)
+Build-Depends-Indep: perl, libzonestat-perl, libfile-copy-recursive-perl,libcatalyst-modules-perl
+Maintainer: Calle Dybedahl <calle@ubuntu.localdomain>
+Standards-Version: 3.8.3
+Homepage: http://github.com/dotse/healthcheck
+
+Package: libstatweb-perl
+Architecture: all
+Depends: ${perl:Depends}, ${misc:Depends}, libzonestat-perl, libfile-copy-recursive-perl,libcatalyst-modules-perl
+Description: gather and present statistics for a DNS zone
+ Zonestat is the main entry point for the Zonestat system.
+ .
