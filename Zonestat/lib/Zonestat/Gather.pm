@@ -190,7 +190,7 @@ sub requeue {
         catch {
             $count++;
             if ( $count > 5 ) {
-                die "Failed to requeue $id";
+                die "Failed to fetch $id for requeue";
             }
             sleep $delay;
             $delay *= 2;
@@ -211,7 +211,8 @@ sub requeue {
             catch {
                 $count++;
                 if ( $count > 5 ) {
-                    die "Failed to requeue $id";
+                    warn "Failed to requeue $id";
+		    exit(0);
                 }
                 sleep $delay;
                 $delay *= 2;
@@ -220,14 +221,7 @@ sub requeue {
         return 1;
     }
     else {
-        if ( $doc->data->{source_data} ) {
-            my $newdoc = $self->db( 'zonestat' )->newDoc( $doc->data->{source_data} . '-' . $doc->data->{domain} );
-            $newdoc->data->{failed}  = 1;
-            $newdoc->data->{domain}  = $doc->data->{domain};
-            $newdoc->data->{testrun} = 0 + $doc->data->{source_data};
-            $newdoc->create;
-            $doc->delete;
-        }
+        $doc->delete;
         return;
     }
 }
