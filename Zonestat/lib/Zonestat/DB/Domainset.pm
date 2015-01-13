@@ -38,6 +38,13 @@ sub name {
     return ( $self->{name} || '' );
 }
 
+sub size {
+    my ( $self ) = @_;
+    my $dbp  = $self->dbproxy( 'zonestat-dset' );
+
+    return $dbp->util_set( group => 1, key => $self->name )->{rows}[0]{value};
+}
+
 sub db {
     my $self = shift;
     my $name = shift || 'zonestat-dset';
@@ -232,6 +239,10 @@ Returns a list of all the full data hashes for the domains in this set.
 =item clear()
 
 Remove all domains from the set.
+
+=item size()
+
+Returns the number of names in the domainset.
 
 =item testruns()
 
