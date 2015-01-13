@@ -39,7 +39,7 @@
         <td>
             <table>
                 <tr>
-                    <th><a href="[% c.uri_for('/domainset', d.name) %]">[% d.name %]</a></th>
+                    <th><a href="[% c.uri_for('/domainset', d.name) %]">[% d.name %]</a>, with [% d.size %] domains</th>
                 </tr>
                 <tr>
                     <th class="commands">
